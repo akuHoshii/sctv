@@ -1,39 +1,19 @@
 
-
-```markdown
 <div align="center">
 
 <br />
 
-```
-██╗  ██╗ ██████╗ ███████╗██╗  ██╗██╗
-██║  ██║██╔═══██╗██╔════╝██║  ██║██║
-███████║██║   ██║███████╗███████║██║
-██╔══██║██║   ██║╚════██║██╔══██║██║
-██║  ██║╚██████╔╝███████║██║  ██║██║
-╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚═╝  ╚═╝╚═╝
-```
+H O S H I
 
-**Admin Development Tools**
-
-*Terminal-grade development and debugging suite for private Roblox map testing.*
+*just pribadi.*
 
 <br />
 
 [![Version](https://img.shields.io/badge/version-2.1.0-00ffa0?style=for-the-badge&logo=semver&logoColor=white)](https://github.com/username/hoshi/releases)
 [![Lua](https://img.shields.io/badge/Lua-5.1+-2C2D72?style=for-the-badge&logo=lua&logoColor=white)](https://www.lua.org/)
-[![Roblox](https://img.shields.io/badge/Roblox-Studio-00A2FF?style=for-the-badge&logo=roblox&logoColor=white)](https://www.roblox.com/)
-[![License](https://img.shields.io/badge/license-MIT-00ffa0?style=for-the-badge&logo=opensourceinitiative&logoColor=white)](LICENSE)
 [![Status](https://img.shields.io/badge/status-Active-00ffa0?style=for-the-badge)](#)
 
 <br />
-
-![Stars](https://img.shields.io/github/stars/username/hoshi?style=flat-square&color=00ffa0&logo=github)
-![Forks](https://img.shields.io/github/forks/username/hoshi?style=flat-square&color=00c8ff&logo=github)
-![Issues](https://img.shields.io/github/issues/username/hoshi?style=flat-square&color=dc3232&logo=github)
-![Last Commit](https://img.shields.io/github/last-commit/username/hoshi?style=flat-square&color=b482ff&logo=git&logoColor=white)
-![Maintained](https://img.shields.io/badge/maintained-yes-00ffa0?style=flat-square)
-![Downloads](https://img.shields.io/github/downloads/username/hoshi/total?style=flat-square&color=00c8ff&logo=github)
 
 <br />
 
@@ -45,34 +25,32 @@
 
 <br />
 
-## Table of Contents
+## 📑 Table of Contents
 
-```
-00  Introduction
-01  Design Principles
-02  Feature Matrix
-03  System Architecture
-04  Module Documentation
-    04.1  ESP Player
-    04.2  Teleport Safety
-    04.3  Speed Controller
-    04.4  POV Circle
-    04.5  On Point
-    04.6  Notification System
-    04.7  Cleanup System
-05  UI & Design System
-06  Project Structure
-07  Installation
-08  Usage & Workflows
-09  Configuration Reference
-10  Performance & Optimization
-11  Roadmap
-12  FAQ
-13  Contributing
-14  License
-15  Developer
-16  Credits
-```
+- [00 — Introduction](#00--introduction)
+- [01 — Design Principles](#01--design-principles)
+- [02 — Feature Matrix](#02--feature-matrix)
+- [03 — System Architecture](#03--system-architecture)
+- [04 — Module Documentation](#04--module-documentation)
+  - [04.1 ESP Player](#041--esp-player)
+  - [04.2 Teleport Safety](#042--teleport-safety)
+  - [04.3 Speed Controller](#043--speed-controller)
+  - [04.4 POV Circle](#044--pov-circle)
+  - [04.5 On Point](#045--on-point)
+  - [04.6 Notification System](#046--notification-system)
+  - [04.7 Cleanup System](#047--cleanup-system)
+  - [05 — UI & Design System](#05--ui--design-system)
+  - [06 — Project Structure](#06--project-structure)
+  - [07 — Installation](#07--installation)
+  - [08 — Usage & Workflows](#08--usage--workflows)
+  - [09 — Configuration Reference](#09--configuration-reference)
+  - [10 — Performance & Optimization](#10--performance--optimization)
+  - [11 — Roadmap](#11--roadmap)
+  - [12 — FAQ](#12--faq)
+  - [13 — Contributing](#13--contributing)
+  - [14 — License](#14--license)
+  - [15 — Developer](#15--developer)
+  - [16 — Credits](#16--credits)
 
 <br />
 
@@ -82,9 +60,9 @@
 
 ## 00 — Introduction
 
-**Hoshi** is a terminal-styled, in-game development toolkit built for private Roblox map development. It provides real-time spatial debugging, automated safety systems, movement testing, camera observation, and hitbox analysis through a monospace interface that feels like a developer console rather than a game overlay.
+**Hoshi** is a terminal-styled, in-game development toolkit built specifically for private Roblox map development. It provides real-time spatial debugging, automated safety systems, movement testing, camera observation, and hitbox analysis—all through a monospace interface that feels more like a developer console than a game overlay.
 
-The name *Hoshi* means "star" — a fixed point of reference you can always orient yourself by during chaotic development sessions.
+The name *Hoshi* (星) means "star" in Japanese—a fixed point of reference you can always orient yourself by during chaotic development sessions.
 
 ```
 $ hoshi --status
@@ -96,7 +74,7 @@ FPS:     stable
 ```
 
 > [!NOTE]
-> Hoshi is designed **solely for private map development**. It is a developer tool for use on games you own and build. The `loadstring` loader is a standard development pattern for remote script loading and hot-updating during iterative development — it is not a gameplay feature.
+> Hoshi is designed **solely for private map development**. It is a developer tool intended for use on games you own and build. The `loadstring` loader is a standard development pattern for remote script loading and hot-updating during iterative development—it is not a gameplay feature.
 
 <br />
 
@@ -111,24 +89,24 @@ Hoshi is built on five non-negotiable engineering principles. Every line of code
 ```
 PRINCIPLE                DESCRIPTION
 ─────────────────────────────────────────────────────────────
-Developer-First          Features solve real dev problems.
+Developer-First          Features solve real development problems.
                          No bloat. No toys. Just tools.
 
-Zero-Cost Idle           Disabled modules consume exactly
-                         zero CPU cycles. No polling. No
-                         background loops. Nothing.
+Zero-Cost Idle           Disabled modules consume exactly zero CPU
+                         cycles. No polling. No background loops.
+                         Nothing.
 
-Terminal Aesthetic        Monospace fonts. Bracket notation.
-                         Timestamp logging. Boot sequences.
-                         Information density over decoration.
+Terminal Aesthetic       Monospace fonts. Bracket notation. Timestamp
+                         logging. Boot sequences. Information density
+                         over decoration.
 
-Clean Teardown           Every connection tracked. Every
-                         instance registered. Full cleanup
-                         guaranteed on exit or reload.
+Clean Teardown           Every connection tracked. Every instance
+                         registered. Full cleanup guaranteed on exit
+                         or reload.
 
-Readable Architecture    Commented functions. Meaningful
-                         variable names. Consistent module
-                         patterns. Maintainable at 3 AM.
+Readable Architecture    Commented functions. Meaningful variable
+                         names. Consistent module patterns.
+                         Maintainable at 3 AM.
 ─────────────────────────────────────────────────────────────
 ```
 
@@ -145,12 +123,12 @@ Readable Architecture    Commented functions. Meaningful
 | Module | Status | Runtime Cost | Description |
 |:-------|:------:|:------------:|:------------|
 | **ESP Player** | `STABLE` | ~0.3ms/frame | Full player visualization with box, name, distance, health, and role-based color coding |
-| **Teleport Safety** | `STABLE` | ~0.1ms/frame | Directional flee system — detects nearest Killer and teleports admin away by configurable distance |
+| **Teleport Safety** | `STABLE` | ~0.1ms/frame | Directional flee system—detects nearest Killer and teleports admin away by configurable distance |
 | **Speed Controller** | `STABLE` | 0ms (event) | Real-time WalkSpeed multiplier with slider, text input, and respawn persistence |
 | **POV Circle** | `STABLE` | ~0.05ms/frame | Center-screen crosshair overlay with spectation camera system |
-| **On Point** | `STABLE` | ~0.2ms/frame | Dual-detection debug system — screen-space POV check AND 3D damage radius with billboard indicators |
+| **On Point** | `STABLE` | ~0.2ms/frame | Dual-detection debug system—screen-space POV check AND 3D damage radius with billboard indicators |
 | **Notifications** | `STABLE` | negligible | Terminal-styled toast system with timestamps, type prefixes, and progress bars |
-| **Cleanup** | `STABLE` | one-shot | Full resource teardown — connections, instances, state, camera, speed |
+| **Cleanup** | `STABLE` | one-shot | Full resource teardown—connections, instances, state, camera, speed |
 | **Hot Reload** | `STABLE` | one-shot | Anti-duplicate with automatic previous-instance cleanup |
 
 </div>
@@ -186,7 +164,7 @@ hoshi.lua
 │   ├── GetRootPart()                    Safe character root accessor
 │   ├── GetHumanoid()                    Safe humanoid accessor
 │   ├── GetRole()                        Multi-source role detection
-│   ├── FindFleePosition()              Directional raycast flee calc
+│   ├── FindFleePosition()              Directional raycast flee calculation
 │   └── UI helpers                       Corner, Stroke, Padding, etc.
 │
 ├── [3]  NOTIFICATION ────────────────── Terminal toast engine
@@ -219,7 +197,7 @@ hoshi.lua
 │
 ├── [8]  TELEPORT MODULE ─────────────── Directional flee system
 │   ├── Start() / Stop()                 Lifecycle control
-│   └── Heartbeat loop                   Proximity scan + flee exec
+│   └── Heartbeat loop                   Proximity scan + flee execution
 │
 ├── [9]  SPEED MODULE ────────────────── WalkSpeed multiplier
 │   └── Apply()                          Direct property write
@@ -501,7 +479,7 @@ Color        Green      8 presets    Applied to all elements
 
 **Spectation System:**
 
-The spectation system redirects the camera to follow a selected player by changing `Camera.CameraSubject` to their Humanoid. The admin's own character stays in the world — unaffected, unmoved.
+The spectation system redirects the camera to follow a selected player by changing `Camera.CameraSubject` to their Humanoid. The admin's own character stays in the world—unaffected, unmoved.
 
 ```
 SPECTATE ON:   Camera.CameraSubject = TargetHumanoid
@@ -512,7 +490,7 @@ Note: POV circle stays centered regardless of spectate state.
 ```
 
 > [!NOTE]
-> The crosshair is rendered as a ScreenGui element with `AnchorPoint = (0.5, 0.5)` and `Position = (0.5, 0, 0.5, 0)`. It is mathematically centered on the viewport at all times, on all screen resolutions. It does not "follow" anything — it IS the center point. When spectating, the camera moves; the crosshair stays fixed.
+> The crosshair is rendered as a ScreenGui element with `AnchorPoint = (0.5, 0.5)` and `Position = (0.5, 0, 0.5, 0)`. It is mathematically centered on the viewport at all times, on all screen resolutions. It does not "follow" anything—it IS the center point. When spectating, the camera moves; the crosshair stays fixed.
 
 <br />
 
@@ -529,7 +507,7 @@ COST:     ~0.2ms/frame (scales with detected targets)
 
 **v2.1 Changes — Dual Detection:**
 
-Previous versions only checked screen-space POV circle intersection. v2.1 introduces **dual detection** — targets are flagged if they meet EITHER condition:
+Previous versions only checked screen-space POV circle intersection. v2.1 introduces **dual detection**—targets are flagged if they meet EITHER condition:
 
 ```
 DETECTION METHOD     HOW IT WORKS
@@ -708,7 +686,7 @@ _G.HOSHI_Cleanup = Cleanup -- Register cleanup function
 
 ## 05 — UI & Design System
 
-Hoshi uses a **terminal/CMD aesthetic** — monospace fonts, bracket notation, ASCII dividers, boot sequences, and high information density. No rounded bubbles. No gradient cards. No emoji. Just data.
+Hoshi embraces a **terminal/CMD aesthetic**—monospace fonts, bracket notation, ASCII dividers, boot sequences, and high information density. No rounded bubbles. No gradient cards. No emoji. Just data.
 
 **Design Language:**
 
@@ -906,591 +884,20 @@ player:SetAttribute("Role", "Admin")
 
 ### Basic Loading
 
-```lua
+lua
 -- Standard loader
 loadstring(game:HttpGet("YOUR_URL"))()
-```
 
 ### Safe Loading
 
-```lua
+lua
 local ok, err = pcall(function()
     loadstring(game:HttpGet("YOUR_URL"))()
 end)
 if not ok then warn("[HOSHI] Load failed: " .. tostring(err)) end
-```
+
 
 ### Manual Cleanup
 
-```lua
-if _G.HOSHI_Cleanup then _G.HOSHI_Cleanup() end
-```
-
-### Workflow: Visual Debugging
-
-```
-1. Load Hoshi
-2. ESP tab → Enable ESP [ON]
-   Enable all layers (Box, Name, Distance, Health, Role)
-3. POV tab → Enable POV Circle [ON]
-   Select target from dropdown
-   Spectate Target [ON]
-4. On Point tab → Enable On Point [ON]
-5. Result:
-   - ESP shows all player positions globally
-   - Camera follows selected player
-   - Crosshair stays centered
-   - On Point marks targets entering your view
-   - Screen panel shows all detected target data
-```
-
-### Workflow: Level Design
-
-```
-1. Load Hoshi
-2. Speed tab → Set multiplier to 3x-5x
-3. Walk through map, note traversal times
-4. Teleport tab → Set radius, enable safety
-5. Result:
-   - Fast movement for reviewing map areas
-   - Auto-flee if AI Killers approach
-   - Reset speed to 1x for pacing tests
-```
-
-### Workflow: AI Observation
-
-```
-1. Load Hoshi
-2. ESP → Enable (see all AI + player positions)
-3. POV → Select Survivor being chased → Spectate [ON]
-4. On Point → Enable (see when AI enters damage range)
-5. Teleport → Enable (safety if AI targets admin)
-6. Result:
-   - Watch chase from Survivor perspective
-   - On Point shows exact moment AI enters strike range
-   - Distance data validates damage zone radius
-   - Admin auto-flees if AI redirects to admin character
-```
-
-<br />
-
----
-
-<br />
-
-## 09 — Configuration Reference
-
-### Theme Configuration
-
-```
-KEY              DEFAULT RGB        HEX       PURPOSE
-──────────────────────────────────────────────────────────────
-Background       (8, 8, 12)        #08080C    Window background
-TerminalBG       (5, 5, 8)         #050508    Deep surfaces
-Surface          (12, 12, 18)      #0C0C12    Panels
-SurfaceLight     (18, 18, 26)      #12121A    Components
-Primary          (0, 255, 160)     #00FFA0    Active accents
-Secondary        (0, 200, 255)     #00C8FF    Info accents
-Text             (200, 210, 200)   #C8D2C8    Primary text
-TextDim          (100, 120, 100)   #647864    Secondary text
-Success          (0, 220, 100)     #00DC64    Positive states
-Warning          (220, 180, 0)     #DCB400    Caution states
-Danger           (220, 50, 50)     #DC3232    Error states
-Border           (30, 40, 30)      #1E281E    Borders
-```
-
-### UI Configuration
-
-```
-KEY                DEFAULT         TYPE         PURPOSE
-──────────────────────────────────────────────────────────────
-WindowSize         820 x 560       UDim2        Main window dimensions
-CornerRadius       4px             UDim         Container corners
-AnimationSpeed     0.3s            number       Standard tween duration
-AnimationSpeedFast 0.15s           number       Quick transitions
-AnimationEasing    Quad            EasingStyle  Default easing curve
-SidebarWidth       170px           number       Sidebar width
-HeaderHeight       40px            number       Header height
-Font               Code            Enum.Font    All text elements
-```
-
-### Module Configuration
-
-```
-MODULE       KEY              DEFAULT    RANGE        UNIT
-──────────────────────────────────────────────────────────────
-ESP          Enabled          false      -            -
-             ShowBox          true       -            -
-             ShowName         true       -            -
-             ShowDistance      true       -            -
-             ShowHealth        true       -            -
-             ShowRole          true       -            -
-
-Teleport     Enabled          false      -            -
-             Radius           35         10-100       studs
-             FleeDistance     100        50-200       studs
-             Cooldown         2          1-15         seconds
-
-Speed        Value            1          1-10         multiplier
-             DefaultWalkSpeed 16         -            studs/sec
-
-POV          Enabled          false      -            -
-             Radius           100        30-300       pixels
-             Thickness        2          1-10         pixels
-             Opacity          0.8        0.1-1.0      ratio
-             Color            Primary    8 presets    Color3
-             Spectating       false      -            -
-
-OnPoint      Enabled          false      -            -
-             DamageRadius     50         10-200       studs
-             TrackNearest     true       -            -
-             SmoothUpdate     true       -            -
-             Transparency     0.4        0.1-0.9      ratio
-             Color            Warning    8 presets    Color3
-```
-
-<br />
-
----
-
-<br />
-
-## 10 — Performance & Optimization
-
-```
-TECHNIQUE              IMPLEMENTATION                    IMPACT
-──────────────────────────────────────────────────────────────────────
-Zero-Cost Idle         Modules only connect update       Disabled modules
-                       loops when enabled. No            use 0 CPU.
-                       polling on disabled modules.
-
-Update Separation      Visual: RenderStepped             Correct frequency
-                       Logic: Heartbeat                  per task type.
-                       Speed: event-only (no loop)
-
-Lazy Creation          ESP billboards created on          No pre-allocation
-                       first detection. OnPoint           waste.
-                       indicators created on lock.
-
-Object Caching         ESP caches by UserId.              No per-frame
-                       Only properties updated,           GC pressure.
-                       not instances.
-
-Connection Tracking    All Connect() calls go through     Bulk disconnect
-                       Utilities.Connect() storing        during cleanup.
-                       references.
-
-Instance Tracking      All created instances go through   Bulk Destroy()
-                       Utilities.Track() for              during cleanup.
-                       lifecycle management.
-
-Auto Pruning           Player leaves → billboard           No stale object
-                       destroyed + cache cleared           accumulation.
-                       same frame.
-
-Native Tweening        All animations use TweenService    GPU-accelerated.
-                       instead of manual per-frame        Lower CPU cost.
-                       interpolation.
-
-MaxDistance             ESP BillboardGui.MaxDistance =      Engine skips
-                       500 studs. On Point = 300.         distant renders.
-
-Canvas Auto-Size       ScrollingFrame CanvasSize           No polling for
-                       updates via layout signal.          content size.
-```
-
-**Resource Budget:**
-
-```
-SCENARIO                    OVERHEAD        FRAME BUDGET USAGE
-──────────────────────────────────────────────────────────────
-All modules disabled        ~0.1ms          0.6% of 16.6ms
-ESP only (10 players)       ~0.4ms          2.4%
-All modules enabled         ~0.65ms         3.9%
-Worst case (30 players)     ~1.2ms          7.2%
-```
-
-<br />
-
----
-
-<br />
-
-## 11 — Roadmap
-
-### v2.1.0 — Current Release
-
-- [x] Terminal/CMD visual redesign — monospace, no emoji
-- [x] Directional flee teleport system with ground raycasting
-- [x] On Point dual detection (screen-space + 3D damage radius)
-- [x] On Point tracks ALL players, not just Survivors
-- [x] Screen indicator panel showing all detected targets
-- [x] Blinking cursor in header
-- [x] Boot sequence splash screen
-- [x] Timestamp in notifications
-- [x] RichText formatting throughout UI
-- [x] Improved crosshair with center dot + gap
-
-### v2.2.0 — Planned
-
-- [ ] Real-time FPS and memory overlay
-- [ ] Terminal command input (type commands in-GUI)
-- [ ] Session logging with exportable text
-- [ ] Configuration save/load persistence
-- [ ] ESP distance-based text scaling
-- [ ] Free camera mode (detached observation)
-- [ ] Keybind system for quick module toggles
-- [ ] Resizable window with responsive layout
-
-### v2.3.0 — Planned
-
-- [ ] Plugin API for custom module registration
-- [ ] AI pathfinding visualization
-- [ ] Network traffic inspector
-- [ ] Spatial audio debugger
-- [ ] Multi-admin shared state
-- [ ] Developer annotation system (map notes)
-- [ ] Per-module CPU profiling
-- [ ] Automated test framework hooks
-
-### Long Term
-
-- [ ] Visual level editor integration
-- [ ] Version control for game state diffing
-- [ ] CI/CD pipeline for script deployment
-- [ ] Collaborative development mode
-- [ ] Auto-generated documentation from game inspection
-
-<br />
-
----
-
-<br />
-
-## 12 — FAQ
-
-<details>
-<summary><b>What is Hoshi?</b></summary>
-
-<br />
-
-Hoshi is a terminal-styled admin development toolkit for private Roblox map development. It provides ESP overlays, automated flee teleportation, speed testing, POV camera tools, and hitbox debug indicators through a monospace CMD-style interface. It is exclusively for developers working on their own games.
-
-</details>
-
-<details>
-<summary><b>Is this an exploit or cheat?</b></summary>
-
-<br />
-
-No. Hoshi is a development tool for use on your own private maps, comparable to debug overlays in Unity, Unreal, or Source Engine. The `loadstring` loader is a standard Roblox development pattern for remote script loading — not an exploitation technique. The tool runs client-side on your own game for your own testing purposes.
-
-</details>
-
-<details>
-<summary><b>How does the new teleport system work?</b></summary>
-
-<br />
-
-v2.1 replaced the static safe-position teleport with a **directional flee algorithm**:
-
-1. Detects nearest Killer to admin character
-2. Calculates escape direction (directly away from Killer)
-3. Generates 9 candidate positions along that direction at configurable distance (default: 100 studs)
-4. Raycasts downward to find walkable ground for each candidate
-5. Validates that the ground position is sufficiently far from the Killer
-6. Teleports admin to the best valid position
-
-This means the admin always flees **away from the threat** rather than to a fixed point, making the system work anywhere on any map.
-
-</details>
-
-<details>
-<summary><b>Why does On Point detect players who are far away?</b></summary>
-
-<br />
-
-v2.1 uses **dual detection**. A target is flagged if EITHER condition is true:
-
-- **Screen-Space:** Target's projected position is inside the POV circle on screen (even if far in 3D space, they're in your view)
-- **3D Damage Radius:** Target is within the configurable damage radius in world space (even if off-screen)
-
-The screen panel shows flags indicating which conditions triggered: `POV` for screen-space, `DMG` for 3D radius.
-
-</details>
-
-<details>
-<summary><b>Does the crosshair follow players now?</b></summary>
-
-<br />
-
-The crosshair does not "follow" players — it is permanently fixed to the exact center of your screen. When you enable **Spectate** on a target player, the *camera* moves to follow that player. Since the crosshair is always at screen center, it visually appears to track the target. This is the correct behavior — the crosshair is a reference point, not a tracking reticle.
-
-</details>
-
-<details>
-<summary><b>Will Hoshi lag my game?</b></summary>
-
-<br />
-
-Hoshi's total overhead with all modules active is approximately 0.65ms per frame in a typical 10-15 player session. At 60 FPS, this represents ~3.9% of the available frame budget. Disabled modules consume exactly zero CPU. The system is designed for extended development sessions without accumulating resource leaks.
-
-</details>
-
-<details>
-<summary><b>What happens when I re-run the script?</b></summary>
-
-<br />
-
-Hoshi includes anti-duplicate protection. Re-executing the loader automatically cleans up the previous instance (disconnects all connections, destroys all instances, resets all state) before starting a fresh instance. This is safe and expected during iterative development.
-
-</details>
-
-<details>
-<summary><b>How do I set up roles in my game?</b></summary>
-
-<br />
-
-Hoshi detects roles through three methods (checked in priority order):
-
-```lua
--- Method 1: Attributes (recommended)
-player:SetAttribute("Role", "Killer")
-
--- Method 2: StringValue
-local role = Instance.new("StringValue")
-role.Name = "Role"
-role.Value = "Survivor"
-role.Parent = player
-
--- Method 3: Teams (automatic fallback)
--- If player.Team.Name == "Killer", that becomes the role
-```
-
-</details>
-
-<details>
-<summary><b>Can I change the UI colors?</b></summary>
-
-<br />
-
-Yes. All colors are defined in the `Config.Theme` table at the top of the script. Modify any value:
-
-```lua
-Config.Theme.Primary = Color3.fromRGB(255, 100, 0)    -- Orange accent
-Config.Theme.Background = Color3.fromRGB(0, 0, 0)     -- Pure black
-Config.Theme.TerminalBG = Color3.fromRGB(10, 0, 0)    -- Dark red tint
-```
-
-</details>
-
-<details>
-<summary><b>How do I remove Hoshi completely?</b></summary>
-
-<br />
-
-Three options, all triggering full cleanup:
-
-```
-METHOD              HOW                          WHEN
-────────────────────────────────────────────────────────
-GUI Close           Click [x] in header          Normal exit
-Global Cleanup      _G.HOSHI_Cleanup()           Programmatic
-Re-execute          Run loader again             Fresh start
-```
-
-</details>
-
-<details>
-<summary><b>Can I extend Hoshi with custom modules?</b></summary>
-
-<br />
-
-Currently requires source modification, but the pattern is consistent:
-
-```
-1. Add defaults to Config table
-2. Create module table: MyModule = {}
-3. Implement Start(), Stop(), and update logic
-4. Build UI page: MainGUI.BuildMyModulePage()
-5. Add tab entry to tabs array
-6. Add MyModule.Stop() to Cleanup()
-```
-
-A formal plugin API is planned for v2.3.0.
-
-</details>
-
-<details>
-<summary><b>Why terminal aesthetic instead of modern UI?</b></summary>
-
-<br />
-
-Three reasons:
-
-1. **Information density.** Monospace text and bracket notation pack more data per pixel than padded cards with gradients.
-2. **Developer familiarity.** Terminal interfaces are the native language of development. No learning curve.
-3. **Performance.** No UIGradient, no complex layering, no transparency stacking. Simpler render = lower overhead.
-
-</details>
-
-<br />
-
----
-
-<br />
-
-## 13 — Contributing
-
-Contributions are welcome. Bug reports, feature suggestions, performance improvements, and documentation updates all help.
-
-### Process
-
-```
-1. Fork the repository
-   $ git clone https://github.com/YOUR_FORK/hoshi.git
-
-2. Create a feature branch
-   $ git checkout -b feature/your-feature
-
-3. Implement changes
-   - Follow existing code patterns
-   - Use Utilities.Connect() for all signals
-   - Use Utilities.Track() for all instances
-   - Comment every function
-   - Test in Roblox Studio
-
-4. Commit with conventional format
-   $ git commit -m "feat: add keybind system for module toggles"
-
-5. Push and open a Pull Request
-   $ git push origin feature/your-feature
-```
-
-**Commit Prefixes:**
-
-```
-feat:      New feature
-fix:       Bug fix
-docs:      Documentation
-style:     Visual changes (no logic change)
-refactor:  Code restructuring (no behavior change)
-perf:      Performance improvement
-chore:     Tooling, config
-```
-
-> [!IMPORTANT]
-> All contributions must serve private map development purposes only. PRs adding features intended for public games owned by others will not be accepted.
-
-<br />
-
----
-
-<br />
-
-## 14 — License
-
-```
-MIT License
-
-Copyright (c) 2024 [Your Name]
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
-
-<br />
-
----
-
-<br />
-
-## 15 — Developer
-
-<div align="center">
-
-```
-DEVELOPER    [Your Name]
-ROLE         Creator & Lead Developer
-```
-
-<br />
-
-[![GitHub](https://img.shields.io/badge/GitHub-@username-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/username)
-[![Discord](https://img.shields.io/badge/Discord-username-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.com/)
-[![Website](https://img.shields.io/badge/Web-yoursite.dev-00ffa0?style=for-the-badge&logo=googlechrome&logoColor=white)](https://yoursite.dev)
-
-</div>
-
-<br />
-
----
-
-<br />
-
-## 16 — Credits
-
-```
-TECHNOLOGY           CONTRIBUTION
-─────────────────────────────────────────────────────────────
-Lua                  The scripting language powering Hoshi
-Roblox Studio        Platform, engine, and runtime
-Shields.io           Badge generation for this documentation
-Open Source           Patterns, standards, and the spirit
-Community            of building tools for builders
-```
-
-<br />
-
----
-
-<br />
-
-<div align="center">
-
-```
-Built with precision and too much coffee.
-
-HOSHI v2.1.0 — Admin Development Tools
-For Private Map Testing & Debugging
-
-Copyright (c) 2024 [Your Name]
-Licensed under MIT
-```
-
-<br />
-
-[![Back to Top](https://img.shields.io/badge/BACK_TO_TOP-00ffa0?style=for-the-badge)](#)
-
-<br />
-
-</div>
-```
-
----
-
-**Placeholder yang perlu diganti:**
-
-| Placeholder | Ganti Dengan |
-|---|---|
-| `username` | GitHub username Anda (di semua badge URL + link) |
-| `YOUR_USERNAME` | GitHub username Anda |
-| `[Your Name]` | Nama developer Anda |
-| `YOUR_RAW_SCRIPT_URL` | URL raw script yang dihost |
-| `YOUR_URL` | URL script |
-| `yoursite.dev` | Website Anda (atau hapus badge) |
+lua
+if _G.HOSHI_Cleanup then _G.HOSHI
