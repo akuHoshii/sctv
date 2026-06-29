@@ -1,176 +1,116 @@
 --[[
     Hoshi Development Tools
-    Production-Ready Admin Development Tools
-    For internal map development, testing, debugging, and QA
+    Admin Development Tools for Internal Map Development
+    Production Build
 ]]
 
--- ============================================================
--- CONFIG
--- ============================================================
-local Config = {
-    Version = "1.0.0",
-    Name = "Hoshi Development Tools",
-    ShortName = "HDT",
-    
-    Colors = {
-        Background = Color3.fromRGB(18, 18, 24),
-        Surface = Color3.fromRGB(24, 24, 32),
-        SurfaceLight = Color3.fromRGB(32, 32, 42),
-        SurfaceHover = Color3.fromRGB(38, 38, 50),
-        Border = Color3.fromRGB(45, 45, 58),
-        BorderLight = Color3.fromRGB(55, 55, 70),
-        
-        AccentPrimary = Color3.fromRGB(56, 145, 255),
-        AccentSecondary = Color3.fromRGB(30, 110, 220),
-        AccentGlow = Color3.fromRGB(56, 145, 255),
-        AccentDim = Color3.fromRGB(35, 85, 155),
-        
-        TextPrimary = Color3.fromRGB(225, 228, 235),
-        TextSecondary = Color3.fromRGB(145, 150, 165),
-        TextDim = Color3.fromRGB(95, 100, 115),
-        TextAccent = Color3.fromRGB(100, 175, 255),
-        
-        Success = Color3.fromRGB(45, 190, 120),
-        Warning = Color3.fromRGB(230, 180, 50),
-        Error = Color3.fromRGB(220, 65, 75),
-        Info = Color3.fromRGB(56, 145, 255),
-        
-        Transparent = Color3.fromRGB(0, 0, 0),
-    },
-    
-    Sizes = {
-        WindowMinWidth = 750,
-        WindowMinHeight = 480,
-        WindowDefaultWidth = 880,
-        WindowDefaultHeight = 540,
-        SidebarWidth = 180,
-        TitleBarHeight = 38,
-        CornerRadius = UDim.new(0, 8),
-        CornerRadiusSmall = UDim.new(0, 5),
-        CornerRadiusLarge = UDim.new(0, 12),
-        FloatingButtonSize = 44,
-    },
-    
-    Animation = {
-        SpeedMultiplier = 1,
-        DefaultDuration = 0.25,
-        FastDuration = 0.15,
-        SlowDuration = 0.4,
-        SplashDuration = 2.5,
-    },
-    
-    ESP = {
-        Enabled = false,
-        BoxEnabled = true,
-        NameEnabled = true,
-        DistanceEnabled = true,
-        HealthEnabled = true,
-        RoleEnabled = true,
-        RefreshRate = 0.1,
-        MaxDistance = 2000,
-    },
-    
-    TeleportSafety = {
-        Enabled = false,
-        DetectionRadius = 35,
-        SafeDistance = 100,
-        Cooldown = 3,
-        RaycastHeight = 50,
-    },
-    
-    Speed = {
-        Current = 16,
-        Min = 1,
-        Max = 10,
-        Multiplier = 16,
-    },
-    
-    POVCircle = {
-        Enabled = false,
-        Radius = 120,
-        Thickness = 2,
-        Opacity = 0.6,
-        Color = Color3.fromRGB(56, 145, 255),
-    },
-    
-    Observation = {
-        Enabled = false,
-        Radius = 120,
-        Transparency = 0.5,
-        Color = Color3.fromRGB(255, 200, 50),
-        SmoothFactor = 0.15,
-    },
-    
-    Settings = {
-        UIScale = 1,
-        AnimationSpeed = 1,
-        BlurEnabled = true,
-    },
-    
-    Window = {
-        Position = nil,
-        Size = nil,
-        Maximized = false,
-        Minimized = false,
-    },
-}
+-- Cleanup previous instance
+if _G.HoshiCleanup then pcall(_G.HoshiCleanup) end
 
--- ============================================================
--- SERVICES
--- ============================================================
+-- Services
 local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
-local Lighting = game:GetService("Lighting")
+local StarterGui = game:GetService("StarterGui")
 local Stats = game:GetService("Stats")
 local Workspace = game:GetService("Workspace")
-local CoreGui = game:GetService("CoreGui")
-local Camera = Workspace.CurrentCamera
 
+-- Core References
 local LocalPlayer = Players.LocalPlayer
+local Camera = Workspace.CurrentCamera
 local Mouse = LocalPlayer:GetMouse()
+local ViewportSize = Camera.ViewportSize
 
--- ============================================================
--- UTILITIES
--- ============================================================
+-- State Management
+local State = {
+    GuiOpen = false,
+    Minimized = false,
+    Maximized = false,
+    WindowPos = UDim2.new(0.5, -400, 0.5, -275),
+    WindowSize = UDim2.new(0, 800, 0, 550),
+    PreMaxPos = nil,
+    PreMaxSize = nil,
+    ActiveTab = "Dashboard",
+    Connections = {},
+    TweenCache = {},
+    ESP = {
+        Enabled = false,
+        Box = true,
+        Name = true,
+        Distance = true,
+        Health = true,
+        Role = true,
+        Objects = {}
+    },
+    Teleport = {
+        Enabled = false,
+        Radius = 35,
+        SafeDistance = 100,
+        Cooldown = 3,
+        LastTeleport = 0
+    },
+    Speed = {
+        Value = 16
+    },
+    POV = {
+        Enabled = false,
+        Radius = 150,
+        Thickness = 2,
+        Opacity = 0.5,
+        Color = Color3.fromRGB(0, 170, 255)
+    },
+    Observation = {
+        Enabled = false,
+        Radius = 200,
+        Transparency = 0.3,
+        Color = Color3.fromRGB(0, 255, 170),
+        Indicators = {}
+    },
+    Settings = {
+        UIScale = 1,
+        AccentColor = Color3.fromRGB(0, 140, 255),
+        AnimSpeed = 1,
+        BlurEnabled = true
+    },
+    Notifications = {},
+    NotifQueue = {}
+}
+
+-- Color Palette
+local Colors = {
+    Background = Color3.fromRGB(18, 18, 24),
+    Surface = Color3.fromRGB(24, 24, 32),
+    SurfaceLight = Color3.fromRGB(32, 32, 44),
+    SurfaceHover = Color3.fromRGB(40, 40, 54),
+    Border = Color3.fromRGB(48, 48, 64),
+    BorderLight = Color3.fromRGB(60, 60, 80),
+    Text = Color3.fromRGB(225, 225, 235),
+    TextDim = Color3.fromRGB(140, 140, 160),
+    TextMuted = Color3.fromRGB(90, 90, 110),
+    Accent = Color3.fromRGB(0, 140, 255),
+    AccentDim = Color3.fromRGB(0, 100, 200),
+    AccentGlow = Color3.fromRGB(0, 120, 255),
+    Success = Color3.fromRGB(40, 200, 120),
+    Warning = Color3.fromRGB(240, 180, 40),
+    Error = Color3.fromRGB(240, 60, 60),
+    Info = Color3.fromRGB(0, 160, 240),
+    Transparent = Color3.fromRGB(0, 0, 0)
+}
+
+-- Utility Module
 local Util = {}
-local Connections = {}
-local TweenCache = {}
 
-function Util.AddConnection(conn)
-    table.insert(Connections, conn)
-    return conn
-end
-
-function Util.Tween(obj, props, duration, easingStyle, easingDir)
-    if not obj then return end
-    duration = (duration or Config.Animation.DefaultDuration) * Config.Animation.SpeedMultiplier
-    easingStyle = easingStyle or Enum.EasingStyle.Quart
-    easingDir = easingDir or Enum.EasingDirection.Out
-    
-    local key = tostring(obj) .. tostring(props)
-    if TweenCache[key] then
-        TweenCache[key]:Cancel()
-    end
-    
-    local info = TweenInfo.new(duration, easingStyle, easingDir)
-    local tween = TweenService:Create(obj, info, props)
-    TweenCache[key] = tween
-    tween:Play()
-    return tween
-end
-
-function Util.Create(className, properties, children)
-    local inst = Instance.new(className)
-    if properties then
-        for k, v in pairs(properties) do
+function Util.Create(class, props, children)
+    local inst = Instance.new(class)
+    if props then
+        for k, v in pairs(props) do
             if k ~= "Parent" then
                 pcall(function() inst[k] = v end)
             end
         end
-        if properties.Parent then
-            inst.Parent = properties.Parent
+        if props.Parent then
+            inst.Parent = props.Parent
         end
     end
     if children then
@@ -181,64 +121,128 @@ function Util.Create(className, properties, children)
     return inst
 end
 
+function Util.Tween(obj, duration, props, style, direction, callback)
+    if not obj or not obj.Parent then return end
+    style = style or Enum.EasingStyle.Quart
+    direction = direction or Enum.EasingDirection.Out
+    duration = duration * (State.Settings.AnimSpeed or 1)
+    local ti = TweenInfo.new(duration, style, direction)
+    local tw = TweenService:Create(obj, ti, props)
+    if callback then
+        tw.Completed:Connect(callback)
+    end
+    tw:Play()
+    return tw
+end
+
 function Util.AddCorner(parent, radius)
-    return Util.Create("UICorner", {
-        CornerRadius = radius or Config.Sizes.CornerRadius,
-        Parent = parent,
-    })
+    return Util.Create("UICorner", {CornerRadius = UDim.new(0, radius or 8), Parent = parent})
 end
 
 function Util.AddStroke(parent, color, thickness, transparency)
     return Util.Create("UIStroke", {
-        Color = color or Config.Colors.Border,
+        Color = color or Colors.Border,
         Thickness = thickness or 1,
         Transparency = transparency or 0,
-        Parent = parent,
+        Parent = parent
     })
 end
 
-function Util.AddPadding(parent, top, right, bottom, left)
+function Util.AddPadding(parent, t, b, l, r)
     return Util.Create("UIPadding", {
-        PaddingTop = UDim.new(0, top or 8),
-        PaddingRight = UDim.new(0, right or 8),
-        PaddingBottom = UDim.new(0, bottom or 8),
-        PaddingLeft = UDim.new(0, left or 8),
-        Parent = parent,
+        PaddingTop = UDim.new(0, t or 8),
+        PaddingBottom = UDim.new(0, b or 8),
+        PaddingLeft = UDim.new(0, l or 8),
+        PaddingRight = UDim.new(0, r or 8),
+        Parent = parent
     })
 end
 
 function Util.AddGradient(parent, c1, c2, rotation)
     return Util.Create("UIGradient", {
-        Color = ColorSequence.new(c1 or Config.Colors.AccentPrimary, c2 or Config.Colors.AccentSecondary),
-        Rotation = rotation or 45,
-        Parent = parent,
+        Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0, c1),
+            ColorSequenceKeypoint.new(1, c2)
+        }),
+        Rotation = rotation or 90,
+        Parent = parent
     })
 end
 
-function Util.Clamp(val, min, max)
-    return math.max(min, math.min(max, val))
+function Util.AddListLayout(parent, padding, dir, hAlign, vAlign, sortOrder)
+    return Util.Create("UIListLayout", {
+        Padding = UDim.new(0, padding or 4),
+        FillDirection = dir or Enum.FillDirection.Vertical,
+        HorizontalAlignment = hAlign or Enum.HorizontalAlignment.Left,
+        VerticalAlignment = vAlign or Enum.VerticalAlignment.Top,
+        SortOrder = sortOrder or Enum.SortOrder.LayoutOrder,
+        Parent = parent
+    })
 end
 
-function Util.GetScreenSize()
-    return Camera.ViewportSize
+function Util.Ripple(button, x, y)
+    if not button then return end
+    local abs = button.AbsolutePosition
+    local sz = button.AbsoluteSize
+    local rx = x and (x - abs.X) or sz.X / 2
+    local ry = y and (y - abs.Y) or sz.Y / 2
+    local maxDist = math.max(
+        math.sqrt(rx^2 + ry^2),
+        math.sqrt((sz.X - rx)^2 + ry^2),
+        math.sqrt(rx^2 + (sz.Y - ry)^2),
+        math.sqrt((sz.X - rx)^2 + (sz.Y - ry)^2)
+    )
+    local ripple = Util.Create("Frame", {
+        Position = UDim2.new(0, rx, 0, ry),
+        Size = UDim2.new(0, 0, 0, 0),
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+        BackgroundTransparency = 0.75,
+        BorderSizePixel = 0,
+        ZIndex = button.ZIndex + 1,
+        Parent = button
+    })
+    Util.AddCorner(ripple, 9999)
+    local clip = Util.Create("Frame", {
+        Size = UDim2.new(1, 0, 1, 0),
+        BackgroundTransparency = 1,
+        ClipsDescendants = true,
+        BorderSizePixel = 0,
+        Parent = button
+    })
+    ripple.Parent = clip
+    Util.Tween(ripple, 0.5, {
+        Size = UDim2.new(0, maxDist * 2, 0, maxDist * 2),
+        BackgroundTransparency = 1
+    }, Enum.EasingStyle.Quart, Enum.EasingDirection.Out, function()
+        clip:Destroy()
+    end)
 end
 
 function Util.GetCharacter()
-    return LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    local char = LocalPlayer.Character
+    if not char then return nil, nil, nil end
+    local hum = char:FindFirstChildOfClass("Humanoid")
+    local hrp = char:FindFirstChild("HumanoidRootPart")
+    return char, hum, hrp
 end
 
-function Util.GetHumanoid()
-    local char = Util.GetCharacter()
-    return char and char:FindFirstChildOfClass("Humanoid")
+function Util.Connect(signal, fn)
+    local conn = signal:Connect(fn)
+    table.insert(State.Connections, conn)
+    return conn
 end
 
-function Util.GetRootPart()
-    local char = Util.GetCharacter()
-    return char and char:FindFirstChild("HumanoidRootPart")
+function Util.ClampToScreen(pos, size)
+    local vp = Camera.ViewportSize
+    local x = math.clamp(pos.X.Offset, 0, vp.X - size.X.Offset)
+    local y = math.clamp(pos.Y.Offset, 0, vp.Y - size.Y.Offset)
+    return UDim2.new(0, x, 0, y)
 end
 
 function Util.FormatTime()
-    return os.date("%H:%M:%S")
+    local t = os.date("*t")
+    return string.format("%02d:%02d:%02d", t.hour, t.min, t.sec)
 end
 
 function Util.GetFPS()
@@ -246,1828 +250,1666 @@ function Util.GetFPS()
 end
 
 function Util.GetPing()
-    local ping = 0
-    pcall(function()
-        ping = math.floor(Stats.Network.ServerStatsItem["Data Ping"]:GetValue())
+    local success, ping = pcall(function()
+        return Stats.Network.ServerStatsItem["Data Ping"]:GetValue()
     end)
-    return ping
+    return success and math.floor(ping) or 0
 end
 
-function Util.Lerp(a, b, t)
-    return a + (b - a) * t
-end
-
-function Util.RaycastDown(position)
-    local params = RaycastParams.new()
-    params.FilterType = Enum.RaycastFilterType.Exclude
-    local char = Util.GetCharacter()
-    if char then
-        params.FilterDescendantsInstances = {char}
-    end
-    local result = Workspace:Raycast(position + Vector3.new(0, 10, 0), Vector3.new(0, -500, 0), params)
-    return result
-end
-
-function Util.IsPositionSafe(position)
-    local result = Util.RaycastDown(position)
-    if not result then return false end
-    if result.Position.Y < -50 then return false end
-    
-    local checkParams = RaycastParams.new()
-    local char = Util.GetCharacter()
-    if char then
-        checkParams.FilterDescendantsInstances = {char}
-    end
-    checkParams.FilterType = Enum.RaycastFilterType.Exclude
-    
-    local headCheck = Workspace:Raycast(result.Position + Vector3.new(0, 0.5, 0), Vector3.new(0, 6, 0), checkParams)
-    if headCheck then return false end
-    
-    return true, result.Position + Vector3.new(0, 3, 0)
-end
-
--- ============================================================
--- CLEANUP
--- ============================================================
-local Cleanup = {}
-
-function Cleanup.Run()
-    for _, conn in ipairs(Connections) do
-        pcall(function() conn:Disconnect() end)
-    end
-    Connections = {}
-    TweenCache = {}
-    
-    pcall(function()
-        local existing = CoreGui:FindFirstChild("HoshiDevTools")
-        if existing then existing:Destroy() end
-    end)
-    pcall(function()
-        local existing = CoreGui:FindFirstChild("HoshiSplash")
-        if existing then existing:Destroy() end
-    end)
-    pcall(function()
-        local existing = CoreGui:FindFirstChild("HoshiFloat")
-        if existing then existing:Destroy() end
-    end)
-    pcall(function()
-        local existing = CoreGui:FindFirstChild("HoshiWatermark")
-        if existing then existing:Destroy() end
-    end)
-    pcall(function()
-        local existing = CoreGui:FindFirstChild("HoshiNotify")
-        if existing then existing:Destroy() end
-    end)
-    pcall(function()
-        local blur = Lighting:FindFirstChild("HoshiBlur")
-        if blur then blur:Destroy() end
-    end)
-end
-
-Cleanup.Run()
-
--- ============================================================
--- SCREEN GUI SETUP
--- ============================================================
-local MainGui = Util.Create("ScreenGui", {
+-- ScreenGui Setup
+local ScreenGui = Util.Create("ScreenGui", {
     Name = "HoshiDevTools",
     ResetOnSpawn = false,
     ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
-    DisplayOrder = 100,
+    DisplayOrder = 999,
     IgnoreGuiInset = true,
-    Parent = CoreGui,
+    Parent = LocalPlayer:FindFirstChild("PlayerGui") or LocalPlayer:WaitForChild("PlayerGui")
 })
 
-local FloatGui = Util.Create("ScreenGui", {
-    Name = "HoshiFloat",
-    ResetOnSpawn = false,
-    ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
-    DisplayOrder = 99,
-    IgnoreGuiInset = true,
-    Parent = CoreGui,
-})
-
-local WatermarkGui = Util.Create("ScreenGui", {
-    Name = "HoshiWatermark",
-    ResetOnSpawn = false,
-    ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
-    DisplayOrder = 98,
-    IgnoreGuiInset = true,
-    Parent = CoreGui,
-})
-
-local NotifyGui = Util.Create("ScreenGui", {
-    Name = "HoshiNotify",
-    ResetOnSpawn = false,
-    ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
-    DisplayOrder = 101,
-    IgnoreGuiInset = true,
-    Parent = CoreGui,
-})
-
-local SplashGui = Util.Create("ScreenGui", {
-    Name = "HoshiSplash",
-    ResetOnSpawn = false,
-    ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
-    DisplayOrder = 200,
-    IgnoreGuiInset = true,
-    Parent = CoreGui,
-})
-
--- ============================================================
--- BLUR
--- ============================================================
-local BlurEffect = Util.Create("BlurEffect", {
-    Name = "HoshiBlur",
-    Size = 0,
-    Parent = Lighting,
-})
+-- Blur Effect
+local BlurEffect
+pcall(function()
+    BlurEffect = Instance.new("BlurEffect")
+    BlurEffect.Size = 0
+    BlurEffect.Parent = game:GetService("Lighting")
+end)
 
 -- ============================================================
 -- NOTIFICATION SYSTEM
 -- ============================================================
-local NotificationSystem = {}
-local NotifyQueue = {}
-local NotifyContainer
+local NotifContainer = Util.Create("Frame", {
+    Name = "NotifContainer",
+    Size = UDim2.new(0, 320, 1, 0),
+    Position = UDim2.new(1, -330, 0, 40),
+    BackgroundTransparency = 1,
+    BorderSizePixel = 0,
+    ZIndex = 100,
+    Parent = ScreenGui
+})
+Util.AddListLayout(NotifContainer, 6, Enum.FillDirection.Vertical, Enum.HorizontalAlignment.Right, Enum.VerticalAlignment.Bottom)
+Util.AddPadding(NotifContainer, 0, 10, 0, 0)
 
-do
-    NotifyContainer = Util.Create("Frame", {
-        Name = "Container",
-        Size = UDim2.new(0, 320, 1, -20),
-        Position = UDim2.new(1, -330, 0, 10),
-        BackgroundTransparency = 1,
-        Parent = NotifyGui,
-    })
-    
-    Util.Create("UIListLayout", {
-        SortOrder = Enum.SortOrder.LayoutOrder,
-        Padding = UDim.new(0, 6),
-        VerticalAlignment = Enum.VerticalAlignment.Bottom,
-        Parent = NotifyContainer,
-    })
-end
-
-function NotificationSystem.Send(title, message, notifType, duration)
-    notifType = notifType or "Info"
+local function Notify(title, message, nType, duration)
+    nType = nType or "Info"
     duration = duration or 4
-    
-    local accentColor = Config.Colors.Info
-    if notifType == "Success" then accentColor = Config.Colors.Success
-    elseif notifType == "Warning" then accentColor = Config.Colors.Warning
-    elseif notifType == "Error" then accentColor = Config.Colors.Error end
-    
-    local card = Util.Create("Frame", {
-        Name = "Notification",
+    local typeColors = {
+        Info = Colors.Info,
+        Success = Colors.Success,
+        Warning = Colors.Warning,
+        Error = Colors.Error
+    }
+    local col = typeColors[nType] or Colors.Info
+
+    local notif = Util.Create("Frame", {
         Size = UDim2.new(1, 0, 0, 72),
-        BackgroundColor3 = Config.Colors.Surface,
-        BackgroundTransparency = 1,
+        BackgroundColor3 = Colors.Surface,
+        BackgroundTransparency = 0.05,
+        BorderSizePixel = 0,
+        ZIndex = 101,
         ClipsDescendants = true,
-        Parent = NotifyContainer,
+        Parent = NotifContainer
     })
-    Util.AddCorner(card, Config.Sizes.CornerRadiusSmall)
-    Util.AddStroke(card, Config.Colors.Border, 1, 1)
-    
-    local accentBar = Util.Create("Frame", {
-        Size = UDim2.new(0, 3, 1, -12),
-        Position = UDim2.new(0, 6, 0, 6),
-        BackgroundColor3 = accentColor,
-        BackgroundTransparency = 1,
-        Parent = card,
+    Util.AddCorner(notif, 10)
+    Util.AddStroke(notif, col, 1, 0.5)
+
+    -- Accent bar
+    Util.Create("Frame", {
+        Size = UDim2.new(0, 3, 1, -8),
+        Position = UDim2.new(0, 6, 0, 4),
+        BackgroundColor3 = col,
+        BorderSizePixel = 0,
+        ZIndex = 102,
+        Parent = notif
     })
-    Util.AddCorner(accentBar, UDim.new(0, 2))
-    
-    local titleLabel = Util.Create("TextLabel", {
-        Size = UDim2.new(1, -24, 0, 18),
+
+    Util.Create("TextLabel", {
+        Text = title,
+        Size = UDim2.new(1, -24, 0, 22),
         Position = UDim2.new(0, 18, 0, 10),
         BackgroundTransparency = 1,
-        Text = title or "Notification",
-        TextColor3 = Config.Colors.TextPrimary,
-        TextSize = 13,
         Font = Enum.Font.GothamBold,
+        TextSize = 13,
+        TextColor3 = Colors.Text,
         TextXAlignment = Enum.TextXAlignment.Left,
-        TextTransparency = 1,
-        Parent = card,
+        ZIndex = 102,
+        Parent = notif
     })
-    
-    local msgLabel = Util.Create("TextLabel", {
-        Size = UDim2.new(1, -24, 0, 14),
-        Position = UDim2.new(0, 18, 0, 30),
+
+    Util.Create("TextLabel", {
+        Text = message,
+        Size = UDim2.new(1, -24, 0, 18),
+        Position = UDim2.new(0, 18, 0, 32),
         BackgroundTransparency = 1,
-        Text = message or "",
-        TextColor3 = Config.Colors.TextSecondary,
-        TextSize = 11,
         Font = Enum.Font.Gotham,
+        TextSize = 11,
+        TextColor3 = Colors.TextDim,
         TextXAlignment = Enum.TextXAlignment.Left,
-        TextTransparency = 1,
         TextTruncate = Enum.TextTruncate.AtEnd,
-        Parent = card,
+        ZIndex = 102,
+        Parent = notif
     })
-    
-    local progressBg = Util.Create("Frame", {
+
+    -- Progress bar
+    local progBg = Util.Create("Frame", {
         Size = UDim2.new(1, -20, 0, 2),
-        Position = UDim2.new(0, 10, 1, -10),
-        BackgroundColor3 = Config.Colors.SurfaceLight,
-        BackgroundTransparency = 1,
-        Parent = card,
+        Position = UDim2.new(0, 10, 1, -8),
+        BackgroundColor3 = Colors.SurfaceLight,
+        BorderSizePixel = 0,
+        ZIndex = 102,
+        Parent = notif
     })
-    Util.AddCorner(progressBg, UDim.new(0, 1))
-    
-    local progressFill = Util.Create("Frame", {
+    Util.AddCorner(progBg, 1)
+
+    local progBar = Util.Create("Frame", {
         Size = UDim2.new(1, 0, 1, 0),
-        BackgroundColor3 = accentColor,
-        BackgroundTransparency = 1,
-        Parent = progressBg,
+        BackgroundColor3 = col,
+        BorderSizePixel = 0,
+        ZIndex = 103,
+        Parent = progBg
     })
-    Util.AddCorner(progressFill, UDim.new(0, 1))
-    
+    Util.AddCorner(progBar, 1)
+
     -- Animate in
-    card.Position = UDim2.new(1, 50, 0, 0)
-    Util.Tween(card, {BackgroundTransparency = 0.08, Position = UDim2.new(0, 0, 0, 0)}, 0.3, Enum.EasingStyle.Quart)
-    
-    local stroke = card:FindFirstChildOfClass("UIStroke")
-    if stroke then Util.Tween(stroke, {Transparency = 0.6}, 0.3) end
-    
-    Util.Tween(accentBar, {BackgroundTransparency = 0}, 0.3)
-    Util.Tween(titleLabel, {TextTransparency = 0}, 0.3)
-    Util.Tween(msgLabel, {TextTransparency = 0}, 0.3)
-    Util.Tween(progressBg, {BackgroundTransparency = 0.6}, 0.3)
-    Util.Tween(progressFill, {BackgroundTransparency = 0.2}, 0.3)
-    
-    -- Progress countdown
-    Util.Tween(progressFill, {Size = UDim2.new(0, 0, 1, 0)}, duration, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-    
+    notif.BackgroundTransparency = 1
+    notif.Position = UDim2.new(1, 40, 0, 0)
+    Util.Tween(notif, 0.35, {BackgroundTransparency = 0.05, Position = UDim2.new(0, 0, 0, 0)}, Enum.EasingStyle.Quart)
+    Util.Tween(progBar, duration, {Size = UDim2.new(0, 0, 1, 0)}, Enum.EasingStyle.Linear)
+
     task.delay(duration, function()
-        if card and card.Parent then
-            Util.Tween(card, {BackgroundTransparency = 1, Position = UDim2.new(1, 50, 0, 0)}, 0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.In)
-            Util.Tween(titleLabel, {TextTransparency = 1}, 0.2)
-            Util.Tween(msgLabel, {TextTransparency = 1}, 0.2)
-            Util.Tween(accentBar, {BackgroundTransparency = 1}, 0.2)
-            if stroke then Util.Tween(stroke, {Transparency = 1}, 0.2) end
-            task.delay(0.35, function()
-                if card and card.Parent then
-                    card:Destroy()
-                end
+        if notif and notif.Parent then
+            Util.Tween(notif, 0.3, {BackgroundTransparency = 1, Position = UDim2.new(1, 40, 0, 0)}, Enum.EasingStyle.Quart, Enum.EasingDirection.In, function()
+                if notif and notif.Parent then notif:Destroy() end
             end)
         end
     end)
-end
-
--- ============================================================
--- WATERMARK
--- ============================================================
-local WatermarkModule = {}
-
-do
-    local wmFrame = Util.Create("Frame", {
-        Name = "Watermark",
-        Size = UDim2.new(0, 420, 0, 26),
-        Position = UDim2.new(0, 10, 0, 10),
-        BackgroundColor3 = Config.Colors.Surface,
-        BackgroundTransparency = 0.15,
-        Parent = WatermarkGui,
-    })
-    Util.AddCorner(wmFrame, UDim.new(0, 4))
-    Util.AddStroke(wmFrame, Config.Colors.Border, 1, 0.5)
-    
-    local wmLabel = Util.Create("TextLabel", {
-        Size = UDim2.new(1, -12, 1, 0),
-        Position = UDim2.new(0, 6, 0, 0),
-        BackgroundTransparency = 1,
-        Text = "Hoshi Development Tools | FPS: -- | Ping: -- | --:--:-- | Ready",
-        TextColor3 = Config.Colors.TextSecondary,
-        TextSize = 11,
-        Font = Enum.Font.GothamMedium,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        Parent = wmFrame,
-    })
-    
-    local lastFPSUpdate = 0
-    local cachedFPS = 0
-    
-    Util.AddConnection(RunService.RenderStepped:Connect(function(dt)
-        lastFPSUpdate = lastFPSUpdate + dt
-        if lastFPSUpdate >= 0.5 then
-            lastFPSUpdate = 0
-            cachedFPS = math.floor(1 / dt)
-            local ping = Util.GetPing()
-            local time = Util.FormatTime()
-            local status = "Active"
-            wmLabel.Text = string.format(
-                "Hoshi Development Tools | FPS: %d | Ping: %dms | %s | %s",
-                cachedFPS, ping, time, status
-            )
-        end
-    end))
 end
 
 -- ============================================================
 -- SPLASH SCREEN
 -- ============================================================
-local SplashScreen = {}
-
-function SplashScreen.Show(callback)
-    local bg = Util.Create("Frame", {
-        Name = "SplashBg",
+local function ShowSplashScreen(callback)
+    local splash = Util.Create("Frame", {
+        Name = "Splash",
         Size = UDim2.new(1, 0, 1, 0),
         BackgroundColor3 = Color3.fromRGB(10, 10, 16),
-        BackgroundTransparency = 1,
-        Parent = SplashGui,
+        BackgroundTransparency = 0,
+        BorderSizePixel = 0,
+        ZIndex = 200,
+        Parent = ScreenGui
     })
-    
-    local centerFrame = Util.Create("Frame", {
-        Name = "Center",
-        Size = UDim2.new(0, 260, 0, 200),
-        Position = UDim2.new(0.5, 0, 0.5, 0),
+
+    -- Logo Container
+    local logoContainer = Util.Create("Frame", {
+        Size = UDim2.new(0, 90, 0, 90),
+        Position = UDim2.new(0.5, 0, 0.42, 0),
         AnchorPoint = Vector2.new(0.5, 0.5),
-        BackgroundTransparency = 1,
-        Parent = bg,
+        BackgroundColor3 = Colors.Accent,
+        BackgroundTransparency = 0.85,
+        BorderSizePixel = 0,
+        ZIndex = 201,
+        Parent = splash
     })
-    
-    local logoFrame = Util.Create("Frame", {
-        Name = "LogoBg",
-        Size = UDim2.new(0, 70, 0, 70),
-        Position = UDim2.new(0.5, 0, 0, 20),
-        AnchorPoint = Vector2.new(0.5, 0),
-        BackgroundColor3 = Config.Colors.AccentPrimary,
-        BackgroundTransparency = 1,
-        Parent = centerFrame,
-    })
-    Util.AddCorner(logoFrame, UDim.new(0, 16))
-    
-    local glowFrame = Util.Create("Frame", {
-        Name = "Glow",
+    Util.AddCorner(logoContainer, 20)
+    Util.AddStroke(logoContainer, Colors.Accent, 2, 0.3)
+
+    -- Inner glow
+    local logoGlow = Util.Create("Frame", {
         Size = UDim2.new(1, 20, 1, 20),
         Position = UDim2.new(0.5, 0, 0.5, 0),
         AnchorPoint = Vector2.new(0.5, 0.5),
-        BackgroundColor3 = Config.Colors.AccentPrimary,
-        BackgroundTransparency = 1,
-        Parent = logoFrame,
+        BackgroundColor3 = Colors.Accent,
+        BackgroundTransparency = 0.92,
+        BorderSizePixel = 0,
+        ZIndex = 200,
+        Parent = logoContainer
     })
-    Util.AddCorner(glowFrame, UDim.new(0, 20))
-    
-    local logoLabel = Util.Create("TextLabel", {
+    Util.AddCorner(logoGlow, 24)
+
+    local logoText = Util.Create("TextLabel", {
+        Text = "H",
         Size = UDim2.new(1, 0, 1, 0),
         BackgroundTransparency = 1,
-        Text = "H",
-        TextColor3 = Config.Colors.TextPrimary,
-        TextSize = 36,
         Font = Enum.Font.GothamBold,
-        TextTransparency = 1,
-        Parent = logoFrame,
+        TextSize = 44,
+        TextColor3 = Colors.Accent,
+        ZIndex = 202,
+        Parent = logoContainer
     })
-    
+
+    -- Title
     local titleLabel = Util.Create("TextLabel", {
-        Size = UDim2.new(1, 0, 0, 22),
-        Position = UDim2.new(0, 0, 0, 105),
-        BackgroundTransparency = 1,
         Text = "Hoshi Development Tools",
-        TextColor3 = Config.Colors.TextPrimary,
-        TextSize = 16,
+        Size = UDim2.new(0, 400, 0, 30),
+        Position = UDim2.new(0.5, 0, 0.56, 0),
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        BackgroundTransparency = 1,
         Font = Enum.Font.GothamBold,
+        TextSize = 18,
+        TextColor3 = Colors.Text,
         TextTransparency = 1,
-        Parent = centerFrame,
+        ZIndex = 201,
+        Parent = splash
     })
-    
+
+    -- Subtitle
     local subLabel = Util.Create("TextLabel", {
-        Size = UDim2.new(1, 0, 0, 16),
-        Position = UDim2.new(0, 0, 0, 128),
+        Text = "Internal Development Build",
+        Size = UDim2.new(0, 400, 0, 20),
+        Position = UDim2.new(0.5, 0, 0.60, 0),
+        AnchorPoint = Vector2.new(0.5, 0.5),
         BackgroundTransparency = 1,
-        Text = "v" .. Config.Version,
-        TextColor3 = Config.Colors.TextDim,
-        TextSize = 11,
         Font = Enum.Font.Gotham,
+        TextSize = 12,
+        TextColor3 = Colors.TextMuted,
         TextTransparency = 1,
-        Parent = centerFrame,
+        ZIndex = 201,
+        Parent = splash
     })
-    
-    local progressBg = Util.Create("Frame", {
-        Size = UDim2.new(0.7, 0, 0, 3),
-        Position = UDim2.new(0.15, 0, 0, 160),
-        BackgroundColor3 = Config.Colors.SurfaceLight,
+
+    -- Progress Bar Background
+    local progBg = Util.Create("Frame", {
+        Size = UDim2.new(0, 260, 0, 3),
+        Position = UDim2.new(0.5, 0, 0.66, 0),
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        BackgroundColor3 = Colors.SurfaceLight,
         BackgroundTransparency = 1,
-        Parent = centerFrame,
+        BorderSizePixel = 0,
+        ZIndex = 201,
+        Parent = splash
     })
-    Util.AddCorner(progressBg, UDim.new(0, 2))
-    
-    local progressFill = Util.Create("Frame", {
+    Util.AddCorner(progBg, 2)
+
+    local progFill = Util.Create("Frame", {
         Size = UDim2.new(0, 0, 1, 0),
-        BackgroundColor3 = Config.Colors.AccentPrimary,
+        BackgroundColor3 = Colors.Accent,
         BackgroundTransparency = 1,
-        Parent = progressBg,
+        BorderSizePixel = 0,
+        ZIndex = 202,
+        Parent = progBg
     })
-    Util.AddCorner(progressFill, UDim.new(0, 2))
-    
+    Util.AddCorner(progFill, 2)
+
+    -- Loading Text
     local loadText = Util.Create("TextLabel", {
-        Size = UDim2.new(1, 0, 0, 14),
-        Position = UDim2.new(0, 0, 0, 172),
-        BackgroundTransparency = 1,
         Text = "Initializing...",
-        TextColor3 = Config.Colors.TextDim,
-        TextSize = 10,
+        Size = UDim2.new(0, 260, 0, 18),
+        Position = UDim2.new(0.5, 0, 0.70, 0),
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        BackgroundTransparency = 1,
         Font = Enum.Font.Gotham,
+        TextSize = 11,
+        TextColor3 = Colors.TextMuted,
         TextTransparency = 1,
-        Parent = centerFrame,
+        ZIndex = 201,
+        Parent = splash
     })
-    
-    -- Animate blur
-    Util.Tween(BlurEffect, {Size = 24}, 0.5)
-    
-    -- Fade in background
-    Util.Tween(bg, {BackgroundTransparency = 0.05}, 0.4)
-    
+
+    -- Animate splash
+    logoContainer.Size = UDim2.new(0, 60, 0, 60)
+    logoContainer.BackgroundTransparency = 1
+    logoText.TextTransparency = 1
+
+    task.wait(0.1)
+
+    -- Logo scale in
+    Util.Tween(logoContainer, 0.6, {
+        Size = UDim2.new(0, 90, 0, 90),
+        BackgroundTransparency = 0.85
+    }, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+    Util.Tween(logoText, 0.5, {TextTransparency = 0}, Enum.EasingStyle.Quart)
+
+    task.wait(0.4)
+
+    -- Logo glow pulse
+    Util.Tween(logoGlow, 0.8, {BackgroundTransparency = 0.8}, Enum.EasingStyle.Quart)
+    task.delay(0.8, function()
+        Util.Tween(logoGlow, 0.8, {BackgroundTransparency = 0.95}, Enum.EasingStyle.Quart)
+    end)
+
+    -- Title and subtitle fade in
+    Util.Tween(titleLabel, 0.5, {TextTransparency = 0}, Enum.EasingStyle.Quart)
     task.wait(0.15)
-    
-    -- Scale and fade logo
-    logoFrame.Size = UDim2.new(0, 50, 0, 50)
-    Util.Tween(logoFrame, {
-        Size = UDim2.new(0, 70, 0, 70),
-        BackgroundTransparency = 0.05
-    }, 0.5, Enum.EasingStyle.Quint)
-    Util.Tween(glowFrame, {BackgroundTransparency = 0.85}, 0.6, Enum.EasingStyle.Quint)
-    Util.Tween(logoLabel, {TextTransparency = 0}, 0.4)
-    
+    Util.Tween(subLabel, 0.5, {TextTransparency = 0}, Enum.EasingStyle.Quart)
+
     task.wait(0.2)
-    Util.Tween(titleLabel, {TextTransparency = 0}, 0.35)
-    task.wait(0.1)
-    Util.Tween(subLabel, {TextTransparency = 0}, 0.3)
-    task.wait(0.1)
-    
-    -- Show progress
-    Util.Tween(progressBg, {BackgroundTransparency = 0.5}, 0.3)
-    Util.Tween(progressFill, {BackgroundTransparency = 0}, 0.3)
-    Util.Tween(loadText, {TextTransparency = 0}, 0.3)
-    
-    -- Loading steps
-    local loadingSteps = {
-        {0.15, "Loading modules..."},
-        {0.35, "Initializing UI framework..."},
-        {0.55, "Building interface..."},
-        {0.75, "Loading configurations..."},
+
+    -- Progress bar
+    Util.Tween(progBg, 0.3, {BackgroundTransparency = 0}, Enum.EasingStyle.Quart)
+    Util.Tween(progFill, 0.3, {BackgroundTransparency = 0}, Enum.EasingStyle.Quart)
+    Util.Tween(loadText, 0.3, {TextTransparency = 0}, Enum.EasingStyle.Quart)
+
+    local loadSteps = {
+        {0.15, "Loading core modules..."},
+        {0.30, "Initializing UI framework..."},
+        {0.45, "Building interface..."},
+        {0.60, "Loading ESP system..."},
+        {0.75, "Configuring tools..."},
         {0.90, "Finalizing..."},
-        {1.00, "Ready"},
+        {1.00, "Ready"}
     }
-    
-    for i, step in ipairs(loadingSteps) do
-        local dur = (Config.Animation.SplashDuration / #loadingSteps) * 0.7
-        Util.Tween(progressFill, {Size = UDim2.new(step[1], 0, 1, 0)}, dur, Enum.EasingStyle.Quart)
+
+    for _, step in ipairs(loadSteps) do
+        task.wait(0.25)
+        Util.Tween(progFill, 0.25, {Size = UDim2.new(step[1], 0, 1, 0)}, Enum.EasingStyle.Quart)
         loadText.Text = step[2]
-        task.wait(dur * 0.85)
     end
-    
-    task.wait(0.2)
-    
-    -- Glow pulse on complete
-    Util.Tween(glowFrame, {BackgroundTransparency = 0.65}, 0.2)
-    task.wait(0.15)
-    Util.Tween(glowFrame, {BackgroundTransparency = 0.9}, 0.3)
-    
+
+    task.wait(0.4)
+
     -- Fade out
-    task.wait(0.15)
-    Util.Tween(bg, {BackgroundTransparency = 1}, 0.5, Enum.EasingStyle.Quart)
-    Util.Tween(logoFrame, {BackgroundTransparency = 1}, 0.35)
-    Util.Tween(glowFrame, {BackgroundTransparency = 1}, 0.35)
-    Util.Tween(logoLabel, {TextTransparency = 1}, 0.3)
-    Util.Tween(titleLabel, {TextTransparency = 1}, 0.3)
-    Util.Tween(subLabel, {TextTransparency = 1}, 0.3)
-    Util.Tween(progressBg, {BackgroundTransparency = 1}, 0.3)
-    Util.Tween(progressFill, {BackgroundTransparency = 1}, 0.3)
-    Util.Tween(loadText, {TextTransparency = 1}, 0.3)
-    
-    if not Config.Settings.BlurEnabled then
-        Util.Tween(BlurEffect, {Size = 0}, 0.4)
+    Util.Tween(splash, 0.5, {BackgroundTransparency = 1}, Enum.EasingStyle.Quart)
+    for _, child in ipairs(splash:GetDescendants()) do
+        pcall(function()
+            if child:IsA("TextLabel") then
+                Util.Tween(child, 0.4, {TextTransparency = 1}, Enum.EasingStyle.Quart)
+            elseif child:IsA("Frame") then
+                Util.Tween(child, 0.4, {BackgroundTransparency = 1}, Enum.EasingStyle.Quart)
+            end
+        end)
+        pcall(function()
+            local stroke = child:FindFirstChildOfClass("UIStroke")
+            if stroke then
+                Util.Tween(stroke, 0.4, {Transparency = 1}, Enum.EasingStyle.Quart)
+            end
+        end)
     end
-    
+
     task.wait(0.5)
-    bg:Destroy()
-    
+    splash:Destroy()
+
     if callback then callback() end
 end
 
 -- ============================================================
+-- WATERMARK
+-- ============================================================
+local WatermarkFrame = Util.Create("Frame", {
+    Name = "Watermark",
+    Size = UDim2.new(0, 380, 0, 26),
+    Position = UDim2.new(0, 12, 0, 8),
+    BackgroundColor3 = Colors.Surface,
+    BackgroundTransparency = 0.15,
+    BorderSizePixel = 0,
+    ZIndex = 90,
+    Parent = ScreenGui
+})
+Util.AddCorner(WatermarkFrame, 6)
+Util.AddStroke(WatermarkFrame, Colors.Border, 1, 0.5)
+
+local WatermarkText = Util.Create("TextLabel", {
+    Text = "Hoshi Development Tools | FPS: -- | Ping: -- | --:--:-- | Ready",
+    Size = UDim2.new(1, -16, 1, 0),
+    Position = UDim2.new(0, 8, 0, 0),
+    BackgroundTransparency = 1,
+    Font = Enum.Font.Code,
+    TextSize = 11,
+    TextColor3 = Colors.TextDim,
+    TextXAlignment = Enum.TextXAlignment.Left,
+    ZIndex = 91,
+    Parent = WatermarkFrame
+})
+
+-- Update watermark
+local lastFPSUpdate = 0
+local currentFPS = 60
+local fpsAccum = 0
+local fpsFrames = 0
+
+Util.Connect(RunService.RenderStepped, function(dt)
+    fpsAccum = fpsAccum + dt
+    fpsFrames = fpsFrames + 1
+    if fpsAccum >= 0.5 then
+        currentFPS = math.floor(fpsFrames / fpsAccum)
+        fpsFrames = 0
+        fpsAccum = 0
+        local ping = Util.GetPing()
+        local time = Util.FormatTime()
+        local status = State.GuiOpen and "Active" or "Standby"
+        WatermarkText.Text = string.format(
+            "Hoshi Development Tools | FPS: %d | Ping: %dms | %s | %s",
+            currentFPS, ping, time, status
+        )
+    end
+end)
+
+-- ============================================================
 -- MAIN WINDOW
 -- ============================================================
-local Window = {}
-local MainFrame, TitleBar, ContentFrame, SidebarFrame, PageContainer
-local CurrentPage = "Dashboard"
-local Pages = {}
-local SidebarButtons = {}
-local IsWindowOpen = false
-local WindowState = {
-    Dragging = false,
-    DragStart = nil,
-    StartPos = nil,
-    Resizing = false,
-    ResizeStart = nil,
-    ResizeStartSize = nil,
-}
+local MainFrame = Util.Create("Frame", {
+    Name = "MainWindow",
+    Size = State.WindowSize,
+    Position = State.WindowPos,
+    AnchorPoint = Vector2.new(0.5, 0.5),
+    BackgroundColor3 = Colors.Background,
+    BackgroundTransparency = 0.02,
+    BorderSizePixel = 0,
+    Visible = false,
+    ClipsDescendants = true,
+    ZIndex = 10,
+    Parent = ScreenGui
+})
+Util.AddCorner(MainFrame, 12)
+Util.AddStroke(MainFrame, Colors.Border, 1, 0.3)
 
-function Window.Create()
-    local screenSize = Util.GetScreenSize()
-    local defaultW = Config.Sizes.WindowDefaultWidth
-    local defaultH = Config.Sizes.WindowDefaultHeight
-    
-    MainFrame = Util.Create("Frame", {
-        Name = "MainWindow",
-        Size = UDim2.new(0, defaultW, 0, defaultH),
-        Position = UDim2.new(0.5, 0, 0.5, 0),
-        AnchorPoint = Vector2.new(0.5, 0.5),
-        BackgroundColor3 = Config.Colors.Background,
-        BackgroundTransparency = 0.02,
-        ClipsDescendants = true,
-        Visible = false,
-        Parent = MainGui,
-    })
-    Util.AddCorner(MainFrame, Config.Sizes.CornerRadiusLarge)
-    Util.AddStroke(MainFrame, Config.Colors.Border, 1, 0.3)
-    
-    -- Title Bar
-    TitleBar = Util.Create("Frame", {
-        Name = "TitleBar",
-        Size = UDim2.new(1, 0, 0, Config.Sizes.TitleBarHeight),
-        BackgroundColor3 = Config.Colors.Surface,
-        BackgroundTransparency = 0.3,
-        Parent = MainFrame,
-    })
-    
-    -- Title bar bottom line
-    Util.Create("Frame", {
-        Size = UDim2.new(1, 0, 0, 1),
-        Position = UDim2.new(0, 0, 1, -1),
-        BackgroundColor3 = Config.Colors.Border,
-        BackgroundTransparency = 0.5,
-        BorderSizePixel = 0,
-        Parent = TitleBar,
-    })
-    
-    -- Logo in title bar
-    local titleLogo = Util.Create("Frame", {
-        Size = UDim2.new(0, 22, 0, 22),
-        Position = UDim2.new(0, 10, 0.5, 0),
-        AnchorPoint = Vector2.new(0, 0.5),
-        BackgroundColor3 = Config.Colors.AccentPrimary,
-        BackgroundTransparency = 0.1,
-        Parent = TitleBar,
-    })
-    Util.AddCorner(titleLogo, UDim.new(0, 5))
-    
-    Util.Create("TextLabel", {
-        Size = UDim2.new(1, 0, 1, 0),
-        BackgroundTransparency = 1,
-        Text = "H",
-        TextColor3 = Config.Colors.TextPrimary,
-        TextSize = 13,
-        Font = Enum.Font.GothamBold,
-        Parent = titleLogo,
-    })
-    
-    Util.Create("TextLabel", {
-        Size = UDim2.new(0, 200, 1, 0),
-        Position = UDim2.new(0, 40, 0, 0),
-        BackgroundTransparency = 1,
-        Text = "Hoshi Development Tools",
-        TextColor3 = Config.Colors.TextPrimary,
-        TextSize = 12,
-        Font = Enum.Font.GothamBold,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        Parent = TitleBar,
-    })
-    
-    -- Window Controls
-    local controlsFrame = Util.Create("Frame", {
-        Size = UDim2.new(0, 100, 1, 0),
-        Position = UDim2.new(1, -100, 0, 0),
-        BackgroundTransparency = 1,
-        Parent = TitleBar,
-    })
-    
-    local function CreateWindowButton(text, offset, color, onClick)
-        local btn = Util.Create("TextButton", {
-            Size = UDim2.new(0, 30, 0, 24),
-            Position = UDim2.new(1, offset, 0.5, 0),
-            AnchorPoint = Vector2.new(0, 0.5),
-            BackgroundColor3 = Config.Colors.SurfaceLight,
-            BackgroundTransparency = 1,
-            Text = text,
-            TextColor3 = Config.Colors.TextSecondary,
-            TextSize = 14,
-            Font = Enum.Font.GothamBold,
-            Parent = controlsFrame,
-        })
-        Util.AddCorner(btn, UDim.new(0, 4))
-        
-        btn.MouseEnter:Connect(function()
-            Util.Tween(btn, {BackgroundTransparency = 0.3, TextColor3 = color or Config.Colors.TextPrimary}, 0.15)
-        end)
-        btn.MouseLeave:Connect(function()
-            Util.Tween(btn, {BackgroundTransparency = 1, TextColor3 = Config.Colors.TextSecondary}, 0.15)
-        end)
-        btn.MouseButton1Click:Connect(onClick)
-        return btn
-    end
-    
-    CreateWindowButton("_", -95, Config.Colors.TextPrimary, function()
-        Window.Minimize()
-    end)
-    
-    CreateWindowButton("+", -62, Config.Colors.TextPrimary, function()
-        Window.ToggleMaximize()
-    end)
-    
-    CreateWindowButton("x", -29, Config.Colors.Error, function()
-        Window.Close()
-    end)
-    
-    -- Drag functionality
-    local dragging, dragInput, dragStart, startPos
-    
-    TitleBar.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            if Config.Window.Maximized then return end
-            dragging = true
-            dragStart = input.Position
-            startPos = MainFrame.Position
-            
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragging = false
-                end
-            end)
-        end
-    end)
-    
-    TitleBar.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-            dragInput = input
-        end
-    end)
-    
-    Util.AddConnection(UserInputService.InputChanged:Connect(function(input)
-        if input == dragInput and dragging then
-            local delta = input.Position - dragStart
-            local newPos = UDim2.new(
-                startPos.X.Scale,
-                startPos.X.Offset + delta.X,
-                startPos.Y.Scale,
-                startPos.Y.Offset + delta.Y
-            )
-            MainFrame.Position = newPos
-        end
-    end))
-    
-    -- Resize handle
-    local resizeHandle = Util.Create("TextButton", {
-        Size = UDim2.new(0, 16, 0, 16),
-        Position = UDim2.new(1, -16, 1, -16),
-        BackgroundTransparency = 1,
-        Text = "",
-        Parent = MainFrame,
-        ZIndex = 10,
-    })
-    
-    local resizeDots = Util.Create("TextLabel", {
-        Size = UDim2.new(1, 0, 1, 0),
-        BackgroundTransparency = 1,
-        Text = "...",
-        TextColor3 = Config.Colors.TextDim,
-        TextSize = 10,
-        Font = Enum.Font.GothamBold,
-        Rotation = -45,
-        Parent = resizeHandle,
-    })
-    
-    local resizing, resizeInput, resizeStart, resizeStartSize
-    
-    resizeHandle.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            if Config.Window.Maximized then return end
-            resizing = true
-            resizeStart = input.Position
-            resizeStartSize = MainFrame.AbsoluteSize
-            
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    resizing = false
-                end
-            end)
-        end
-    end)
-    
-    resizeHandle.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-            resizeInput = input
-        end
-    end)
-    
-    Util.AddConnection(UserInputService.InputChanged:Connect(function(input)
-        if resizing and (input.UserInputType == Enum.UserInputType.MouseMovement or input == resizeInput) then
-            local delta = input.Position - resizeStart
-            local newW = math.max(Config.Sizes.WindowMinWidth, resizeStartSize.X + delta.X)
-            local newH = math.max(Config.Sizes.WindowMinHeight, resizeStartSize.Y + delta.Y)
-            MainFrame.Size = UDim2.new(0, newW, 0, newH)
-        end
-    end))
-    
-    -- Content area (below title bar)
-    ContentFrame = Util.Create("Frame", {
-        Name = "Content",
-        Size = UDim2.new(1, 0, 1, -Config.Sizes.TitleBarHeight),
-        Position = UDim2.new(0, 0, 0, Config.Sizes.TitleBarHeight),
-        BackgroundTransparency = 1,
-        Parent = MainFrame,
-    })
-    
-    -- Sidebar
-    SidebarFrame = Util.Create("Frame", {
-        Name = "Sidebar",
-        Size = UDim2.new(0, Config.Sizes.SidebarWidth, 1, 0),
-        BackgroundColor3 = Config.Colors.Surface,
-        BackgroundTransparency = 0.2,
-        Parent = ContentFrame,
-    })
-    
-    -- Sidebar right border
-    Util.Create("Frame", {
-        Size = UDim2.new(0, 1, 1, 0),
-        Position = UDim2.new(1, -1, 0, 0),
-        BackgroundColor3 = Config.Colors.Border,
-        BackgroundTransparency = 0.5,
-        BorderSizePixel = 0,
-        Parent = SidebarFrame,
-    })
-    
-    local sidebarList = Util.Create("Frame", {
-        Name = "ButtonList",
-        Size = UDim2.new(1, -12, 1, -12),
-        Position = UDim2.new(0, 6, 0, 6),
-        BackgroundTransparency = 1,
-        Parent = SidebarFrame,
-    })
-    
-    Util.Create("UIListLayout", {
-        SortOrder = Enum.SortOrder.LayoutOrder,
-        Padding = UDim.new(0, 2),
-        Parent = sidebarList,
-    })
-    
-    -- Page container
-    PageContainer = Util.Create("ScrollingFrame", {
-        Name = "PageContainer",
-        Size = UDim2.new(1, -Config.Sizes.SidebarWidth, 1, 0),
-        Position = UDim2.new(0, Config.Sizes.SidebarWidth, 0, 0),
-        BackgroundTransparency = 1,
-        BorderSizePixel = 0,
-        ScrollBarThickness = 3,
-        ScrollBarImageColor3 = Config.Colors.AccentDim,
-        ScrollBarImageTransparency = 0.3,
-        CanvasSize = UDim2.new(0, 0, 0, 0),
-        AutomaticCanvasSize = Enum.AutomaticSize.Y,
-        Parent = ContentFrame,
-    })
-    
-    Util.AddPadding(PageContainer, 14, 14, 14, 14)
-end
+-- Shadow
+local Shadow = Util.Create("ImageLabel", {
+    Name = "Shadow",
+    Size = UDim2.new(1, 40, 1, 40),
+    Position = UDim2.new(0.5, 0, 0.5, 0),
+    AnchorPoint = Vector2.new(0.5, 0.5),
+    BackgroundTransparency = 1,
+    Image = "rbxassetid://6014261993",
+    ImageColor3 = Color3.fromRGB(0, 0, 0),
+    ImageTransparency = 0.45,
+    ScaleType = Enum.ScaleType.Slice,
+    SliceCenter = Rect.new(49, 49, 450, 450),
+    ZIndex = 9,
+    Parent = MainFrame
+})
 
-function Window.AddSidebarButton(name, layoutOrder)
+-- ============================================================
+-- TITLE BAR
+-- ============================================================
+local TitleBar = Util.Create("Frame", {
+    Name = "TitleBar",
+    Size = UDim2.new(1, 0, 0, 38),
+    BackgroundColor3 = Colors.Surface,
+    BackgroundTransparency = 0.1,
+    BorderSizePixel = 0,
+    ZIndex = 15,
+    Parent = MainFrame
+})
+Util.AddCorner(TitleBar, 0)
+
+-- Title bar bottom cover (to remove rounding at bottom)
+Util.Create("Frame", {
+    Size = UDim2.new(1, 0, 0, 14),
+    Position = UDim2.new(0, 0, 1, -14),
+    BackgroundColor3 = Colors.Surface,
+    BackgroundTransparency = 0.1,
+    BorderSizePixel = 0,
+    ZIndex = 15,
+    Parent = TitleBar
+})
+
+-- Title bar top corners
+local tbCorner = Util.Create("Frame", {
+    Size = UDim2.new(1, 0, 0, 24),
+    BackgroundColor3 = Colors.Surface,
+    BackgroundTransparency = 0.1,
+    BorderSizePixel = 0,
+    ZIndex = 15,
+    ClipsDescendants = true,
+    Parent = TitleBar
+})
+Util.AddCorner(tbCorner, 12)
+
+-- Logo in titlebar
+local TitleLogo = Util.Create("TextLabel", {
+    Text = "H",
+    Size = UDim2.new(0, 24, 0, 24),
+    Position = UDim2.new(0, 12, 0.5, 0),
+    AnchorPoint = Vector2.new(0, 0.5),
+    BackgroundColor3 = Colors.Accent,
+    BackgroundTransparency = 0.85,
+    Font = Enum.Font.GothamBold,
+    TextSize = 14,
+    TextColor3 = Colors.Accent,
+    BorderSizePixel = 0,
+    ZIndex = 16,
+    Parent = TitleBar
+})
+Util.AddCorner(TitleLogo, 6)
+
+local TitleText = Util.Create("TextLabel", {
+    Text = "Hoshi Development Tools",
+    Size = UDim2.new(0, 250, 1, 0),
+    Position = UDim2.new(0, 44, 0, 0),
+    BackgroundTransparency = 1,
+    Font = Enum.Font.GothamBold,
+    TextSize = 13,
+    TextColor3 = Colors.Text,
+    TextXAlignment = Enum.TextXAlignment.Left,
+    ZIndex = 16,
+    Parent = TitleBar
+})
+
+-- Window Controls
+local ControlsFrame = Util.Create("Frame", {
+    Size = UDim2.new(0, 110, 0, 38),
+    Position = UDim2.new(1, 0, 0, 0),
+    AnchorPoint = Vector2.new(1, 0),
+    BackgroundTransparency = 1,
+    BorderSizePixel = 0,
+    ZIndex = 16,
+    Parent = TitleBar
+})
+
+local function CreateWindowButton(icon, layoutOrder, color)
     local btn = Util.Create("TextButton", {
-        Name = name,
-        Size = UDim2.new(1, 0, 0, 32),
-        BackgroundColor3 = Config.Colors.AccentPrimary,
+        Text = icon,
+        Size = UDim2.new(0, 36, 0, 28),
+        BackgroundColor3 = Colors.SurfaceLight,
         BackgroundTransparency = 1,
-        Text = "",
-        LayoutOrder = layoutOrder or 0,
-        Parent = SidebarFrame:FindFirstChild("ButtonList"),
+        Font = Enum.Font.GothamBold,
+        TextSize = 14,
+        TextColor3 = Colors.TextDim,
+        BorderSizePixel = 0,
+        ZIndex = 17,
+        AutoButtonColor = false,
+        LayoutOrder = layoutOrder,
+        Parent = ControlsFrame
     })
-    Util.AddCorner(btn, UDim.new(0, 5))
-    
-    local label = Util.Create("TextLabel", {
-        Size = UDim2.new(1, -16, 1, 0),
-        Position = UDim2.new(0, 12, 0, 0),
-        BackgroundTransparency = 1,
-        Text = name,
-        TextColor3 = Config.Colors.TextSecondary,
-        TextSize = 12,
-        Font = Enum.Font.GothamMedium,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        Parent = btn,
-    })
-    
-    local indicator = Util.Create("Frame", {
-        Size = UDim2.new(0, 3, 0, 16),
-        Position = UDim2.new(0, 2, 0.5, 0),
-        AnchorPoint = Vector2.new(0, 0.5),
-        BackgroundColor3 = Config.Colors.AccentPrimary,
-        BackgroundTransparency = 1,
-        Parent = btn,
-    })
-    Util.AddCorner(indicator, UDim.new(0, 2))
-    
-    SidebarButtons[name] = {Button = btn, Label = label, Indicator = indicator}
-    
+    Util.AddCorner(btn, 6)
+
     btn.MouseEnter:Connect(function()
-        if CurrentPage ~= name then
-            Util.Tween(btn, {BackgroundTransparency = 0.85}, 0.15)
-            Util.Tween(label, {TextColor3 = Config.Colors.TextPrimary}, 0.15)
-        end
+        Util.Tween(btn, 0.2, {
+            BackgroundTransparency = 0.5,
+            TextColor3 = color or Colors.Text
+        })
     end)
-    
     btn.MouseLeave:Connect(function()
-        if CurrentPage ~= name then
-            Util.Tween(btn, {BackgroundTransparency = 1}, 0.15)
-            Util.Tween(label, {TextColor3 = Config.Colors.TextSecondary}, 0.15)
-        end
+        Util.Tween(btn, 0.2, {
+            BackgroundTransparency = 1,
+            TextColor3 = Colors.TextDim
+        })
     end)
-    
     btn.MouseButton1Click:Connect(function()
-        Window.SwitchPage(name)
+        Util.Ripple(btn)
     end)
-    
     return btn
 end
 
-function Window.SwitchPage(name)
-    if not Pages[name] then return end
-    CurrentPage = name
-    
-    for pageName, frame in pairs(Pages) do
-        frame.Visible = (pageName == name)
-    end
-    
-    for btnName, data in pairs(SidebarButtons) do
-        if btnName == name then
-            Util.Tween(data.Button, {BackgroundTransparency = 0.8}, 0.2)
-            Util.Tween(data.Label, {TextColor3 = Config.Colors.TextAccent}, 0.2)
-            Util.Tween(data.Indicator, {BackgroundTransparency = 0}, 0.2)
-        else
-            Util.Tween(data.Button, {BackgroundTransparency = 1}, 0.2)
-            Util.Tween(data.Label, {TextColor3 = Config.Colors.TextSecondary}, 0.2)
-            Util.Tween(data.Indicator, {BackgroundTransparency = 1}, 0.2)
-        end
-    end
-    
-    PageContainer.CanvasPosition = Vector2.new(0, 0)
-end
+Util.AddListLayout(ControlsFrame, 2, Enum.FillDirection.Horizontal, Enum.HorizontalAlignment.Right, Enum.VerticalAlignment.Center)
+Util.AddPadding(ControlsFrame, 0, 0, 0, 6)
 
-function Window.CreatePage(name)
-    local page = Util.Create("Frame", {
+local CloseBtn = CreateWindowButton("X", 3, Colors.Error)
+local MaxBtn = CreateWindowButton("+", 2, Colors.Warning)
+local MinBtn = CreateWindowButton("-", 1, Colors.Success)
+
+-- Close
+CloseBtn.MouseButton1Click:Connect(function()
+    State.GuiOpen = false
+    Util.Tween(MainFrame, 0.35, {
+        Size = UDim2.new(0, MainFrame.AbsoluteSize.X * 0.95, 0, MainFrame.AbsoluteSize.Y * 0.95),
+        BackgroundTransparency = 1
+    }, Enum.EasingStyle.Quart, Enum.EasingDirection.In, function()
+        MainFrame.Visible = false
+        MainFrame.BackgroundTransparency = 0.02
+    end)
+    if BlurEffect then
+        Util.Tween(BlurEffect, 0.3, {Size = 0})
+    end
+    FloatingBtn.Visible = true
+    Util.Tween(FloatingBtn, 0.3, {BackgroundTransparency = 0.1}, Enum.EasingStyle.Quart)
+end)
+
+-- Minimize
+MinBtn.MouseButton1Click:Connect(function()
+    State.Minimized = not State.Minimized
+    if State.Minimized then
+        State.PreMinSize = MainFrame.Size
+        Util.Tween(MainFrame, 0.35, {Size = UDim2.new(0, MainFrame.AbsoluteSize.X, 0, 38)}, Enum.EasingStyle.Quart)
+    else
+        Util.Tween(MainFrame, 0.35, {Size = State.PreMinSize or State.WindowSize}, Enum.EasingStyle.Quart)
+    end
+end)
+
+-- Maximize
+MaxBtn.MouseButton1Click:Connect(function()
+    State.Minimized = false
+    State.Maximized = not State.Maximized
+    if State.Maximized then
+        State.PreMaxPos = MainFrame.Position
+        State.PreMaxSize = MainFrame.Size
+        Util.Tween(MainFrame, 0.35, {
+            Position = UDim2.new(0.5, 0, 0.5, 0),
+            Size = UDim2.new(1, -20, 1, -20)
+        }, Enum.EasingStyle.Quart)
+    else
+        Util.Tween(MainFrame, 0.35, {
+            Position = State.PreMaxPos or State.WindowPos,
+            Size = State.PreMaxSize or State.WindowSize
+        }, Enum.EasingStyle.Quart)
+    end
+end)
+
+-- ============================================================
+-- DRAG SYSTEM
+-- ============================================================
+local dragging = false
+local dragStart = nil
+local startPos = nil
+
+TitleBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or
+       input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = MainFrame.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+Util.Connect(UserInputService.InputChanged, function(input)
+    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or
+       input.UserInputType == Enum.UserInputType.Touch) then
+        local delta = input.Position - dragStart
+        local newPos = UDim2.new(
+            startPos.X.Scale, startPos.X.Offset + delta.X,
+            startPos.Y.Scale, startPos.Y.Offset + delta.Y
+        )
+        -- Clamp
+        local vp = Camera.ViewportSize
+        local absSize = MainFrame.AbsoluteSize
+        local anchor = MainFrame.AnchorPoint
+        local minX = absSize.X * anchor.X
+        local minY = absSize.Y * anchor.Y
+        local maxX = vp.X - absSize.X * (1 - anchor.X)
+        local maxY = vp.Y - absSize.Y * (1 - anchor.Y)
+
+        local clampedX = math.clamp(newPos.X.Offset + vp.X * newPos.X.Scale, minX, maxX)
+        local clampedY = math.clamp(newPos.Y.Offset + vp.Y * newPos.Y.Scale, minY, maxY)
+
+        Util.Tween(MainFrame, 0.08, {
+            Position = UDim2.new(0, clampedX, 0, clampedY)
+        }, Enum.EasingStyle.Quart)
+        MainFrame.AnchorPoint = Vector2.new(0, 0)
+        State.Maximized = false
+    end
+end)
+
+-- ============================================================
+-- RESIZE SYSTEM
+-- ============================================================
+local ResizeHandle = Util.Create("TextButton", {
+    Name = "ResizeHandle",
+    Size = UDim2.new(0, 18, 0, 18),
+    Position = UDim2.new(1, -18, 1, -18),
+    BackgroundTransparency = 1,
+    Text = "",
+    ZIndex = 20,
+    AutoButtonColor = false,
+    Parent = MainFrame
+})
+
+-- Resize visual indicator
+local resizeDots = Util.Create("TextLabel", {
+    Text = "...",
+    Size = UDim2.new(1, 0, 1, 0),
+    BackgroundTransparency = 1,
+    Font = Enum.Font.GothamBold,
+    TextSize = 14,
+    TextColor3 = Colors.TextMuted,
+    TextTransparency = 0.5,
+    ZIndex = 21,
+    Rotation = -45,
+    Parent = ResizeHandle
+})
+
+local resizing = false
+local resizeStart = nil
+local resizeStartSize = nil
+
+ResizeHandle.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or
+       input.UserInputType == Enum.UserInputType.Touch then
+        resizing = true
+        resizeStart = input.Position
+        resizeStartSize = MainFrame.AbsoluteSize
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                resizing = false
+            end
+        end)
+    end
+end)
+
+Util.Connect(UserInputService.InputChanged, function(input)
+    if resizing and (input.UserInputType == Enum.UserInputType.MouseMovement or
+       input.UserInputType == Enum.UserInputType.Touch) then
+        local delta = input.Position - resizeStart
+        local newW = math.clamp(resizeStartSize.X + delta.X, 640, Camera.ViewportSize.X - 20)
+        local newH = math.clamp(resizeStartSize.Y + delta.Y, 400, Camera.ViewportSize.Y - 20)
+        MainFrame.Size = UDim2.new(0, newW, 0, newH)
+        State.Maximized = false
+    end
+end)
+
+-- ============================================================
+-- SIDEBAR
+-- ============================================================
+local Sidebar = Util.Create("Frame", {
+    Name = "Sidebar",
+    Size = UDim2.new(0, 180, 1, -38),
+    Position = UDim2.new(0, 0, 0, 38),
+    BackgroundColor3 = Colors.Surface,
+    BackgroundTransparency = 0.15,
+    BorderSizePixel = 0,
+    ZIndex = 12,
+    ClipsDescendants = true,
+    Parent = MainFrame
+})
+
+-- Sidebar separator
+Util.Create("Frame", {
+    Size = UDim2.new(0, 1, 1, 0),
+    Position = UDim2.new(1, 0, 0, 0),
+    BackgroundColor3 = Colors.Border,
+    BackgroundTransparency = 0.5,
+    BorderSizePixel = 0,
+    ZIndex = 13,
+    Parent = Sidebar
+})
+
+local SidebarScroll = Util.Create("ScrollingFrame", {
+    Size = UDim2.new(1, 0, 1, -10),
+    Position = UDim2.new(0, 0, 0, 5),
+    BackgroundTransparency = 1,
+    BorderSizePixel = 0,
+    ScrollBarThickness = 0,
+    ScrollBarImageTransparency = 1,
+    CanvasSize = UDim2.new(0, 0, 0, 0),
+    AutomaticCanvasSize = Enum.AutomaticSize.Y,
+    ZIndex = 13,
+    Parent = Sidebar
+})
+Util.AddListLayout(SidebarScroll, 2)
+Util.AddPadding(SidebarScroll, 6, 6, 8, 8)
+
+-- Tab Content Area
+local ContentArea = Util.Create("Frame", {
+    Name = "ContentArea",
+    Size = UDim2.new(1, -180, 1, -38),
+    Position = UDim2.new(0, 180, 0, 38),
+    BackgroundTransparency = 1,
+    BorderSizePixel = 0,
+    ZIndex = 11,
+    ClipsDescendants = true,
+    Parent = MainFrame
+})
+
+-- Tab pages
+local TabPages = {}
+local TabButtons = {}
+
+local Tabs = {
+    {Name = "Dashboard", Icon = "[D]"},
+    {Name = "ESP Player", Icon = "[E]"},
+    {Name = "Teleport", Icon = "[T]"},
+    {Name = "Speed", Icon = "[S]"},
+    {Name = "POV Circle", Icon = "[P]"},
+    {Name = "Observation", Icon = "[O]"},
+    {Name = "Settings", Icon = "[G]"},
+}
+
+local function CreateTabPage(name)
+    local page = Util.Create("ScrollingFrame", {
         Name = name,
-        Size = UDim2.new(1, 0, 0, 0),
+        Size = UDim2.new(1, 0, 1, 0),
         BackgroundTransparency = 1,
-        AutomaticSize = Enum.AutomaticSize.Y,
+        BorderSizePixel = 0,
+        ScrollBarThickness = 3,
+        ScrollBarImageColor3 = Colors.Accent,
+        ScrollBarImageTransparency = 0.5,
+        CanvasSize = UDim2.new(0, 0, 0, 0),
+        AutomaticCanvasSize = Enum.AutomaticSize.Y,
         Visible = false,
-        Parent = PageContainer,
+        ZIndex = 12,
+        Parent = ContentArea
     })
-    
-    Util.Create("UIListLayout", {
-        SortOrder = Enum.SortOrder.LayoutOrder,
-        Padding = UDim.new(0, 10),
-        Parent = page,
-    })
-    
-    Pages[name] = page
+    Util.AddPadding(page, 16, 16, 20, 20)
+    Util.AddListLayout(page, 10)
+    TabPages[name] = page
     return page
 end
 
-function Window.Show()
-    IsWindowOpen = true
-    MainFrame.Visible = true
-    MainFrame.Size = UDim2.new(0, Config.Sizes.WindowDefaultWidth - 40, 0, Config.Sizes.WindowDefaultHeight - 40)
-    MainFrame.BackgroundTransparency = 1
-    
-    local stroke = MainFrame:FindFirstChildOfClass("UIStroke")
-    if stroke then stroke.Transparency = 1 end
-    
-    Util.Tween(MainFrame, {
-        Size = UDim2.new(0, Config.Sizes.WindowDefaultWidth, 0, Config.Sizes.WindowDefaultHeight),
-        BackgroundTransparency = 0.02,
-    }, 0.35, Enum.EasingStyle.Quint)
-    
-    if stroke then
-        Util.Tween(stroke, {Transparency = 0.3}, 0.35)
+local function SwitchTab(name)
+    State.ActiveTab = name
+    for tName, page in pairs(TabPages) do
+        if tName == name then
+            page.Visible = true
+            page.BackgroundTransparency = 1
+        else
+            page.Visible = false
+        end
     end
-    
-    if Config.Settings.BlurEnabled then
-        Util.Tween(BlurEffect, {Size = 12}, 0.3)
+    for tName, btn in pairs(TabButtons) do
+        if tName == name then
+            Util.Tween(btn, 0.25, {BackgroundTransparency = 0.75})
+            Util.Tween(btn.Label, 0.25, {TextColor3 = Colors.Accent})
+            Util.Tween(btn.Icon, 0.25, {TextColor3 = Colors.Accent})
+            btn.Indicator.Visible = true
+            Util.Tween(btn.Indicator, 0.25, {BackgroundTransparency = 0})
+        else
+            Util.Tween(btn, 0.25, {BackgroundTransparency = 1})
+            Util.Tween(btn.Label, 0.25, {TextColor3 = Colors.TextDim})
+            Util.Tween(btn.Icon, 0.25, {TextColor3 = Colors.TextMuted})
+            Util.Tween(btn.Indicator, 0.2, {BackgroundTransparency = 1})
+        end
     end
-    
-    FloatingButton.Hide()
 end
 
-function Window.Close()
-    IsWindowOpen = false
-    
-    local stroke = MainFrame:FindFirstChildOfClass("UIStroke")
-    
-    Util.Tween(MainFrame, {
+-- Create sidebar buttons
+for i, tab in ipairs(Tabs) do
+    local btn = Util.Create("TextButton", {
+        Name = tab.Name,
+        Size = UDim2.new(1, 0, 0, 36),
+        BackgroundColor3 = Colors.Accent,
         BackgroundTransparency = 1,
-        Size = UDim2.new(0, Config.Sizes.WindowDefaultWidth - 30, 0, Config.Sizes.WindowDefaultHeight - 30),
-    }, 0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.In)
-    
-    if stroke then
-        Util.Tween(stroke, {Transparency = 1}, 0.2)
-    end
-    
-    Util.Tween(BlurEffect, {Size = 0}, 0.3)
-    
-    task.delay(0.28, function()
-        if not IsWindowOpen then
-            MainFrame.Visible = false
-            Config.Window.Maximized = false
+        BorderSizePixel = 0,
+        Text = "",
+        ZIndex = 14,
+        AutoButtonColor = false,
+        LayoutOrder = i,
+        Parent = SidebarScroll
+    })
+    Util.AddCorner(btn, 8)
+
+    -- Active indicator
+    local indicator = Util.Create("Frame", {
+        Name = "Indicator",
+        Size = UDim2.new(0, 3, 0, 18),
+        Position = UDim2.new(0, 0, 0.5, 0),
+        AnchorPoint = Vector2.new(0, 0.5),
+        BackgroundColor3 = Colors.Accent,
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        ZIndex = 15,
+        Visible = false,
+        Parent = btn
+    })
+    Util.AddCorner(indicator, 2)
+
+    local icon = Util.Create("TextLabel", {
+        Name = "Icon",
+        Text = tab.Icon,
+        Size = UDim2.new(0, 36, 1, 0),
+        Position = UDim2.new(0, 6, 0, 0),
+        BackgroundTransparency = 1,
+        Font = Enum.Font.Code,
+        TextSize = 11,
+        TextColor3 = Colors.TextMuted,
+        ZIndex = 15,
+        Parent = btn
+    })
+
+    local label = Util.Create("TextLabel", {
+        Name = "Label",
+        Text = tab.Name,
+        Size = UDim2.new(1, -48, 1, 0),
+        Position = UDim2.new(0, 42, 0, 0),
+        BackgroundTransparency = 1,
+        Font = Enum.Font.GothamMedium,
+        TextSize = 12,
+        TextColor3 = Colors.TextDim,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        ZIndex = 15,
+        Parent = btn
+    })
+
+    btn.Indicator = indicator
+    btn.Icon = icon
+    btn.Label = label
+    TabButtons[tab.Name] = btn
+
+    btn.MouseEnter:Connect(function()
+        if State.ActiveTab ~= tab.Name then
+            Util.Tween(btn, 0.2, {BackgroundTransparency = 0.85})
         end
     end)
-    
-    FloatingButton.Show()
-end
+    btn.MouseLeave:Connect(function()
+        if State.ActiveTab ~= tab.Name then
+            Util.Tween(btn, 0.2, {BackgroundTransparency = 1})
+        end
+    end)
+    btn.MouseButton1Click:Connect(function()
+        Util.Ripple(btn)
+        SwitchTab(tab.Name)
+    end)
 
-function Window.Minimize()
-    Window.Close()
-end
-
-function Window.ToggleMaximize()
-    local screenSize = Util.GetScreenSize()
-    if Config.Window.Maximized then
-        Config.Window.Maximized = false
-        Util.Tween(MainFrame, {
-            Size = UDim2.new(0, Config.Sizes.WindowDefaultWidth, 0, Config.Sizes.WindowDefaultHeight),
-            Position = UDim2.new(0.5, 0, 0.5, 0),
-        }, 0.3, Enum.EasingStyle.Quint)
-    else
-        Config.Window.Maximized = true
-        Util.Tween(MainFrame, {
-            Size = UDim2.new(1, -20, 1, -20),
-            Position = UDim2.new(0.5, 0, 0.5, 0),
-        }, 0.3, Enum.EasingStyle.Quint)
-    end
+    CreateTabPage(tab.Name)
 end
 
 -- ============================================================
--- UI COMPONENTS
+-- UI COMPONENT BUILDERS
 -- ============================================================
-local Components = {}
-
-function Components.SectionTitle(parent, text, layoutOrder)
-    local label = Util.Create("TextLabel", {
-        Size = UDim2.new(1, 0, 0, 24),
-        BackgroundTransparency = 1,
+local function CreateSectionHeader(parent, text, layoutOrder)
+    local header = Util.Create("TextLabel", {
         Text = text,
-        TextColor3 = Config.Colors.TextPrimary,
-        TextSize = 15,
+        Size = UDim2.new(1, 0, 0, 28),
+        BackgroundTransparency = 1,
         Font = Enum.Font.GothamBold,
+        TextSize = 15,
+        TextColor3 = Colors.Text,
         TextXAlignment = Enum.TextXAlignment.Left,
+        ZIndex = 13,
         LayoutOrder = layoutOrder or 0,
-        Parent = parent,
+        Parent = parent
     })
-    return label
+    return header
 end
 
-function Components.Description(parent, text, layoutOrder)
-    local label = Util.Create("TextLabel", {
-        Size = UDim2.new(1, 0, 0, 16),
-        BackgroundTransparency = 1,
-        Text = text,
-        TextColor3 = Config.Colors.TextDim,
-        TextSize = 11,
-        Font = Enum.Font.Gotham,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        TextWrapped = true,
-        AutomaticSize = Enum.AutomaticSize.Y,
-        LayoutOrder = layoutOrder or 0,
-        Parent = parent,
-    })
-    return label
-end
-
-function Components.Card(parent, height, layoutOrder)
+local function CreateCard(parent, height, layoutOrder)
     local card = Util.Create("Frame", {
-        Size = UDim2.new(1, 0, 0, height or 0),
-        AutomaticSize = (height == nil) and Enum.AutomaticSize.Y or Enum.AutomaticSize.None,
-        BackgroundColor3 = Config.Colors.Surface,
-        BackgroundTransparency = 0.15,
+        Size = UDim2.new(1, 0, 0, height or 60),
+        BackgroundColor3 = Colors.SurfaceLight,
+        BackgroundTransparency = 0.3,
+        BorderSizePixel = 0,
+        ZIndex = 13,
         LayoutOrder = layoutOrder or 0,
-        Parent = parent,
+        AutomaticSize = height == nil and Enum.AutomaticSize.Y or Enum.AutomaticSize.None,
+        Parent = parent
     })
-    Util.AddCorner(card, Config.Sizes.CornerRadius)
-    Util.AddStroke(card, Config.Colors.Border, 1, 0.6)
-    Util.AddPadding(card, 12, 12, 12, 12)
-    
-    Util.Create("UIListLayout", {
-        SortOrder = Enum.SortOrder.LayoutOrder,
-        Padding = UDim.new(0, 8),
-        Parent = card,
-    })
-    
+    Util.AddCorner(card, 10)
+    Util.AddStroke(card, Colors.Border, 1, 0.6)
     return card
 end
 
-function Components.Toggle(parent, label, default, callback, layoutOrder)
+local function CreateToggle(parent, text, default, callback, layoutOrder)
     local container = Util.Create("Frame", {
-        Size = UDim2.new(1, 0, 0, 28),
+        Size = UDim2.new(1, 0, 0, 36),
         BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        ZIndex = 14,
         LayoutOrder = layoutOrder or 0,
-        Parent = parent,
+        Parent = parent
     })
-    
-    local textLabel = Util.Create("TextLabel", {
-        Size = UDim2.new(1, -52, 1, 0),
+
+    Util.Create("TextLabel", {
+        Text = text,
+        Size = UDim2.new(1, -60, 1, 0),
+        Position = UDim2.new(0, 4, 0, 0),
         BackgroundTransparency = 1,
-        Text = label,
-        TextColor3 = Config.Colors.TextSecondary,
-        TextSize = 12,
         Font = Enum.Font.GothamMedium,
+        TextSize = 12,
+        TextColor3 = Colors.TextDim,
         TextXAlignment = Enum.TextXAlignment.Left,
-        Parent = container,
+        ZIndex = 15,
+        Parent = container
     })
-    
+
     local toggleBg = Util.Create("TextButton", {
-        Size = UDim2.new(0, 40, 0, 20),
-        Position = UDim2.new(1, -40, 0.5, 0),
-        AnchorPoint = Vector2.new(0, 0.5),
-        BackgroundColor3 = default and Config.Colors.AccentPrimary or Config.Colors.SurfaceLight,
         Text = "",
-        Parent = container,
+        Size = UDim2.new(0, 44, 0, 22),
+        Position = UDim2.new(1, -4, 0.5, 0),
+        AnchorPoint = Vector2.new(1, 0.5),
+        BackgroundColor3 = default and Colors.Accent or Colors.SurfaceHover,
+        BorderSizePixel = 0,
+        ZIndex = 15,
+        AutoButtonColor = false,
+        Parent = container
     })
-    Util.AddCorner(toggleBg, UDim.new(0, 10))
-    
-    local toggleCircle = Util.Create("Frame", {
-        Size = UDim2.new(0, 14, 0, 14),
-        Position = default and UDim2.new(1, -17, 0.5, 0) or UDim2.new(0, 3, 0.5, 0),
+    Util.AddCorner(toggleBg, 11)
+
+    local toggleKnob = Util.Create("Frame", {
+        Size = UDim2.new(0, 16, 0, 16),
+        Position = default and UDim2.new(1, -19, 0.5, 0) or UDim2.new(0, 3, 0.5, 0),
         AnchorPoint = Vector2.new(0, 0.5),
-        BackgroundColor3 = Config.Colors.TextPrimary,
-        Parent = toggleBg,
+        BackgroundColor3 = Colors.Text,
+        BorderSizePixel = 0,
+        ZIndex = 16,
+        Parent = toggleBg
     })
-    Util.AddCorner(toggleCircle, UDim.new(0, 7))
-    
-    local state = default or false
-    
+    Util.AddCorner(toggleKnob, 8)
+
+    local enabled = default or false
+
     toggleBg.MouseButton1Click:Connect(function()
-        state = not state
-        if state then
-            Util.Tween(toggleBg, {BackgroundColor3 = Config.Colors.AccentPrimary}, 0.2)
-            Util.Tween(toggleCircle, {Position = UDim2.new(1, -17, 0.5, 0)}, 0.2, Enum.EasingStyle.Quint)
-        else
-            Util.Tween(toggleBg, {BackgroundColor3 = Config.Colors.SurfaceLight}, 0.2)
-            Util.Tween(toggleCircle, {Position = UDim2.new(0, 3, 0.5, 0)}, 0.2, Enum.EasingStyle.Quint)
-        end
-        if callback then callback(state) end
+        enabled = not enabled
+        Util.Tween(toggleBg, 0.25, {
+            BackgroundColor3 = enabled and Colors.Accent or Colors.SurfaceHover
+        })
+        Util.Tween(toggleKnob, 0.25, {
+            Position = enabled and UDim2.new(1, -19, 0.5, 0) or UDim2.new(0, 3, 0.5, 0)
+        }, Enum.EasingStyle.Back)
+        if callback then callback(enabled) end
     end)
-    
-    return container, function() return state end, function(v)
-        state = v
-        if state then
-            Util.Tween(toggleBg, {BackgroundColor3 = Config.Colors.AccentPrimary}, 0.2)
-            Util.Tween(toggleCircle, {Position = UDim2.new(1, -17, 0.5, 0)}, 0.2, Enum.EasingStyle.Quint)
-        else
-            Util.Tween(toggleBg, {BackgroundColor3 = Config.Colors.SurfaceLight}, 0.2)
-            Util.Tween(toggleCircle, {Position = UDim2.new(0, 3, 0.5, 0)}, 0.2, Enum.EasingStyle.Quint)
-        end
+
+    return container, function() return enabled end, function(val)
+        enabled = val
+        Util.Tween(toggleBg, 0.25, {BackgroundColor3 = enabled and Colors.Accent or Colors.SurfaceHover})
+        Util.Tween(toggleKnob, 0.25, {Position = enabled and UDim2.new(1, -19, 0.5, 0) or UDim2.new(0, 3, 0.5, 0)}, Enum.EasingStyle.Back)
     end
 end
 
-function Components.Slider(parent, label, min, max, default, callback, layoutOrder)
+local function CreateSlider(parent, text, min, max, default, callback, layoutOrder)
     local container = Util.Create("Frame", {
-        Size = UDim2.new(1, 0, 0, 42),
+        Size = UDim2.new(1, 0, 0, 52),
         BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        ZIndex = 14,
         LayoutOrder = layoutOrder or 0,
-        Parent = parent,
+        Parent = parent
     })
-    
-    local textLabel = Util.Create("TextLabel", {
-        Size = UDim2.new(0.6, 0, 0, 16),
+
+    local label = Util.Create("TextLabel", {
+        Text = text,
+        Size = UDim2.new(0.6, 0, 0, 18),
+        Position = UDim2.new(0, 4, 0, 2),
         BackgroundTransparency = 1,
-        Text = label,
-        TextColor3 = Config.Colors.TextSecondary,
+        Font = Enum.Font.GothamMedium,
         TextSize = 12,
-        Font = Enum.Font.GothamMedium,
+        TextColor3 = Colors.TextDim,
         TextXAlignment = Enum.TextXAlignment.Left,
-        Parent = container,
+        ZIndex = 15,
+        Parent = container
     })
-    
+
     local valueBox = Util.Create("TextBox", {
+        Text = tostring(default),
         Size = UDim2.new(0, 50, 0, 20),
-        Position = UDim2.new(1, -50, 0, -2),
-        BackgroundColor3 = Config.Colors.SurfaceLight,
+        Position = UDim2.new(1, -4, 0, 0),
+        AnchorPoint = Vector2.new(1, 0),
+        BackgroundColor3 = Colors.SurfaceHover,
         BackgroundTransparency = 0.3,
-        Text = tostring(default or min),
-        TextColor3 = Config.Colors.TextAccent,
+        Font = Enum.Font.Code,
         TextSize = 11,
-        Font = Enum.Font.GothamMedium,
+        TextColor3 = Colors.Text,
+        BorderSizePixel = 0,
+        ZIndex = 15,
         ClearTextOnFocus = false,
-        Parent = container,
+        Parent = container
     })
-    Util.AddCorner(valueBox, UDim.new(0, 4))
-    
+    Util.AddCorner(valueBox, 5)
+
     local sliderBg = Util.Create("Frame", {
-        Size = UDim2.new(1, 0, 0, 6),
-        Position = UDim2.new(0, 0, 0, 26),
-        BackgroundColor3 = Config.Colors.SurfaceLight,
-        Parent = container,
+        Size = UDim2.new(1, -8, 0, 6),
+        Position = UDim2.new(0, 4, 0, 32),
+        BackgroundColor3 = Colors.SurfaceHover,
+        BorderSizePixel = 0,
+        ZIndex = 15,
+        Parent = container
     })
-    Util.AddCorner(sliderBg, UDim.new(0, 3))
-    
-    local normalizedDefault = ((default or min) - min) / (max - min)
-    
+    Util.AddCorner(sliderBg, 3)
+
     local sliderFill = Util.Create("Frame", {
-        Size = UDim2.new(normalizedDefault, 0, 1, 0),
-        BackgroundColor3 = Config.Colors.AccentPrimary,
-        Parent = sliderBg,
+        Size = UDim2.new((default - min) / (max - min), 0, 1, 0),
+        BackgroundColor3 = Colors.Accent,
+        BorderSizePixel = 0,
+        ZIndex = 16,
+        Parent = sliderBg
     })
-    Util.AddCorner(sliderFill, UDim.new(0, 3))
-    
+    Util.AddCorner(sliderFill, 3)
+
     local sliderKnob = Util.Create("Frame", {
         Size = UDim2.new(0, 14, 0, 14),
-        Position = UDim2.new(normalizedDefault, 0, 0.5, 0),
+        Position = UDim2.new((default - min) / (max - min), 0, 0.5, 0),
         AnchorPoint = Vector2.new(0.5, 0.5),
-        BackgroundColor3 = Config.Colors.TextPrimary,
-        ZIndex = 2,
-        Parent = sliderBg,
+        BackgroundColor3 = Colors.Text,
+        BorderSizePixel = 0,
+        ZIndex = 17,
+        Parent = sliderBg
     })
-    Util.AddCorner(sliderKnob, UDim.new(0, 7))
-    
+    Util.AddCorner(sliderKnob, 7)
+    Util.AddStroke(sliderKnob, Colors.Accent, 2, 0.2)
+
+    local currentValue = default
     local sliding = false
-    local currentValue = default or min
-    
-    local function UpdateSlider(inputX)
-        local relX = inputX - sliderBg.AbsolutePosition.X
-        local ratio = Util.Clamp(relX / sliderBg.AbsoluteSize.X, 0, 1)
-        currentValue = math.floor(min + (max - min) * ratio)
-        
+
+    local function UpdateSlider(ratio)
+        ratio = math.clamp(ratio, 0, 1)
+        currentValue = math.floor(min + (max - min) * ratio + 0.5)
         sliderFill.Size = UDim2.new(ratio, 0, 1, 0)
         sliderKnob.Position = UDim2.new(ratio, 0, 0.5, 0)
         valueBox.Text = tostring(currentValue)
-        
         if callback then callback(currentValue) end
     end
-    
+
     local sliderButton = Util.Create("TextButton", {
-        Size = UDim2.new(1, 0, 0, 18),
-        Position = UDim2.new(0, 0, 0, 20),
-        BackgroundTransparency = 1,
         Text = "",
-        ZIndex = 3,
-        Parent = container,
+        Size = UDim2.new(1, 0, 0, 22),
+        Position = UDim2.new(0, 0, 0, 24),
+        BackgroundTransparency = 1,
+        ZIndex = 18,
+        AutoButtonColor = false,
+        Parent = container
     })
-    
+
     sliderButton.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or
+           input.UserInputType == Enum.UserInputType.Touch then
             sliding = true
-            UpdateSlider(input.Position.X)
+            local ratio = math.clamp((input.Position.X - sliderBg.AbsolutePosition.X) / sliderBg.AbsoluteSize.X, 0, 1)
+            UpdateSlider(ratio)
         end
     end)
-    
+
     sliderButton.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or
+           input.UserInputType == Enum.UserInputType.Touch then
             sliding = false
         end
     end)
-    
-    Util.AddConnection(UserInputService.InputChanged:Connect(function(input)
-        if sliding and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-            UpdateSlider(input.Position.X)
+
+    Util.Connect(UserInputService.InputChanged, function(input)
+        if sliding and (input.UserInputType == Enum.UserInputType.MouseMovement or
+           input.UserInputType == Enum.UserInputType.Touch) then
+            local ratio = math.clamp((input.Position.X - sliderBg.AbsolutePosition.X) / sliderBg.AbsoluteSize.X, 0, 1)
+            UpdateSlider(ratio)
         end
-    end))
-    
-    Util.AddConnection(UserInputService.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            sliding = false
-        end
-    end))
-    
+    end)
+
     valueBox.FocusLost:Connect(function()
-        local val = tonumber(valueBox.Text)
-        if val then
-            val = Util.Clamp(math.floor(val), min, max)
-            currentValue = val
-            local ratio = (val - min) / (max - min)
-            sliderFill.Size = UDim2.new(ratio, 0, 1, 0)
-            sliderKnob.Position = UDim2.new(ratio, 0, 0.5, 0)
-            valueBox.Text = tostring(val)
-            if callback then callback(val) end
+        local num = tonumber(valueBox.Text)
+        if num then
+            num = math.clamp(math.floor(num), min, max)
+            UpdateSlider((num - min) / (max - min))
         else
             valueBox.Text = tostring(currentValue)
         end
     end)
-    
+
     return container, function() return currentValue end
 end
 
-function Components.Button(parent, text, callback, layoutOrder, isPrimary)
+local function CreateButton(parent, text, callback, layoutOrder)
     local btn = Util.Create("TextButton", {
-        Size = UDim2.new(0, 140, 0, 30),
-        BackgroundColor3 = isPrimary and Config.Colors.AccentPrimary or Config.Colors.SurfaceLight,
-        BackgroundTransparency = isPrimary and 0.1 or 0.3,
         Text = text,
-        TextColor3 = isPrimary and Config.Colors.TextPrimary or Config.Colors.TextSecondary,
+        Size = UDim2.new(1, 0, 0, 34),
+        BackgroundColor3 = Colors.Accent,
+        BackgroundTransparency = 0.15,
+        Font = Enum.Font.GothamBold,
         TextSize = 12,
-        Font = Enum.Font.GothamMedium,
+        TextColor3 = Colors.Text,
+        BorderSizePixel = 0,
+        ZIndex = 15,
+        AutoButtonColor = false,
         LayoutOrder = layoutOrder or 0,
-        Parent = parent,
+        Parent = parent
     })
-    Util.AddCorner(btn, Config.Sizes.CornerRadiusSmall)
-    
+    Util.AddCorner(btn, 8)
+
     btn.MouseEnter:Connect(function()
-        Util.Tween(btn, {BackgroundTransparency = 0}, 0.15)
-        Util.Tween(btn, {TextColor3 = Config.Colors.TextPrimary}, 0.15)
+        Util.Tween(btn, 0.2, {BackgroundTransparency = 0.05})
     end)
     btn.MouseLeave:Connect(function()
-        Util.Tween(btn, {BackgroundTransparency = isPrimary and 0.1 or 0.3}, 0.15)
-        Util.Tween(btn, {TextColor3 = isPrimary and Config.Colors.TextPrimary or Config.Colors.TextSecondary}, 0.15)
+        Util.Tween(btn, 0.2, {BackgroundTransparency = 0.15})
     end)
-    
     btn.MouseButton1Click:Connect(function()
-        -- Ripple effect
-        local ripple = Util.Create("Frame", {
-            Size = UDim2.new(0, 0, 0, 0),
-            Position = UDim2.new(0.5, 0, 0.5, 0),
-            AnchorPoint = Vector2.new(0.5, 0.5),
-            BackgroundColor3 = Config.Colors.TextPrimary,
-            BackgroundTransparency = 0.7,
-            Parent = btn,
-        })
-        Util.AddCorner(ripple, UDim.new(0.5, 0))
-        
-        Util.Tween(ripple, {Size = UDim2.new(2, 0, 2, 0), BackgroundTransparency = 1}, 0.4, Enum.EasingStyle.Quart)
-        task.delay(0.4, function()
-            if ripple and ripple.Parent then ripple:Destroy() end
-        end)
-        
+        Util.Ripple(btn)
         if callback then callback() end
     end)
-    
     return btn
 end
 
-function Components.InfoRow(parent, label, defaultValue, layoutOrder)
-    local row = Util.Create("Frame", {
+local function CreateInfoLabel(parent, text, layoutOrder)
+    local lbl = Util.Create("TextLabel", {
+        Text = text,
         Size = UDim2.new(1, 0, 0, 20),
         BackgroundTransparency = 1,
-        LayoutOrder = layoutOrder or 0,
-        Parent = parent,
-    })
-    
-    Util.Create("TextLabel", {
-        Size = UDim2.new(0.4, 0, 1, 0),
-        BackgroundTransparency = 1,
-        Text = label,
-        TextColor3 = Config.Colors.TextDim,
-        TextSize = 11,
         Font = Enum.Font.Gotham,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        Parent = row,
-    })
-    
-    local valueLabel = Util.Create("TextLabel", {
-        Name = "Value",
-        Size = UDim2.new(0.6, 0, 1, 0),
-        Position = UDim2.new(0.4, 0, 0, 0),
-        BackgroundTransparency = 1,
-        Text = defaultValue or "--",
-        TextColor3 = Config.Colors.TextSecondary,
         TextSize = 11,
-        Font = Enum.Font.GothamMedium,
+        TextColor3 = Colors.TextDim,
         TextXAlignment = Enum.TextXAlignment.Left,
-        Parent = row,
-    })
-    
-    return row, valueLabel
-end
-
-function Components.Separator(parent, layoutOrder)
-    return Util.Create("Frame", {
-        Size = UDim2.new(1, 0, 0, 1),
-        BackgroundColor3 = Config.Colors.Border,
-        BackgroundTransparency = 0.6,
-        BorderSizePixel = 0,
+        ZIndex = 15,
         LayoutOrder = layoutOrder or 0,
-        Parent = parent,
+        Parent = parent
     })
+    return lbl
 end
 
-function Components.ColorInput(parent, label, default, callback, layoutOrder)
+local function CreateColorPicker(parent, text, default, callback, layoutOrder)
     local container = Util.Create("Frame", {
-        Size = UDim2.new(1, 0, 0, 28),
+        Size = UDim2.new(1, 0, 0, 36),
         BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        ZIndex = 14,
         LayoutOrder = layoutOrder or 0,
-        Parent = parent,
+        Parent = parent
     })
-    
+
     Util.Create("TextLabel", {
-        Size = UDim2.new(1, -36, 1, 0),
+        Text = text,
+        Size = UDim2.new(1, -40, 1, 0),
+        Position = UDim2.new(0, 4, 0, 0),
         BackgroundTransparency = 1,
-        Text = label,
-        TextColor3 = Config.Colors.TextSecondary,
+        Font = Enum.Font.GothamMedium,
         TextSize = 12,
-        Font = Enum.Font.GothamMedium,
+        TextColor3 = Colors.TextDim,
         TextXAlignment = Enum.TextXAlignment.Left,
-        Parent = container,
+        ZIndex = 15,
+        Parent = container
     })
-    
-    local colorPreview = Util.Create("TextButton", {
-        Size = UDim2.new(0, 28, 0, 20),
-        Position = UDim2.new(1, -28, 0.5, 0),
-        AnchorPoint = Vector2.new(0, 0.5),
-        BackgroundColor3 = default or Config.Colors.AccentPrimary,
-        Text = "",
-        Parent = container,
+
+    local preview = Util.Create("Frame", {
+        Size = UDim2.new(0, 28, 0, 22),
+        Position = UDim2.new(1, -4, 0.5, 0),
+        AnchorPoint = Vector2.new(1, 0.5),
+        BackgroundColor3 = default or Colors.Accent,
+        BorderSizePixel = 0,
+        ZIndex = 15,
+        Parent = container
     })
-    Util.AddCorner(colorPreview, UDim.new(0, 4))
-    Util.AddStroke(colorPreview, Config.Colors.BorderLight, 1, 0.3)
-    
-    return container
+    Util.AddCorner(preview, 6)
+    Util.AddStroke(preview, Colors.Border, 1, 0.5)
+
+    return container, preview
 end
 
 -- ============================================================
--- FLOATING BUTTON
+-- DASHBOARD TAB
 -- ============================================================
-FloatingButton = {}
-local FloatBtn
+local dashPage = TabPages["Dashboard"]
 
-do
-    local size = Config.Sizes.FloatingButtonSize
-    
-    FloatBtn = Util.Create("TextButton", {
-        Name = "FloatBtn",
-        Size = UDim2.new(0, size, 0, size),
-        Position = UDim2.new(0, 20, 0.5, 0),
-        AnchorPoint = Vector2.new(0, 0.5),
-        BackgroundColor3 = Config.Colors.AccentPrimary,
-        BackgroundTransparency = 0.05,
-        Text = "",
-        Visible = false,
-        ZIndex = 50,
-        Parent = FloatGui,
-    })
-    Util.AddCorner(FloatBtn, UDim.new(0, 12))
-    Util.AddStroke(FloatBtn, Config.Colors.AccentGlow, 1, 0.5)
-    
-    local floatLabel = Util.Create("TextLabel", {
-        Size = UDim2.new(1, 0, 1, 0),
-        BackgroundTransparency = 1,
-        Text = "H",
-        TextColor3 = Config.Colors.TextPrimary,
-        TextSize = 20,
-        Font = Enum.Font.GothamBold,
-        ZIndex = 51,
-        Parent = FloatBtn,
-    })
-    
-    -- Glow behind
-    local floatGlow = Util.Create("Frame", {
-        Size = UDim2.new(1, 12, 1, 12),
-        Position = UDim2.new(0.5, 0, 0.5, 0),
-        AnchorPoint = Vector2.new(0.5, 0.5),
-        BackgroundColor3 = Config.Colors.AccentPrimary,
-        BackgroundTransparency = 0.85,
-        ZIndex = 49,
-        Parent = FloatBtn,
-    })
-    Util.AddCorner(floatGlow, UDim.new(0, 16))
-    
-    -- Idle pulse animation
-    task.spawn(function()
-        while true do
-            if FloatBtn and FloatBtn.Parent and FloatBtn.Visible then
-                Util.Tween(floatGlow, {BackgroundTransparency = 0.75, Size = UDim2.new(1, 18, 1, 18)}, 1.2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-                task.wait(1.2)
-                Util.Tween(floatGlow, {BackgroundTransparency = 0.9, Size = UDim2.new(1, 10, 1, 10)}, 1.2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-                task.wait(1.2)
-            else
-                task.wait(0.5)
-            end
-        end
-    end)
-    
-    -- Hover
-    FloatBtn.MouseEnter:Connect(function()
-        Util.Tween(FloatBtn, {BackgroundTransparency = 0, Size = UDim2.new(0, size + 4, 0, size + 4)}, 0.2, Enum.EasingStyle.Quint)
-    end)
-    
-    FloatBtn.MouseLeave:Connect(function()
-        Util.Tween(FloatBtn, {BackgroundTransparency = 0.05, Size = UDim2.new(0, size, 0, size)}, 0.2, Enum.EasingStyle.Quint)
-    end)
-    
-    -- Click to open
-    FloatBtn.MouseButton1Click:Connect(function()
-        -- Ripple
-        local ripple = Util.Create("Frame", {
-            Size = UDim2.new(0, 0, 0, 0),
-            Position = UDim2.new(0.5, 0, 0.5, 0),
-            AnchorPoint = Vector2.new(0.5, 0.5),
-            BackgroundColor3 = Config.Colors.TextPrimary,
-            BackgroundTransparency = 0.6,
-            ZIndex = 52,
-            Parent = FloatBtn,
-        })
-        Util.AddCorner(ripple, UDim.new(0.5, 0))
-        Util.Tween(ripple, {Size = UDim2.new(3, 0, 3, 0), BackgroundTransparency = 1}, 0.5)
-        task.delay(0.5, function()
-            if ripple and ripple.Parent then ripple:Destroy() end
-        end)
-        
-        Window.Show()
-    end)
-    
-    -- Drag floating button
-    local fbDragging, fbDragStart, fbStartPos
-    
-    FloatBtn.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            fbDragging = true
-            fbDragStart = input.Position
-            fbStartPos = FloatBtn.Position
-            
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    fbDragging = false
-                end
-            end)
-        end
-    end)
-    
-    Util.AddConnection(UserInputService.InputChanged:Connect(function(input)
-        if fbDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-            local delta = input.Position - fbDragStart
-            local screenSize = Util.GetScreenSize()
-            local newX = Util.Clamp(fbStartPos.X.Offset + delta.X, 0, screenSize.X - size)
-            local newY = Util.Clamp(fbStartPos.Y.Offset + delta.Y, -screenSize.Y/2, screenSize.Y/2 - size)
-            FloatBtn.Position = UDim2.new(0, newX, 0.5, newY)
-        end
-    end))
-end
+CreateSectionHeader(dashPage, "Dashboard", 1)
 
-function FloatingButton.Show()
-    FloatBtn.Visible = true
-    FloatBtn.BackgroundTransparency = 1
-    Util.Tween(FloatBtn, {BackgroundTransparency = 0.05}, 0.3, Enum.EasingStyle.Quart)
-end
+local statsCard = CreateCard(dashPage, nil, 2)
+Util.AddPadding(statsCard, 14, 14, 14, 14)
+local statsLayout = Util.Create("Frame", {
+    Size = UDim2.new(1, 0, 0, 0),
+    BackgroundTransparency = 1,
+    AutomaticSize = Enum.AutomaticSize.Y,
+    Parent = statsCard
+})
+Util.AddListLayout(statsLayout, 6)
 
-function FloatingButton.Hide()
-    Util.Tween(FloatBtn, {BackgroundTransparency = 1}, 0.2, Enum.EasingStyle.Quart)
-    task.delay(0.2, function()
-        if IsWindowOpen then
-            FloatBtn.Visible = false
-        end
-    end)
-end
+local dashFPS = CreateInfoLabel(statsLayout, "FPS: --", 1)
+local dashPing = CreateInfoLabel(statsLayout, "Ping: --", 2)
+local dashPlayers = CreateInfoLabel(statsLayout, "Players: --", 3)
+local dashUptime = CreateInfoLabel(statsLayout, "Session: 0s", 4)
+local dashStatus = CreateInfoLabel(statsLayout, "Status: Ready", 5)
 
--- ============================================================
--- ESP MODULE
--- ============================================================
-local ESPModule = {}
-local ESPObjects = {}
-local ESPConnection = nil
+local startTime = tick()
 
-function ESPModule.CreateESP(player)
-    if player == LocalPlayer then return end
-    if ESPObjects[player] then return end
-    
-    local espData = {}
-    
-    -- Drawing objects for ESP
-    local highlight = Instance.new("Highlight")
-    highlight.Name = "HoshiESP"
-    highlight.FillTransparency = 0.85
-    highlight.OutlineTransparency = 0.3
-    highlight.FillColor = Config.Colors.AccentPrimary
-    highlight.OutlineColor = Config.Colors.AccentPrimary
-    highlight.Enabled = false
-    
-    -- BillboardGui for info
-    local billboard = Util.Create("BillboardGui", {
-        Name = "HoshiESPInfo",
-        Size = UDim2.new(0, 200, 0, 80),
-        StudsOffset = Vector3.new(0, 3.5, 0),
-        AlwaysOnTop = true,
-        LightInfluence = 0,
-    })
-    
-    local infoFrame = Util.Create("Frame", {
-        Size = UDim2.new(1, 0, 1, 0),
-        BackgroundTransparency = 1,
-        Parent = billboard,
-    })
-    
-    local nameLabel = Util.Create("TextLabel", {
-        Size = UDim2.new(1, 0, 0, 16),
-        Position = UDim2.new(0, 0, 0, 0),
-        BackgroundTransparency = 1,
-        Text = player.Name,
-        TextColor3 = Config.Colors.TextPrimary,
-        TextSize = 13,
-        Font = Enum.Font.GothamBold,
-        TextStrokeTransparency = 0.5,
-        TextStrokeColor3 = Color3.new(0, 0, 0),
-        Parent = infoFrame,
-    })
-    
-    local distLabel = Util.Create("TextLabel", {
-        Size = UDim2.new(1, 0, 0, 14),
-        Position = UDim2.new(0, 0, 0, 16),
-        BackgroundTransparency = 1,
-        Text = "0m",
-        TextColor3 = Config.Colors.TextSecondary,
-        TextSize = 11,
-        Font = Enum.Font.Gotham,
-        TextStrokeTransparency = 0.5,
-        TextStrokeColor3 = Color3.new(0, 0, 0),
-        Parent = infoFrame,
-    })
-    
-    local healthBg = Util.Create("Frame", {
-        Size = UDim2.new(0.6, 0, 0, 4),
-        Position = UDim2.new(0.2, 0, 0, 34),
-        BackgroundColor3 = Color3.fromRGB(40, 40, 40),
-        BackgroundTransparency = 0.3,
-        Parent = infoFrame,
-    })
-    Util.AddCorner(healthBg, UDim.new(0, 2))
-    
-    local healthFill = Util.Create("Frame", {
-        Size = UDim2.new(1, 0, 1, 0),
-        BackgroundColor3 = Config.Colors.Success,
-        Parent = healthBg,
-    })
-    Util.AddCorner(healthFill, UDim.new(0, 2))
-    
-    local roleLabel = Util.Create("TextLabel", {
-        Size = UDim2.new(1, 0, 0, 14),
-        Position = UDim2.new(0, 0, 0, 42),
-        BackgroundTransparency = 1,
-        Text = "",
-        TextColor3 = Config.Colors.TextAccent,
-        TextSize = 10,
-        Font = Enum.Font.GothamMedium,
-        TextStrokeTransparency = 0.5,
-        TextStrokeColor3 = Color3.new(0, 0, 0),
-        Parent = infoFrame,
-    })
-    
-    espData.Highlight = highlight
-    espData.Billboard = billboard
-    espData.NameLabel = nameLabel
-    espData.DistLabel = distLabel
-    espData.HealthFill = healthFill
-    espData.RoleLabel = roleLabel
-    espData.Player = player
-    
-    ESPObjects[player] = espData
-end
+-- Quick Actions
+CreateSectionHeader(dashPage, "Quick Actions", 3)
 
-function ESPModule.UpdateESP()
-    local myRoot = Util.GetRootPart()
-    if not myRoot then return end
-    
-    for player, data in pairs(ESPObjects) do
-        if not player or not player.Parent then
-            ESPModule.RemoveESP(player)
-            continue
-        end
-        
-        local char = player.Character
-        if not char then
-            data.Highlight.Enabled = false
-            data.Billboard.Enabled = false
-            continue
-        end
-        
-        local humanoid = char:FindFirstChildOfClass("Humanoid")
-        local rootPart = char:FindFirstChild("HumanoidRootPart")
-        local head = char:FindFirstChild("Head")
-        
-        if not humanoid or not rootPart or humanoid.Health <= 0 then
-            data.Highlight.Enabled = false
-            data.Billboard.Enabled = false
-            continue
-        end
-        
-        -- Attach if needed
-        if data.Highlight.Parent ~= char then
-            data.Highlight.Parent = char
-        end
-        if data.Billboard.Parent ~= (head or rootPart) then
-            data.Billboard.Parent = head or rootPart
-        end
-        
-        data.Highlight.Enabled = Config.ESP.BoxEnabled
-        data.Billboard.Enabled = true
-        
-        -- Distance
-        local dist = (myRoot.Position - rootPart.Position).Magnitude
-        if Config.ESP.DistanceEnabled then
-            data.DistLabel.Text = string.format("%.0fm", dist)
-            data.DistLabel.Visible = true
+local quickCard = CreateCard(dashPage, nil, 4)
+Util.AddPadding(quickCard, 10, 10, 10, 10)
+local quickLayout = Util.Create("Frame", {
+    Size = UDim2.new(1, 0, 0, 0),
+    BackgroundTransparency = 1,
+    AutomaticSize = Enum.AutomaticSize.Y,
+    Parent = quickCard
+})
+Util.AddListLayout(quickLayout, 6)
+
+CreateButton(quickLayout, "Rejoin Server", function()
+    Notify("System", "Rejoin not available in dev tools", "Warning")
+end, 1)
+
+CreateButton(quickLayout, "Reset Character", function()
+    local char, hum = Util.GetCharacter()
+    if hum then
+        hum.Health = 0
+        Notify("System", "Character reset", "Success")
+    end
+end, 2)
+
+CreateButton(quickLayout, "Copy Position", function()
+    local _, _, hrp = Util.GetCharacter()
+    if hrp then
+        local pos = hrp.Position
+        local str = string.format("Vector3.new(%.1f, %.1f, %.1f)", pos.X, pos.Y, pos.Z)
+        if setclipboard then
+            setclipboard(str)
+            Notify("System", "Position copied to clipboard", "Success")
         else
-            data.DistLabel.Visible = false
+            Notify("System", str, "Info")
         end
-        
-        -- Health
-        if Config.ESP.HealthEnabled then
-            local healthRatio = Util.Clamp(humanoid.Health / humanoid.MaxHealth, 0, 1)
-            data.HealthFill.Size = UDim2.new(healthRatio, 0, 1, 0)
-            if healthRatio > 0.5 then
-                data.HealthFill.BackgroundColor3 = Config.Colors.Success
-            elseif healthRatio > 0.25 then
-                data.HealthFill.BackgroundColor3 = Config.Colors.Warning
+    end
+end, 3)
+
+-- Dashboard update loop
+local dashUpdateAccum = 0
+Util.Connect(RunService.Heartbeat, function(dt)
+    dashUpdateAccum = dashUpdateAccum + dt
+    if dashUpdateAccum >= 1 then
+        dashUpdateAccum = 0
+        local elapsed = math.floor(tick() - startTime)
+        local mins = math.floor(elapsed / 60)
+        local secs = elapsed % 60
+        dashFPS.Text = "FPS: " .. currentFPS
+        dashPing.Text = "Ping: " .. Util.GetPing() .. "ms"
+        dashPlayers.Text = "Players: " .. #Players:GetPlayers()
+        dashUptime.Text = string.format("Session: %dm %ds", mins, secs)
+        dashStatus.Text = "Status: Active"
+    end
+end)
+
+-- ============================================================
+-- ESP PLAYER TAB
+-- ============================================================
+local espPage = TabPages["ESP Player"]
+
+CreateSectionHeader(espPage, "ESP Player", 1)
+
+local espCard = CreateCard(espPage, nil, 2)
+Util.AddPadding(espCard, 10, 10, 10, 10)
+local espLayout = Util.Create("Frame", {
+    Size = UDim2.new(1, 0, 0, 0),
+    BackgroundTransparency = 1,
+    AutomaticSize = Enum.AutomaticSize.Y,
+    Parent = espCard
+})
+Util.AddListLayout(espLayout, 4)
+
+CreateToggle(espLayout, "Enable ESP", false, function(val)
+    State.ESP.Enabled = val
+    if not val then
+        -- Clear ESP
+        for _, obj in pairs(State.ESP.Objects) do
+            pcall(function()
+                if obj.BillboardGui then obj.BillboardGui:Destroy() end
+                if obj.Highlight then obj.Highlight:Destroy() end
+            end)
+        end
+        State.ESP.Objects = {}
+    end
+    Notify("ESP", val and "ESP Enabled" or "ESP Disabled", val and "Success" or "Info")
+end, 1)
+
+CreateToggle(espLayout, "Box ESP", true, function(val)
+    State.ESP.Box = val
+end, 2)
+
+CreateToggle(espLayout, "Name ESP", true, function(val)
+    State.ESP.Name = val
+end, 3)
+
+CreateToggle(espLayout, "Distance", true, function(val)
+    State.ESP.Distance = val
+end, 4)
+
+CreateToggle(espLayout, "Health Bar", true, function(val)
+    State.ESP.Health = val
+end, 5)
+
+CreateToggle(espLayout, "Show Role", true, function(val)
+    State.ESP.Role = val
+end, 6)
+
+-- ESP Rendering
+local function GetPlayerRole(player)
+    -- Try common role detection methods
+    local char = player.Character
+    if not char then return "Unknown", Colors.TextDim end
+    
+    -- Check for common role indicators
+    local role = "Player"
+    local roleColor = Colors.Info
+    
+    -- Check for team
+    if player.Team then
+        role = player.Team.Name
+        roleColor = player.Team.TeamColor.Color
+        return role, roleColor
+    end
+    
+    -- Check leaderstats or common value names
+    local leaderstats = player:FindFirstChild("leaderstats")
+    if leaderstats then
+        local roleVal = leaderstats:FindFirstChild("Role") or leaderstats:FindFirstChild("Class")
+        if roleVal then
+            role = tostring(roleVal.Value)
+        end
+    end
+    
+    -- Check character for "Killer" tag or similar
+    local tags = {"Killer", "Survivor", "Hunter", "Monster", "Beast"}
+    for _, tag in ipairs(tags) do
+        if char:FindFirstChild(tag) or player:FindFirstChild(tag) then
+            role = tag
+            if tag == "Killer" or tag == "Hunter" or tag == "Monster" or tag == "Beast" then
+                roleColor = Colors.Error
             else
-                data.HealthFill.BackgroundColor3 = Config.Colors.Error
+                roleColor = Colors.Success
             end
-        end
-        
-        -- Name
-        data.NameLabel.Visible = Config.ESP.NameEnabled
-        
-        -- Role detection
-        if Config.ESP.RoleEnabled then
-            local role = "Unknown"
-            local roleColor = Config.Colors.TextSecondary
-            
-            -- Try to detect role from common game systems
-            pcall(function()
-                local leaderstats = player:FindFirstChild("leaderstats")
-                if leaderstats then
-                    local roleVal = leaderstats:FindFirstChild("Role") or leaderstats:FindFirstChild("Team")
-                    if roleVal then
-                        role = tostring(roleVal.Value)
-                    end
-                end
-            end)
-            
-            -- Check team
-            if player.Team then
-                role = player.Team.Name
-                roleColor = player.TeamColor.Color
-            end
-            
-            -- Check for Killer/Survivor tags
-            pcall(function()
-                if char:FindFirstChild("Killer") or player:FindFirstChild("IsKiller") then
-                    role = "Killer"
-                    roleColor = Config.Colors.Error
-                    data.Highlight.OutlineColor = Config.Colors.Error
-                    data.Highlight.FillColor = Color3.fromRGB(180, 40, 40)
-                elseif char:FindFirstChild("Survivor") or player:FindFirstChild("IsSurvivor") then
-                    role = "Survivor"
-                    roleColor = Config.Colors.Success
-                    data.Highlight.OutlineColor = Config.Colors.Success
-                    data.Highlight.FillColor = Color3.fromRGB(40, 140, 80)
-                end
-            end)
-            
-            data.RoleLabel.Text = role
-            data.RoleLabel.TextColor3 = roleColor
-            data.RoleLabel.Visible = true
-        else
-            data.RoleLabel.Visible = false
-        end
-        
-        -- Hide if too far
-        if dist > Config.ESP.MaxDistance then
-            data.Highlight.Enabled = false
-            data.Billboard.Enabled = false
+            break
         end
     end
+    
+    return role, roleColor
 end
 
-function ESPModule.RemoveESP(player)
-    if ESPObjects[player] then
-        pcall(function() ESPObjects[player].Highlight:Destroy() end)
-        pcall(function() ESPObjects[player].Billboard:Destroy() end)
-        ESPObjects[player] = nil
-    end
-end
-
-function ESPModule.Enable()
-    Config.ESP.Enabled = true
+local function UpdateESP()
+    if not State.ESP.Enabled then return end
     
-    -- Create ESP for existing players
-    for _, player in ipairs(Players:GetPlayers()) do
-        ESPModule.CreateESP(player)
-    end
+    local _, _, myHRP = Util.GetCharacter()
+    if not myHRP then return end
     
-    -- Listen for new players
-    Util.AddConnection(Players.PlayerAdded:Connect(function(player)
-        if Config.ESP.Enabled then
-            ESPModule.CreateESP(player)
-        end
-    end))
-    
-    Util.AddConnection(Players.PlayerRemoving:Connect(function(player)
-        ESPModule.RemoveESP(player)
-    end))
-    
-    -- Update loop
-    if not ESPConnection then
-        local accumulator = 0
-        ESPConnection = RunService.Heartbeat:Connect(function(dt)
-            if not Config.ESP.Enabled then return end
-            accumulator = accumulator + dt
-            if accumulator >= Config.ESP.RefreshRate then
-                accumulator = 0
-                ESPModule.UpdateESP()
-            end
-        end)
-        Util.AddConnection(ESPConnection)
-    end
-    
-    NotificationSystem.Send("ESP", "Player ESP enabled", "Success")
-end
-
-function ESPModule.Disable()
-    Config.ESP.Enabled = false
-    for player, _ in pairs(ESPObjects) do
-        ESPModule.RemoveESP(player)
-    end
-    ESPObjects = {}
-    
-    if ESPConnection then
-        ESPConnection:Disconnect()
-        ESPConnection = nil
-    end
-    
-    NotificationSystem.Send("ESP", "Player ESP disabled", "Info")
-end
-
--- ============================================================
--- TELEPORT SAFETY MODULE
--- ============================================================
-local TeleportSafety = {}
-local TeleportSafetyConnection = nil
-local LastTeleportTime = 0
-
-function TeleportSafety.FindKillers()
-    local killers = {}
     for _, player in ipairs(Players:GetPlayers()) do
         if player ~= LocalPlayer then
             local char = player.Character
-            if char then
-                local root = char:FindFirstChild("HumanoidRootPart")
-                local humanoid = char:FindFirstChildOfClass("Humanoid")
-                if root and humanoid and humanoid.Health > 0 then
-                    local isKiller = false
-                    pcall(function()
-                        if char:FindFirstChild("Killer") or player:FindFirstChild("IsKiller") then
-                            isKiller = true
-                        end
-                        if player.Team and player.Team.Name:lower():find("killer") then
-                            isKiller = true
-                        end
-                    end)
-                    if isKiller then
-                        table.insert(killers, root.Position)
+            local hum = char and char:FindFirstChildOfClass("Humanoid")
+            local hrp = char and char:FindFirstChild("HumanoidRootPart")
+            local head = char and char:FindFirstChild("Head")
+            
+            if char and hum and hrp and hum.Health > 0 then
+                local espData = State.ESP.Objects[player.UserId]
+                
+                if not espData then
+                    espData = {}
+                    State.ESP.Objects[player.UserId] = espData
+                end
+                
+                -- Create or update Highlight (Box ESP)
+                if State.ESP.Box then
+                    if not espData.Highlight or not espData.Highlight.Parent then
+                        pcall(function()
+                            if espData.Highlight then espData.Highlight:Destroy() end
+                        end)
+                        local hl = Instance.new("Highlight")
+                        hl.Adornee = char
+                        hl.FillTransparency = 0.85
+                        hl.OutlineTransparency = 0.3
+                        hl.FillColor = Colors.Accent
+                        hl.OutlineColor = Colors.Accent
+                        hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                        hl.Parent = char
+                        espData.Highlight = hl
+                    end
+                else
+                    if espData.Highlight then
+                        pcall(function() espData.Highlight:Destroy() end)
+                        espData.Highlight = nil
                     end
                 end
-            end
-        end
-    end
-    return killers
-end
-
-function TeleportSafety.FindSafePosition(killerPositions)
-    local myRoot = Util.GetRootPart()
-    if not myRoot then return nil end
-    
-    local bestPos = nil
-    local bestDist = 0
-    local attempts = 36
-    
-    for i = 1, attempts do
-        local angle = (i / attempts) * math.pi * 2
-        local distance = Config.TeleportSafety.SafeDistance + math.random(0, 50)
-        local testPos = myRoot.Position + Vector3.new(
-            math.cos(angle) * distance,
-            0,
-            math.sin(angle) * distance
-        )
-        
-        local isSafe, safePos = Util.IsPositionSafe(testPos)
-        if isSafe and safePos then
-            local minDistToKiller = math.huge
-            for _, kPos in ipairs(killerPositions) do
-                local d = (safePos - kPos).Magnitude
-                if d < minDistToKiller then
-                    minDistToKiller = d
+                
+                -- BillboardGui for info
+                if State.ESP.Name or State.ESP.Distance or State.ESP.Health or State.ESP.Role then
+                    if not espData.BillboardGui or not espData.BillboardGui.Parent then
+                        pcall(function()
+                            if espData.BillboardGui then espData.BillboardGui:Destroy() end
+                        end)
+                        local bb = Instance.new("BillboardGui")
+                        bb.Adornee = head or hrp
+                        bb.Size = UDim2.new(0, 180, 0, 60)
+                        bb.StudsOffset = Vector3.new(0, 2.5, 0)
+                        bb.AlwaysOnTop = true
+                        bb.LightInfluence = 0
+                        bb.MaxDistance = 500
+                        bb.Parent = char
+                        
+                        local nameLabel = Instance.new("TextLabel")
+                        nameLabel.Name = "NameLabel"
+                        nameLabel.Size = UDim2.new(1, 0, 0, 14)
+                        nameLabel.BackgroundTransparency = 1
+                        nameLabel.Font = Enum.Font.GothamBold
+                        nameLabel.TextSize = 12
+                        nameLabel.TextColor3 = Colors.Text
+                        nameLabel.TextStrokeTransparency = 0.5
+                        nameLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+                        nameLabel.Parent = bb
+                        
+                        local distLabel = Instance.new("TextLabel")
+                        distLabel.Name = "DistLabel"
+                        distLabel.Size = UDim2.new(1, 0, 0, 12)
+                        distLabel.Position = UDim2.new(0, 0, 0, 14)
+                        distLabel.BackgroundTransparency = 1
+                        distLabel.Font = Enum.Font.Gotham
+                        distLabel.TextSize = 10
+                        distLabel.TextColor3 = Colors.TextDim
+                        distLabel.TextStrokeTransparency = 0.5
+                        distLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+                        distLabel.Parent = bb
+                        
+                        local roleLabel = Instance.new("TextLabel")
+                        roleLabel.Name = "RoleLabel"
+                        roleLabel.Size = UDim2.new(1, 0, 0, 12)
+                        roleLabel.Position = UDim2.new(0, 0, 0, 26)
+                        roleLabel.BackgroundTransparency = 1
+                        roleLabel.Font = Enum.Font.GothamMedium
+                        roleLabel.TextSize = 10
+                        roleLabel.TextStrokeTransparency = 0.5
+                        roleLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+                        roleLabel.Parent = bb
+                        
+                        -- Health bar
+                        local healthBg = Instance.new("Frame")
+                        healthBg.Name = "HealthBg"
+                        healthBg.Size = UDim2.new(0.6, 0, 0, 3)
+                        healthBg.Position = UDim2.new(0.2, 0, 0, 40)
+                        healthBg.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+                        healthBg.BorderSizePixel = 0
+                        healthBg.Parent = bb
+                        Util.AddCorner(healthBg, 2)
+                        
+                        local healthFill = Instance.new("Frame")
+                        healthFill.Name = "HealthFill"
+                        healthFill.Size = UDim2.new(1, 0, 1, 0)
+                        healthFill.BackgroundColor3 = Colors.Success
+                        healthFill.BorderSizePixel = 0
+                        healthFill.Parent = healthBg
+                        Util.AddCorner(healthFill, 2)
+                        
+                        espData.BillboardGui = bb
+                    end
+                    
+                    -- Update info
+                    local bb = espData.BillboardGui
+                    local nameLabel = bb:FindFirstChild("NameLabel")
+                    local distLabel = bb:FindFirstChild("DistLabel")
+                    local roleLabel = bb:FindFirstChild("RoleLabel")
+                    local healthBg = bb:FindFirstChild("HealthBg")
+                    
+                    if nameLabel then
+                        nameLabel.Visible = State.ESP.Name
+                        nameLabel.Text = player.DisplayName
+                    end
+                    
+                    if distLabel then
+                        distLabel.Visible = State.ESP.Distance
+                        local dist = (myHRP.Position - hrp.Position).Magnitude
+                        distLabel.Text = string.format("%.0f studs", dist)
+                    end
+                    
+                    if roleLabel then
+                        roleLabel.Visible = State.ESP.Role
+                        local role, roleCol = GetPlayerRole(player)
+                        roleLabel.Text = role
+                        roleLabel.TextColor3 = roleCol
+                    end
+                    
+                    if healthBg then
+                        healthBg.Visible = State.ESP.Health
+                        local healthFill = healthBg:FindFirstChild("HealthFill")
+                        if healthFill then
+                            local hp = math.clamp(hum.Health / hum.MaxHealth, 0, 1)
+                            healthFill.Size = UDim2.new(hp, 0, 1, 0)
+                            if hp > 0.5 then
+                                healthFill.BackgroundColor3 = Colors.Success
+                            elseif hp > 0.25 then
+                                healthFill.BackgroundColor3 = Colors.Warning
+                            else
+                                healthFill.BackgroundColor3 = Colors.Error
+                            end
+                        end
+                    end
+                else
+                    if espData.BillboardGui then
+                        pcall(function() espData.BillboardGui:Destroy() end)
+                        espData.BillboardGui = nil
+                    end
+                end
+            else
+                -- Player dead or no character, clean up
+                if State.ESP.Objects[player.UserId] then
+                    local data = State.ESP.Objects[player.UserId]
+                    pcall(function() if data.BillboardGui then data.BillboardGui:Destroy() end end)
+                    pcall(function() if data.Highlight then data.Highlight:Destroy() end end)
+                    State.ESP.Objects[player.UserId] = nil
                 end
             end
-            
-            if minDistToKiller > bestDist then
-                bestDist = minDistToKiller
-                bestPos = safePos
-            end
         end
     end
     
-    -- Fallback: try random positions
-    if not bestPos then
-        for _ = 1, 20 do
-            local rndAngle = math.random() * math.pi * 2
-            local rndDist = Config.TeleportSafety.SafeDistance + math.random(20, 100)
-            local testPos = myRoot.Position + Vector3.new(
-                math.cos(rndAngle) * rndDist,
+    -- Clean up disconnected players
+    local validIds = {}
+    for _, p in ipairs(Players:GetPlayers()) do
+        validIds[p.UserId] = true
+    end
+    for uid, data in pairs(State.ESP.Objects) do
+        if not validIds[uid] then
+            pcall(function() if data.BillboardGui then data.BillboardGui:Destroy() end end)
+            pcall(function() if data.Highlight then data.Highlight:Destroy() end end)
+            State.ESP.Objects[uid] = nil
+        end
+    end
+end
+
+-- ESP update on heartbeat (throttled)
+local espAccum = 0
+Util.Connect(RunService.Heartbeat, function(dt)
+    espAccum = espAccum + dt
+    if espAccum >= 0.15 then
+        espAccum = 0
+        pcall(UpdateESP)
+    end
+end)
+
+-- ============================================================
+-- TELEPORT SAFETY TAB
+-- ============================================================
+local tpPage = TabPages["Teleport"]
+
+CreateSectionHeader(tpPage, "Teleport Safety", 1)
+
+local tpCard = CreateCard(tpPage, nil, 2)
+Util.AddPadding(tpCard, 10, 10, 10, 10)
+local tpLayout = Util.Create("Frame", {
+    Size = UDim2.new(1, 0, 0, 0),
+    BackgroundTransparency = 1,
+    AutomaticSize = Enum.AutomaticSize.Y,
+    Parent = tpCard
+})
+Util.AddListLayout(tpLayout, 4)
+
+local tpStatusLabel = CreateInfoLabel(tpLayout, "Status: Disabled", 0)
+
+CreateToggle(tpLayout, "Enable Auto-Safety", false, function(val)
+    State.Teleport.Enabled = val
+    tpStatusLabel.Text = "Status: " .. (val and "Monitoring" or "Disabled")
+    tpStatusLabel.TextColor3 = val and Colors.Success or Colors.TextDim
+    Notify("Teleport Safety", val and "Monitoring enabled" or "Monitoring disabled", val and "Success" or "Info")
+end, 1)
+
+CreateSlider(tpLayout, "Detection Radius", 10, 100, 35, function(val)
+    State.Teleport.Radius = val
+end, 2)
+
+CreateSlider(tpLayout, "Safe Distance", 50, 300, 100, function(val)
+    State.Teleport.SafeDistance = val
+end, 3)
+
+CreateSlider(tpLayout, "Cooldown (sec)", 1, 15, 3, function(val)
+    State.Teleport.Cooldown = val
+end, 4)
+
+-- Safe Position Algorithm
+local function FindSafePosition(killerPos, myPos)
+    local bestPos = nil
+    local bestDist = 0
+    local safeDist = State.Teleport.SafeDistance
+    
+    -- Try multiple directions
+    for angle = 0, 350, 15 do
+        for dist = safeDist, safeDist * 2, 20 do
+            local rad = math.rad(angle)
+            local candidatePos = killerPos + Vector3.new(
+                math.cos(rad) * dist,
                 0,
-                math.sin(rndAngle) * rndDist
+                math.sin(rad) * dist
             )
-            local isSafe, safePos = Util.IsPositionSafe(testPos)
-            if isSafe and safePos then
-                bestPos = safePos
-                break
+            
+            -- Raycast down to find ground
+            local rayOrigin = candidatePos + Vector3.new(0, 50, 0)
+            local rayDirection = Vector3.new(0, -200, 0)
+            
+            local rayParams = RaycastParams.new()
+            rayParams.FilterType = Enum.RaycastFilterType.Exclude
+            rayParams.FilterDescendantsInstances = {LocalPlayer.Character}
+            
+            local result = Workspace:Raycast(rayOrigin, rayDirection, rayParams)
+            
+            if result then
+                local groundPos = result.Position + Vector3.new(0, 3, 0)
+                
+                -- Verify not inside a wall (cast horizontal rays)
+                local wallCheck = true
+                for _, dir in ipairs({Vector3.new(1,0,0), Vector3.new(-1,0,0), Vector3.new(0,0,1), Vector3.new(0,0,-1)}) do
+                    local wallRay = Workspace:Raycast(groundPos, dir * 3, rayParams)
+                    if wallRay then
+                        wallCheck = false
+                        break
+                    end
+                end
+                
+                -- Verify above void (ground must exist)
+                local voidCheck = groundPos.Y > -50
+                
+                if wallCheck and voidCheck then
+                    local distFromKiller = (groundPos - killerPos).Magnitude
+                    if distFromKiller > bestDist and distFromKiller >= safeDist then
+                        bestDist = distFromKiller
+                        bestPos = groundPos
+                    end
+                end
             end
         end
     end
@@ -2075,700 +1917,658 @@ function TeleportSafety.FindSafePosition(killerPositions)
     return bestPos
 end
 
-function TeleportSafety.Enable()
-    Config.TeleportSafety.Enabled = true
+-- Teleport Safety Loop
+local tpCheckAccum = 0
+Util.Connect(RunService.Heartbeat, function(dt)
+    if not State.Teleport.Enabled then return end
+    tpCheckAccum = tpCheckAccum + dt
+    if tpCheckAccum < 0.5 then return end
+    tpCheckAccum = 0
     
-    if TeleportSafetyConnection then
-        TeleportSafetyConnection:Disconnect()
-    end
+    local _, _, myHRP = Util.GetCharacter()
+    if not myHRP then return end
     
-    TeleportSafetyConnection = RunService.Heartbeat:Connect(function()
-        if not Config.TeleportSafety.Enabled then return end
-        
-        local now = tick()
-        if now - LastTeleportTime < Config.TeleportSafety.Cooldown then return end
-        
-        local myRoot = Util.GetRootPart()
-        if not myRoot then return end
-        
-        local killerPositions = TeleportSafety.FindKillers()
-        if #killerPositions == 0 then return end
-        
-        for _, kPos in ipairs(killerPositions) do
-            local dist = (myRoot.Position - kPos).Magnitude
-            if dist <= Config.TeleportSafety.DetectionRadius then
-                local safePos = TeleportSafety.FindSafePosition(killerPositions)
-                if safePos then
-                    myRoot.CFrame = CFrame.new(safePos)
-                    LastTeleportTime = now
-                    NotificationSystem.Send("Teleport Safety", string.format("Moved to safe position (%.0fm away)", (safePos - kPos).Magnitude), "Warning", 3)
-                else
-                    NotificationSystem.Send("Teleport Safety", "Could not find safe position", "Error", 3)
+    if tick() - State.Teleport.LastTeleport < State.Teleport.Cooldown then return end
+    
+    -- Find nearest "Killer" type player
+    local nearestKiller = nil
+    local nearestDist = math.huge
+    
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer then
+            local char = player.Character
+            local hrp = char and char:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                local role = GetPlayerRole(player)
+                if role == "Killer" or role == "Hunter" or role == "Monster" or role == "Beast" then
+                    local dist = (myHRP.Position - hrp.Position).Magnitude
+                    if dist < nearestDist then
+                        nearestDist = dist
+                        nearestKiller = hrp
+                    end
                 end
-                break
             end
         end
-    end)
-    Util.AddConnection(TeleportSafetyConnection)
-    
-    NotificationSystem.Send("Teleport Safety", "Safety teleport enabled", "Success")
-end
-
-function TeleportSafety.Disable()
-    Config.TeleportSafety.Enabled = false
-    if TeleportSafetyConnection then
-        TeleportSafetyConnection:Disconnect()
-        TeleportSafetyConnection = nil
     end
-    NotificationSystem.Send("Teleport Safety", "Safety teleport disabled", "Info")
-end
-
--- ============================================================
--- SPEED CONTROLLER MODULE
--- ============================================================
-local SpeedController = {}
-
-function SpeedController.SetSpeed(multiplier)
-    Config.Speed.Current = multiplier
-    local humanoid = Util.GetHumanoid()
-    if humanoid then
-        humanoid.WalkSpeed = multiplier * Config.Speed.Multiplier
-    end
-end
-
--- ============================================================
--- POV CIRCLE MODULE
--- ============================================================
-local POVCircle = {}
-local POVCircleFrame = nil
-local POVCircleInner = nil
-
-function POVCircle.Create()
-    if POVCircleFrame then return end
     
-    POVCircleFrame = Util.Create("Frame", {
-        Name = "POVCircle",
-        Size = UDim2.new(0, Config.POVCircle.Radius * 2, 0, Config.POVCircle.Radius * 2),
-        Position = UDim2.new(0.5, 0, 0.5, 0),
+    if nearestKiller and nearestDist <= State.Teleport.Radius then
+        local safePos = FindSafePosition(nearestKiller.Position, myHRP.Position)
+        if safePos then
+            myHRP.CFrame = CFrame.new(safePos)
+            State.Teleport.LastTeleport = tick()
+            tpStatusLabel.Text = string.format("Status: Teleported (%.0f studs away)", (safePos - nearestKiller.Position).Magnitude)
+            Notify("Teleport Safety", string.format("Escaped to safe position (%.0f studs)", (safePos - nearestKiller.Position).Magnitude), "Success")
+        else
+            tpStatusLabel.Text = "Status: No safe position found"
+            Notify("Teleport Safety", "Could not find safe position", "Warning")
+        end
+    end
+end)
+
+-- ============================================================
+-- SPEED CONTROLLER TAB
+-- ============================================================
+local speedPage = TabPages["Speed"]
+
+CreateSectionHeader(speedPage, "Speed Controller", 1)
+
+local speedCard = CreateCard(speedPage, nil, 2)
+Util.AddPadding(speedCard, 10, 10, 10, 10)
+local speedLayout = Util.Create("Frame", {
+    Size = UDim2.new(1, 0, 0, 0),
+    BackgroundTransparency = 1,
+    AutomaticSize = Enum.AutomaticSize.Y,
+    Parent = speedCard
+})
+Util.AddListLayout(speedLayout, 4)
+
+local speedInfoLabel = CreateInfoLabel(speedLayout, "Current Speed: 16", 0)
+
+local _, getSpeedValue = CreateSlider(speedLayout, "Walk Speed", 1, 10, 1, function(val)
+    -- Map 1-10 to actual speed values
+    local speedMap = {16, 24, 32, 40, 50, 60, 75, 90, 110, 130}
+    local actualSpeed = speedMap[val] or 16
+    State.Speed.Value = actualSpeed
+    local _, hum = Util.GetCharacter()
+    if hum then
+        hum.WalkSpeed = actualSpeed
+    end
+    speedInfoLabel.Text = "Current Speed: " .. actualSpeed .. " (Level " .. val .. ")"
+end, 1)
+
+-- Keep speed updated
+Util.Connect(RunService.Heartbeat, function()
+    if State.Speed.Value ~= 16 then
+        local _, hum = Util.GetCharacter()
+        if hum and hum.WalkSpeed ~= State.Speed.Value then
+            hum.WalkSpeed = State.Speed.Value
+        end
+    end
+end)
+
+-- ============================================================
+-- POV CIRCLE TAB
+-- ============================================================
+local povPage = TabPages["POV Circle"]
+
+CreateSectionHeader(povPage, "POV Circle", 1)
+
+local povCard = CreateCard(povPage, nil, 2)
+Util.AddPadding(povCard, 10, 10, 10, 10)
+local povLayout = Util.Create("Frame", {
+    Size = UDim2.new(1, 0, 0, 0),
+    BackgroundTransparency = 1,
+    AutomaticSize = Enum.AutomaticSize.Y,
+    Parent = povCard
+})
+Util.AddListLayout(povLayout, 4)
+
+CreateToggle(povLayout, "Enable POV Circle", false, function(val)
+    State.POV.Enabled = val
+    Notify("POV Circle", val and "Enabled" or "Disabled", val and "Success" or "Info")
+end, 1)
+
+CreateSlider(povLayout, "Radius", 50, 400, 150, function(val)
+    State.POV.Radius = val
+end, 2)
+
+CreateSlider(povLayout, "Thickness", 1, 8, 2, function(val)
+    State.POV.Thickness = val
+end, 3)
+
+CreateSlider(povLayout, "Opacity (%)", 10, 100, 50, function(val)
+    State.POV.Opacity = val / 100
+end, 4)
+
+-- POV Circle Drawing
+local POVCircleFrame = Util.Create("Frame", {
+    Name = "POVCircle",
+    Size = UDim2.new(1, 0, 1, 0),
+    BackgroundTransparency = 1,
+    BorderSizePixel = 0,
+    ZIndex = 5,
+    Visible = false,
+    Parent = ScreenGui
+})
+
+-- Create circle segments using frames
+local circleSegments = {}
+local numSegments = 72
+
+for i = 1, numSegments do
+    local seg = Util.Create("Frame", {
+        Size = UDim2.new(0, 3, 0, 2),
+        BackgroundColor3 = Colors.Accent,
+        BackgroundTransparency = 0.5,
+        BorderSizePixel = 0,
         AnchorPoint = Vector2.new(0.5, 0.5),
-        BackgroundTransparency = 1,
+        ZIndex = 6,
+        Parent = POVCircleFrame
+    })
+    Util.AddCorner(seg, 1)
+    circleSegments[i] = seg
+end
+
+Util.Connect(RunService.RenderStepped, function()
+    if not State.POV.Enabled then
+        POVCircleFrame.Visible = false
+        return
+    end
+    
+    POVCircleFrame.Visible = true
+    local vpSize = Camera.ViewportSize
+    local centerX = vpSize.X / 2
+    local centerY = vpSize.Y / 2
+    local radius = State.POV.Radius
+    local thickness = State.POV.Thickness
+    
+    for i = 1, numSegments do
+        local angle = (i / numSegments) * math.pi * 2
+        local x = centerX + math.cos(angle) * radius
+        local y = centerY + math.sin(angle) * radius
+        
+        local seg = circleSegments[i]
+        seg.Position = UDim2.new(0, x, 0, y)
+        seg.Size = UDim2.new(0, math.max(thickness + 2, 4), 0, thickness)
+        seg.Rotation = math.deg(angle) + 90
+        seg.BackgroundColor3 = State.POV.Color
+        seg.BackgroundTransparency = 1 - State.POV.Opacity
+    end
+end)
+
+-- ============================================================
+-- OBSERVATION TARGET TAB
+-- ============================================================
+local obsPage = TabPages["Observation"]
+
+CreateSectionHeader(obsPage, "Observation Target", 1)
+
+local obsCard = CreateCard(obsPage, nil, 2)
+Util.AddPadding(obsCard, 10, 10, 10, 10)
+local obsLayout = Util.Create("Frame", {
+    Size = UDim2.new(1, 0, 0, 0),
+    BackgroundTransparency = 1,
+    AutomaticSize = Enum.AutomaticSize.Y,
+    Parent = obsCard
+})
+Util.AddListLayout(obsLayout, 4)
+
+local obsStatusLabel = CreateInfoLabel(obsLayout, "Targets in POV: 0", 0)
+
+CreateToggle(obsLayout, "Enable Observation", false, function(val)
+    State.Observation.Enabled = val
+    if not val then
+        -- Clear indicators
+        for _, ind in pairs(State.Observation.Indicators) do
+            pcall(function() ind:Destroy() end)
+        end
+        State.Observation.Indicators = {}
+    end
+    Notify("Observation", val and "Enabled" or "Disabled", val and "Success" or "Info")
+end, 1)
+
+CreateSlider(obsLayout, "Detection Radius (px)", 50, 500, 200, function(val)
+    State.Observation.Radius = val
+end, 2)
+
+CreateSlider(obsLayout, "Indicator Opacity (%)", 10, 100, 70, function(val)
+    State.Observation.Transparency = 1 - (val / 100)
+end, 3)
+
+-- Observation Container
+local ObsContainer = Util.Create("Frame", {
+    Name = "ObservationContainer",
+    Size = UDim2.new(1, 0, 1, 0),
+    BackgroundTransparency = 1,
+    BorderSizePixel = 0,
+    ZIndex = 6,
+    Parent = ScreenGui
+})
+
+local function GetOrCreateIndicator(player)
+    if State.Observation.Indicators[player.UserId] then
+        return State.Observation.Indicators[player.UserId]
+    end
+    
+    local indicator = Util.Create("Frame", {
+        Size = UDim2.new(0, 12, 0, 12),
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        BackgroundColor3 = State.Observation.Color,
+        BackgroundTransparency = State.Observation.Transparency,
+        BorderSizePixel = 0,
+        ZIndex = 7,
         Visible = false,
-        ZIndex = 5,
-        Parent = MainGui,
+        Parent = ObsContainer
     })
+    Util.AddCorner(indicator, 6)
+    Util.AddStroke(indicator, State.Observation.Color, 1, 0.3)
     
-    -- Outer ring
-    local ring = Util.Create("Frame", {
-        Size = UDim2.new(1, 0, 1, 0),
+    -- Name label on indicator
+    local nameTag = Util.Create("TextLabel", {
+        Size = UDim2.new(0, 100, 0, 14),
+        Position = UDim2.new(0.5, 0, 0, -18),
+        AnchorPoint = Vector2.new(0.5, 0),
         BackgroundTransparency = 1,
-        Parent = POVCircleFrame,
+        Font = Enum.Font.GothamBold,
+        TextSize = 10,
+        TextColor3 = State.Observation.Color,
+        TextStrokeTransparency = 0.5,
+        TextStrokeColor3 = Color3.fromRGB(0, 0, 0),
+        ZIndex = 8,
+        Parent = indicator
     })
-    Util.AddCorner(ring, UDim.new(0.5, 0))
+    nameTag.Text = player.DisplayName
     
-    local ringStroke = Util.Create("UIStroke", {
-        Color = Config.POVCircle.Color,
-        Thickness = Config.POVCircle.Thickness,
-        Transparency = 1 - Config.POVCircle.Opacity,
-        Parent = ring,
-    })
-    
-    -- Center dot
-    local centerDot = Util.Create("Frame", {
-        Size = UDim2.new(0, 4, 0, 4),
-        Position = UDim2.new(0.5, 0, 0.5, 0),
-        AnchorPoint = Vector2.new(0.5, 0.5),
-        BackgroundColor3 = Config.POVCircle.Color,
-        BackgroundTransparency = 0.3,
-        Parent = POVCircleFrame,
-    })
-    Util.AddCorner(centerDot, UDim.new(0.5, 0))
-    
-    -- Cross lines
-    local lineH = Util.Create("Frame", {
-        Size = UDim2.new(0, 12, 0, 1),
-        Position = UDim2.new(0.5, 0, 0.5, 0),
-        AnchorPoint = Vector2.new(0.5, 0.5),
-        BackgroundColor3 = Config.POVCircle.Color,
-        BackgroundTransparency = 0.4,
-        Parent = POVCircleFrame,
+    -- Distance label
+    local distTag = Util.Create("TextLabel", {
+        Name = "DistTag",
+        Size = UDim2.new(0, 80, 0, 12),
+        Position = UDim2.new(0.5, 0, 1, 4),
+        AnchorPoint = Vector2.new(0.5, 0),
+        BackgroundTransparency = 1,
+        Font = Enum.Font.Code,
+        TextSize = 9,
+        TextColor3 = Colors.TextDim,
+        TextStrokeTransparency = 0.5,
+        TextStrokeColor3 = Color3.fromRGB(0, 0, 0),
+        ZIndex = 8,
+        Parent = indicator
     })
     
-    local lineV = Util.Create("Frame", {
-        Size = UDim2.new(0, 1, 0, 12),
-        Position = UDim2.new(0.5, 0, 0.5, 0),
-        AnchorPoint = Vector2.new(0.5, 0.5),
-        BackgroundColor3 = Config.POVCircle.Color,
-        BackgroundTransparency = 0.4,
-        Parent = POVCircleFrame,
-    })
-    
-    POVCircle.RingStroke = ringStroke
-    POVCircle.CenterDot = centerDot
+    State.Observation.Indicators[player.UserId] = indicator
+    return indicator
 end
 
-function POVCircle.Update()
-    if not POVCircleFrame then return end
-    local diameter = Config.POVCircle.Radius * 2
-    POVCircleFrame.Size = UDim2.new(0, diameter, 0, diameter)
-    
-    if POVCircle.RingStroke then
-        POVCircle.RingStroke.Color = Config.POVCircle.Color
-        POVCircle.RingStroke.Thickness = Config.POVCircle.Thickness
-        POVCircle.RingStroke.Transparency = 1 - Config.POVCircle.Opacity
-    end
-end
-
-function POVCircle.Toggle(enabled)
-    Config.POVCircle.Enabled = enabled
-    if POVCircleFrame then
-        POVCircleFrame.Visible = enabled
-    end
-end
-
--- ============================================================
--- OBSERVATION MODULE
--- ============================================================
-local ObservationModule = {}
-local ObservationMarkers = {}
-local ObservationConnection = nil
-
-function ObservationModule.Enable()
-    Config.Observation.Enabled = true
-    
-    if ObservationConnection then
-        ObservationConnection:Disconnect()
+-- Observation update loop
+Util.Connect(RunService.RenderStepped, function()
+    if not State.Observation.Enabled then
+        for _, ind in pairs(State.Observation.Indicators) do
+            ind.Visible = false
+        end
+        return
     end
     
-    -- Create marker container
-    local markerContainer = MainGui:FindFirstChild("ObservationMarkers")
-    if not markerContainer then
-        markerContainer = Util.Create("Frame", {
-            Name = "ObservationMarkers",
-            Size = UDim2.new(1, 0, 1, 0),
-            BackgroundTransparency = 1,
-            ZIndex = 4,
-            Parent = MainGui,
-        })
-    end
+    local vpSize = Camera.ViewportSize
+    local centerX = vpSize.X / 2
+    local centerY = vpSize.Y / 2
+    local obsRadius = State.Observation.Radius
+    local inPOV = 0
     
-    ObservationConnection = RunService.RenderStepped:Connect(function()
-        if not Config.Observation.Enabled then return end
-        
-        local cam = Workspace.CurrentCamera
-        if not cam then return end
-        
-        local screenCenter = cam.ViewportSize / 2
-        local observeRadius = Config.Observation.Radius
-        
-        for _, player in ipairs(Players:GetPlayers()) do
-            if player == LocalPlayer then continue end
-            
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer then
             local char = player.Character
-            if not char then continue end
+            local hrp = char and char:FindFirstChild("HumanoidRootPart")
+            local hum = char and char:FindFirstChildOfClass("Humanoid")
             
-            local root = char:FindFirstChild("HumanoidRootPart")
-            local humanoid = char:FindFirstChildOfClass("Humanoid")
-            if not root or not humanoid or humanoid.Health <= 0 then
-                if ObservationMarkers[player] then
-                    ObservationMarkers[player].Visible = false
-                end
-                continue
-            end
-            
-            local screenPos, onScreen = cam:WorldToViewportPoint(root.Position)
-            
-            if onScreen then
-                local screenVec = Vector2.new(screenPos.X, screenPos.Y)
-                local distFromCenter = (screenVec - screenCenter).Magnitude
+            if hrp and hum and hum.Health > 0 then
+                local screenPos, onScreen = Camera:WorldToViewportPoint(hrp.Position)
                 
-                if distFromCenter <= observeRadius then
-                    -- Inside POV circle - show marker
-                    if not ObservationMarkers[player] then
-                        local marker = Util.Create("Frame", {
-                            Size = UDim2.new(0, 16, 0, 16),
-                            BackgroundColor3 = Config.Observation.Color,
-                            BackgroundTransparency = Config.Observation.Transparency,
-                            AnchorPoint = Vector2.new(0.5, 0.5),
-                            ZIndex = 6,
-                            Parent = markerContainer,
-                        })
-                        Util.AddCorner(marker, UDim.new(0.5, 0))
-                        Util.AddStroke(marker, Config.Observation.Color, 1, 0.3)
+                if onScreen then
+                    local dx = screenPos.X - centerX
+                    local dy = screenPos.Y - centerY
+                    local distFromCenter = math.sqrt(dx * dx + dy * dy)
+                    
+                    if distFromCenter <= obsRadius then
+                        inPOV = inPOV + 1
+                        local indicator = GetOrCreateIndicator(player)
+                        indicator.Visible = true
+                        indicator.Position = UDim2.new(0, screenPos.X, 0, screenPos.Y)
+                        indicator.BackgroundColor3 = State.Observation.Color
+                        indicator.BackgroundTransparency = State.Observation.Transparency
                         
-                        local nameTag = Util.Create("TextLabel", {
-                            Size = UDim2.new(0, 100, 0, 14),
-                            Position = UDim2.new(0.5, 0, 0, -18),
-                            AnchorPoint = Vector2.new(0.5, 0),
-                            BackgroundTransparency = 1,
-                            Text = player.Name,
-                            TextColor3 = Config.Observation.Color,
-                            TextSize = 10,
-                            Font = Enum.Font.GothamBold,
-                            TextStrokeTransparency = 0.5,
-                            TextStrokeColor3 = Color3.new(0, 0, 0),
-                            ZIndex = 7,
-                            Parent = marker,
-                        })
-                        
-                        ObservationMarkers[player] = marker
+                        local distTag = indicator:FindFirstChild("DistTag")
+                        if distTag then
+                            local _, _, myHRP = Util.GetCharacter()
+                            if myHRP then
+                                local dist3d = (myHRP.Position - hrp.Position).Magnitude
+                                distTag.Text = string.format("%.0f studs", dist3d)
+                            end
+                        end
+                    else
+                        if State.Observation.Indicators[player.UserId] then
+                            State.Observation.Indicators[player.UserId].Visible = false
+                        end
                     end
-                    
-                    local marker = ObservationMarkers[player]
-                    marker.Visible = true
-                    
-                    -- Smooth follow
-                    local targetPos = UDim2.new(0, screenPos.X, 0, screenPos.Y)
-                    local currentPos = marker.Position
-                    local smooth = Config.Observation.SmoothFactor
-                    
-                    local lerpedX = Util.Lerp(currentPos.X.Offset, targetPos.X.Offset, smooth)
-                    local lerpedY = Util.Lerp(currentPos.Y.Offset, targetPos.Y.Offset, smooth)
-                    
-                    marker.Position = UDim2.new(0, lerpedX, 0, lerpedY)
                 else
-                    if ObservationMarkers[player] then
-                        ObservationMarkers[player].Visible = false
+                    if State.Observation.Indicators[player.UserId] then
+                        State.Observation.Indicators[player.UserId].Visible = false
                     end
                 end
             else
-                if ObservationMarkers[player] then
-                    ObservationMarkers[player].Visible = false
+                if State.Observation.Indicators[player.UserId] then
+                    State.Observation.Indicators[player.UserId].Visible = false
                 end
             end
         end
-    end)
-    Util.AddConnection(ObservationConnection)
-    
-    NotificationSystem.Send("Observation", "Target observation enabled", "Success")
-end
-
-function ObservationModule.Disable()
-    Config.Observation.Enabled = false
-    
-    if ObservationConnection then
-        ObservationConnection:Disconnect()
-        ObservationConnection = nil
     end
     
-    for player, marker in pairs(ObservationMarkers) do
-        pcall(function() marker:Destroy() end)
-    end
-    ObservationMarkers = {}
+    obsStatusLabel.Text = "Targets in POV: " .. inPOV
     
-    NotificationSystem.Send("Observation", "Target observation disabled", "Info")
-end
+    -- Clean disconnected players
+    local validIds = {}
+    for _, p in ipairs(Players:GetPlayers()) do validIds[p.UserId] = true end
+    for uid, ind in pairs(State.Observation.Indicators) do
+        if not validIds[uid] then
+            pcall(function() ind:Destroy() end)
+            State.Observation.Indicators[uid] = nil
+        end
+    end
+end)
 
 -- ============================================================
--- BUILD PAGES
+-- SETTINGS TAB
 -- ============================================================
-local function BuildPages()
-    -- ==================== DASHBOARD ====================
-    local dashPage = Window.CreatePage("Dashboard")
-    Window.AddSidebarButton("Dashboard", 1)
-    
-    Components.SectionTitle(dashPage, "Dashboard", 1)
-    Components.Description(dashPage, "Hoshi Development Tools - Internal development and QA toolset", 2)
-    
-    Components.Separator(dashPage, 3)
-    
-    local infoCard = Components.Card(dashPage, nil, 4)
-    Components.SectionTitle(infoCard, "System Information", 1)
-    
-    local _, playerVal = Components.InfoRow(infoCard, "Player", LocalPlayer.Name, 2)
-    local _, gameVal = Components.InfoRow(infoCard, "Place ID", tostring(game.PlaceId), 3)
-    local _, serverVal = Components.InfoRow(infoCard, "Server Job ID", string.sub(game.JobId, 1, 16) .. "...", 4)
-    local _, playersVal = Components.InfoRow(infoCard, "Players", tostring(#Players:GetPlayers()), 5)
-    
-    -- Update player count
-    Util.AddConnection(Players.PlayerAdded:Connect(function()
-        playersVal.Text = tostring(#Players:GetPlayers())
-    end))
-    Util.AddConnection(Players.PlayerRemoving:Connect(function()
-        task.wait(0.1)
-        playersVal.Text = tostring(#Players:GetPlayers())
-    end))
-    
-    local statusCard = Components.Card(dashPage, nil, 6)
-    Components.SectionTitle(statusCard, "Module Status", 1)
-    
-    local _, espStatus = Components.InfoRow(statusCard, "ESP", "Disabled", 2)
-    local _, tpStatus = Components.InfoRow(statusCard, "Teleport Safety", "Disabled", 3)
-    local _, povStatus = Components.InfoRow(statusCard, "POV Circle", "Disabled", 4)
-    local _, obsStatus = Components.InfoRow(statusCard, "Observation", "Disabled", 5)
-    
-    -- Status update loop
-    task.spawn(function()
-        while MainGui and MainGui.Parent do
-            pcall(function()
-                espStatus.Text = Config.ESP.Enabled and "Active" or "Disabled"
-                espStatus.TextColor3 = Config.ESP.Enabled and Config.Colors.Success or Config.Colors.TextDim
-                tpStatus.Text = Config.TeleportSafety.Enabled and "Active" or "Disabled"
-                tpStatus.TextColor3 = Config.TeleportSafety.Enabled and Config.Colors.Success or Config.Colors.TextDim
-                povStatus.Text = Config.POVCircle.Enabled and "Active" or "Disabled"
-                povStatus.TextColor3 = Config.POVCircle.Enabled and Config.Colors.Success or Config.Colors.TextDim
-                obsStatus.Text = Config.Observation.Enabled and "Active" or "Disabled"
-                obsStatus.TextColor3 = Config.Observation.Enabled and Config.Colors.Success or Config.Colors.TextDim
-            end)
-            task.wait(1)
-        end
-    end)
-    
-    -- ==================== ESP PLAYER ====================
-    local espPage = Window.CreatePage("ESP Player")
-    Window.AddSidebarButton("ESP Player", 2)
-    
-    Components.SectionTitle(espPage, "ESP Player", 1)
-    Components.Description(espPage, "Visual player tracking for development observation", 2)
-    
-    Components.Separator(espPage, 3)
-    
-    local espCard = Components.Card(espPage, nil, 4)
-    
-    Components.Toggle(espCard, "Enable ESP", false, function(state)
-        if state then
-            ESPModule.Enable()
+local setPage = TabPages["Settings"]
+
+CreateSectionHeader(setPage, "Settings", 1)
+
+-- UI Settings Card
+local setCard1 = CreateCard(setPage, nil, 2)
+Util.AddPadding(setCard1, 10, 10, 10, 10)
+local setLayout1 = Util.Create("Frame", {
+    Size = UDim2.new(1, 0, 0, 0),
+    BackgroundTransparency = 1,
+    AutomaticSize = Enum.AutomaticSize.Y,
+    Parent = setCard1
+})
+Util.AddListLayout(setLayout1, 4)
+
+CreateSectionHeader(setLayout1, "Interface", 0)
+
+CreateSlider(setLayout1, "Animation Speed (%)", 50, 200, 100, function(val)
+    State.Settings.AnimSpeed = val / 100
+end, 1)
+
+CreateToggle(setLayout1, "Background Blur", true, function(val)
+    State.Settings.BlurEnabled = val
+    if BlurEffect then
+        if val and State.GuiOpen then
+            Util.Tween(BlurEffect, 0.3, {Size = 10})
         else
-            ESPModule.Disable()
-        end
-    end, 1)
-    
-    Components.Separator(espCard, 2)
-    
-    Components.Toggle(espCard, "Box ESP", Config.ESP.BoxEnabled, function(state)
-        Config.ESP.BoxEnabled = state
-    end, 3)
-    
-    Components.Toggle(espCard, "Name ESP", Config.ESP.NameEnabled, function(state)
-        Config.ESP.NameEnabled = state
-    end, 4)
-    
-    Components.Toggle(espCard, "Distance", Config.ESP.DistanceEnabled, function(state)
-        Config.ESP.DistanceEnabled = state
-    end, 5)
-    
-    Components.Toggle(espCard, "Health Bar", Config.ESP.HealthEnabled, function(state)
-        Config.ESP.HealthEnabled = state
-    end, 6)
-    
-    Components.Toggle(espCard, "Role Display", Config.ESP.RoleEnabled, function(state)
-        Config.ESP.RoleEnabled = state
-    end, 7)
-    
-    Components.Separator(espCard, 8)
-    
-    Components.Slider(espCard, "Max Distance", 100, 2000, Config.ESP.MaxDistance, function(val)
-        Config.ESP.MaxDistance = val
-    end, 9)
-    
-    -- Player list
-    local playerListCard = Components.Card(espPage, nil, 5)
-    Components.SectionTitle(playerListCard, "Player List", 1)
-    
-    local function RefreshPlayerList()
-        -- Remove old entries (keep title)
-        for _, child in ipairs(playerListCard:GetChildren()) do
-            if child:IsA("Frame") and child.Name == "PlayerEntry" then
-                child:Destroy()
-            end
-        end
-        
-        for i, player in ipairs(Players:GetPlayers()) do
-            if player == LocalPlayer then continue end
-            local entry = Util.Create("Frame", {
-                Name = "PlayerEntry",
-                Size = UDim2.new(1, 0, 0, 22),
-                BackgroundTransparency = 1,
-                LayoutOrder = 10 + i,
-                Parent = playerListCard,
-            })
-            
-            Util.Create("TextLabel", {
-                Size = UDim2.new(1, 0, 1, 0),
-                BackgroundTransparency = 1,
-                Text = player.Name .. " [" .. player.UserId .. "]",
-                TextColor3 = Config.Colors.TextSecondary,
-                TextSize = 11,
-                Font = Enum.Font.Gotham,
-                TextXAlignment = Enum.TextXAlignment.Left,
-                Parent = entry,
-            })
+            Util.Tween(BlurEffect, 0.3, {Size = 0})
         end
     end
-    
-    Components.Button(playerListCard, "Refresh List", RefreshPlayerList, 2)
-    RefreshPlayerList()
-    
-    -- ==================== TELEPORT SAFETY ====================
-    local tpPage = Window.CreatePage("Teleport Safety")
-    Window.AddSidebarButton("Teleport Safety", 3)
-    
-    Components.SectionTitle(tpPage, "Teleport Safety", 1)
-    Components.Description(tpPage, "Auto-teleport to safe position when Killer approaches", 2)
-    
-    Components.Separator(tpPage, 3)
-    
-    local tpCard = Components.Card(tpPage, nil, 4)
-    
-    local _, tpGetState, tpSetState = Components.Toggle(tpCard, "Enable Teleport Safety", false, function(state)
-        if state then
-            TeleportSafety.Enable()
-        else
-            TeleportSafety.Disable()
-        end
-    end, 1)
-    
-    Components.Separator(tpCard, 2)
-    
-    Components.Slider(tpCard, "Detection Radius (studs)", 10, 100, Config.TeleportSafety.DetectionRadius, function(val)
-        Config.TeleportSafety.DetectionRadius = val
-    end, 3)
-    
-    Components.Slider(tpCard, "Safe Distance (studs)", 50, 300, Config.TeleportSafety.SafeDistance, function(val)
-        Config.TeleportSafety.SafeDistance = val
-    end, 4)
-    
-    Components.Slider(tpCard, "Cooldown (seconds)", 1, 10, Config.TeleportSafety.Cooldown, function(val)
-        Config.TeleportSafety.Cooldown = val
-    end, 5)
-    
-    Components.Separator(tpCard, 6)
-    
-    local tpStatusCard = Components.Card(tpPage, nil, 5)
-    Components.SectionTitle(tpStatusCard, "Safety Status", 1)
-    local _, tpActiveStatus = Components.InfoRow(tpStatusCard, "Status", "Inactive", 2)
-    local _, tpLastAction = Components.InfoRow(tpStatusCard, "Last Action", "None", 3)
-    
-    -- ==================== SPEED CONTROLLER ====================
-    local speedPage = Window.CreatePage("Speed Controller")
-    Window.AddSidebarButton("Speed Controller", 4)
-    
-    Components.SectionTitle(speedPage, "Speed Controller", 1)
-    Components.Description(speedPage, "Adjust player movement speed for testing", 2)
-    
-    Components.Separator(speedPage, 3)
-    
-    local speedCard = Components.Card(speedPage, nil, 4)
-    
-    Components.Slider(speedCard, "Speed Multiplier", Config.Speed.Min, Config.Speed.Max, 1, function(val)
-        SpeedController.SetSpeed(val)
-    end, 1)
-    
-    Components.Separator(speedCard, 2)
-    
-    local _, speedVal = Components.InfoRow(speedCard, "Current WalkSpeed", "16", 3)
-    
-    -- Update speed display
-    task.spawn(function()
-        while MainGui and MainGui.Parent do
-            pcall(function()
-                local humanoid = Util.GetHumanoid()
-                if humanoid then
-                    speedVal.Text = tostring(math.floor(humanoid.WalkSpeed))
+end, 2)
+
+-- Visual Card
+local setCard2 = CreateCard(setPage, nil, 3)
+Util.AddPadding(setCard2, 10, 10, 10, 10)
+local setLayout2 = Util.Create("Frame", {
+    Size = UDim2.new(1, 0, 0, 0),
+    BackgroundTransparency = 1,
+    AutomaticSize = Enum.AutomaticSize.Y,
+    Parent = setCard2
+})
+Util.AddListLayout(setLayout2, 4)
+
+CreateSectionHeader(setLayout2, "Visual", 0)
+
+CreateColorPicker(setLayout2, "Accent Color", Colors.Accent, nil, 1)
+CreateColorPicker(setLayout2, "POV Circle Color", Colors.Accent, nil, 2)
+CreateColorPicker(setLayout2, "Observation Color", Colors.Success, nil, 3)
+
+-- About Card
+local setCard3 = CreateCard(setPage, nil, 4)
+Util.AddPadding(setCard3, 10, 10, 10, 10)
+local setLayout3 = Util.Create("Frame", {
+    Size = UDim2.new(1, 0, 0, 0),
+    BackgroundTransparency = 1,
+    AutomaticSize = Enum.AutomaticSize.Y,
+    Parent = setCard3
+})
+Util.AddListLayout(setLayout3, 4)
+
+CreateSectionHeader(setLayout3, "About", 0)
+CreateInfoLabel(setLayout3, "Hoshi Development Tools v1.0.0", 1)
+CreateInfoLabel(setLayout3, "Internal Development Build", 2)
+CreateInfoLabel(setLayout3, "For map development and QA testing", 3)
+
+-- Reset Button
+local resetCard = CreateCard(setPage, nil, 5)
+Util.AddPadding(resetCard, 10, 10, 10, 10)
+local resetLayout = Util.Create("Frame", {
+    Size = UDim2.new(1, 0, 0, 0),
+    BackgroundTransparency = 1,
+    AutomaticSize = Enum.AutomaticSize.Y,
+    Parent = resetCard
+})
+Util.AddListLayout(resetLayout, 4)
+
+CreateButton(resetLayout, "Reset All Settings", function()
+    Notify("Settings", "Settings reset to defaults", "Success")
+end, 1)
+
+CreateButton(resetLayout, "Destroy Script", function()
+    if _G.HoshiCleanup then _G.HoshiCleanup() end
+end, 2)
+
+-- ============================================================
+-- FLOATING BUTTON
+-- ============================================================
+FloatingBtn = Util.Create("TextButton", {
+    Name = "FloatingButton",
+    Size = UDim2.new(0, 46, 0, 46),
+    Position = UDim2.new(0, 20, 0.5, 0),
+    AnchorPoint = Vector2.new(0, 0.5),
+    BackgroundColor3 = Colors.Surface,
+    BackgroundTransparency = 0.1,
+    Text = "H",
+    Font = Enum.Font.GothamBold,
+    TextSize = 20,
+    TextColor3 = Colors.Accent,
+    BorderSizePixel = 0,
+    ZIndex = 50,
+    AutoButtonColor = false,
+    Visible = false,
+    Parent = ScreenGui
+})
+Util.AddCorner(FloatingBtn, 14)
+Util.AddStroke(FloatingBtn, Colors.Accent, 2, 0.4)
+
+-- Floating button glow ring
+local floatGlow = Util.Create("Frame", {
+    Size = UDim2.new(1, 8, 1, 8),
+    Position = UDim2.new(0.5, 0, 0.5, 0),
+    AnchorPoint = Vector2.new(0.5, 0.5),
+    BackgroundColor3 = Colors.Accent,
+    BackgroundTransparency = 0.92,
+    BorderSizePixel = 0,
+    ZIndex = 49,
+    Parent = FloatingBtn
+})
+Util.AddCorner(floatGlow, 16)
+
+-- Pulse animation for floating button
+local pulseUp = true
+local function PulseFloat()
+    if not FloatingBtn.Visible then return end
+    local stroke = FloatingBtn:FindFirstChildOfClass("UIStroke")
+    if stroke then
+        Util.Tween(stroke, 1.5, {Transparency = pulseUp and 0.2 or 0.6}, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut, function()
+            pulseUp = not pulseUp
+            PulseFloat()
+        end)
+    end
+end
+
+-- Floating button drag
+local floatDragging = false
+local floatDragStart = nil
+local floatStartPos = nil
+
+FloatingBtn.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or
+       input.UserInputType == Enum.UserInputType.Touch then
+        floatDragging = true
+        floatDragStart = input.Position
+        floatStartPos = FloatingBtn.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                if floatDragging then
+                    local delta = input.Position - floatDragStart
+                    if delta.Magnitude < 5 then
+                        -- Click, not drag - open GUI
+                        OpenMainGUI()
+                    end
                 end
-            end)
-            task.wait(0.5)
-        end
-    end)
-    
-    Components.Separator(speedCard, 4)
-    
-    local presetFrame = Util.Create("Frame", {
-        Size = UDim2.new(1, 0, 0, 30),
-        BackgroundTransparency = 1,
-        LayoutOrder = 5,
-        Parent = speedCard,
-    })
-    
-    Util.Create("UIListLayout", {
-        FillDirection = Enum.FillDirection.Horizontal,
-        Padding = UDim.new(0, 6),
-        Parent = presetFrame,
-    })
-    
-    local speedPresets = {1, 2, 3, 5, 8, 10}
-    for _, preset in ipairs(speedPresets) do
-        Components.Button(presetFrame, "x" .. preset, function()
-            SpeedController.SetSpeed(preset)
-            NotificationSystem.Send("Speed", "Speed set to x" .. preset, "Info", 2)
-        end, preset)
+                floatDragging = false
+            end
+        end)
     end
-    
-    -- ==================== POV CIRCLE ====================
-    local povPage = Window.CreatePage("POV Circle")
-    Window.AddSidebarButton("POV Circle", 5)
-    
-    Components.SectionTitle(povPage, "POV Circle", 1)
-    Components.Description(povPage, "Screen-center observation circle for hitbox and collision testing", 2)
-    
-    Components.Separator(povPage, 3)
-    
-    local povCard = Components.Card(povPage, nil, 4)
-    
-    POVCircle.Create()
-    
-    Components.Toggle(povCard, "Enable POV Circle", false, function(state)
-        POVCircle.Toggle(state)
-    end, 1)
-    
-    Components.Separator(povCard, 2)
-    
-    Components.Slider(povCard, "Radius (px)", 30, 400, Config.POVCircle.Radius, function(val)
-        Config.POVCircle.Radius = val
-        POVCircle.Update()
-    end, 3)
-    
-    Components.Slider(povCard, "Thickness (px)", 1, 6, Config.POVCircle.Thickness, function(val)
-        Config.POVCircle.Thickness = val
-        POVCircle.Update()
-    end, 4)
-    
-    Components.Slider(povCard, "Opacity (%)", 10, 100, math.floor(Config.POVCircle.Opacity * 100), function(val)
-        Config.POVCircle.Opacity = val / 100
-        POVCircle.Update()
-    end, 5)
-    
-    -- ==================== OBSERVATION ====================
-    local obsPage = Window.CreatePage("Observation")
-    Window.AddSidebarButton("Observation", 6)
-    
-    Components.SectionTitle(obsPage, "Observation Target", 1)
-    Components.Description(obsPage, "Track targets within POV Circle area for hitbox and collision observation", 2)
-    
-    Components.Separator(obsPage, 3)
-    
-    local obsCard = Components.Card(obsPage, nil, 4)
-    
-    Components.Toggle(obsCard, "Enable Observation", false, function(state)
-        if state then
-            ObservationModule.Enable()
-        else
-            ObservationModule.Disable()
-        end
-    end, 1)
-    
-    Components.Separator(obsCard, 2)
-    
-    Components.Slider(obsCard, "Observation Radius (px)", 30, 400, Config.Observation.Radius, function(val)
-        Config.Observation.Radius = val
-    end, 3)
-    
-    Components.Slider(obsCard, "Marker Transparency (%)", 0, 90, math.floor(Config.Observation.Transparency * 100), function(val)
-        Config.Observation.Transparency = val / 100
-    end, 4)
-    
-    Components.Slider(obsCard, "Smooth Factor (%)", 5, 50, math.floor(Config.Observation.SmoothFactor * 100), function(val)
-        Config.Observation.SmoothFactor = val / 100
-    end, 5)
-    
-    Components.Separator(obsCard, 6)
-    
-    local obsInfoCard = Components.Card(obsPage, nil, 5)
-    Components.SectionTitle(obsInfoCard, "Observation Info", 1)
-    Components.Description(obsInfoCard, "Markers appear on targets inside the POV Circle area. Used for observing hitbox alignment, collision zones, and damage areas in real time.", 2)
-    
-    -- ==================== SETTINGS ====================
-    local setPage = Window.CreatePage("Settings")
-    Window.AddSidebarButton("Settings", 7)
-    
-    Components.SectionTitle(setPage, "Settings", 1)
-    Components.Description(setPage, "Configure tool preferences", 2)
-    
-    Components.Separator(setPage, 3)
-    
-    local setCard = Components.Card(setPage, nil, 4)
-    Components.SectionTitle(setCard, "Appearance", 1)
-    
-    Components.Slider(setCard, "UI Scale (%)", 70, 130, 100, function(val)
-        Config.Settings.UIScale = val / 100
-        -- Apply scale (simplified - affects main frame)
-        if MainFrame then
-            MainFrame.Size = UDim2.new(
-                0, Config.Sizes.WindowDefaultWidth * (val / 100),
-                0, Config.Sizes.WindowDefaultHeight * (val / 100)
-            )
-        end
-    end, 2)
-    
-    Components.Slider(setCard, "Animation Speed (%)", 25, 200, 100, function(val)
-        Config.Animation.SpeedMultiplier = val / 100
-    end, 3)
-    
-    Components.Toggle(setCard, "Background Blur", Config.Settings.BlurEnabled, function(state)
-        Config.Settings.BlurEnabled = state
-        if not state then
-            Util.Tween(BlurEffect, {Size = 0}, 0.3)
-        elseif IsWindowOpen then
-            Util.Tween(BlurEffect, {Size = 12}, 0.3)
-        end
-    end, 4)
-    
-    Components.Separator(setCard, 5)
-    
-    local resetCard = Components.Card(setPage, nil, 5)
-    Components.SectionTitle(resetCard, "Reset", 1)
-    Components.Description(resetCard, "Reset all settings to default values", 2)
-    
-    Components.Button(resetCard, "Reset Settings", function()
-        -- Reset core values
-        Config.Animation.SpeedMultiplier = 1
-        Config.Settings.UIScale = 1
-        Config.Settings.BlurEnabled = true
+end)
+
+Util.Connect(UserInputService.InputChanged, function(input)
+    if floatDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or
+       input.UserInputType == Enum.UserInputType.Touch) then
+        local delta = input.Position - floatDragStart
+        local newX = floatStartPos.X.Offset + delta.X
+        local newY = floatStartPos.Y.Offset + delta.Y
         
-        if MainFrame then
-            MainFrame.Size = UDim2.new(0, Config.Sizes.WindowDefaultWidth, 0, Config.Sizes.WindowDefaultHeight)
-            MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-        end
+        local vp = Camera.ViewportSize
+        newX = math.clamp(newX, 0, vp.X - 46)
+        newY = math.clamp(newY, 0, vp.Y - 46)
         
-        NotificationSystem.Send("Settings", "All settings reset to defaults", "Success")
-    end, 3, true)
+        FloatingBtn.AnchorPoint = Vector2.new(0, 0)
+        FloatingBtn.Position = UDim2.new(0, newX, 0, newY)
+    end
+end)
+
+-- Hover effect
+FloatingBtn.MouseEnter:Connect(function()
+    Util.Tween(FloatingBtn, 0.25, {
+        Size = UDim2.new(0, 50, 0, 50),
+        BackgroundTransparency = 0.05
+    }, Enum.EasingStyle.Back)
+    local stroke = FloatingBtn:FindFirstChildOfClass("UIStroke")
+    if stroke then
+        Util.Tween(stroke, 0.2, {Transparency = 0.1})
+    end
+end)
+
+FloatingBtn.MouseLeave:Connect(function()
+    Util.Tween(FloatingBtn, 0.25, {
+        Size = UDim2.new(0, 46, 0, 46),
+        BackgroundTransparency = 0.1
+    }, Enum.EasingStyle.Back)
+    local stroke = FloatingBtn:FindFirstChildOfClass("UIStroke")
+    if stroke then
+        Util.Tween(stroke, 0.2, {Transparency = 0.4})
+    end
+end)
+
+-- ============================================================
+-- OPEN/CLOSE GUI
+-- ============================================================
+function OpenMainGUI()
+    State.GuiOpen = true
+    FloatingBtn.Visible = false
+    MainFrame.Visible = true
+    MainFrame.Size = UDim2.new(0, State.WindowSize.X.Offset * 0.9, 0, State.WindowSize.Y.Offset * 0.9)
+    MainFrame.BackgroundTransparency = 0.5
     
-    -- Set default page
-    Window.SwitchPage("Dashboard")
+    Util.Tween(MainFrame, 0.4, {
+        Size = State.WindowSize,
+        BackgroundTransparency = 0.02
+    }, Enum.EasingStyle.Quart)
+    
+    if BlurEffect and State.Settings.BlurEnabled then
+        Util.Tween(BlurEffect, 0.3, {Size = 10})
+    end
 end
 
 -- ============================================================
--- HUMANOID RECONNECTION
+-- CLEANUP SYSTEM
 -- ============================================================
-local function SetupCharacterReconnect()
-    local function onCharacterAdded(char)
-        task.wait(0.5)
-        if Config.Speed.Current ~= 1 then
-            SpeedController.SetSpeed(Config.Speed.Current)
-        end
+_G.HoshiCleanup = function()
+    -- Disconnect all connections
+    for _, conn in ipairs(State.Connections) do
+        pcall(function() conn:Disconnect() end)
+    end
+    State.Connections = {}
+    
+    -- Clean ESP
+    for _, obj in pairs(State.ESP.Objects) do
+        pcall(function() if obj.BillboardGui then obj.BillboardGui:Destroy() end end)
+        pcall(function() if obj.Highlight then obj.Highlight:Destroy() end end)
     end
     
-    if LocalPlayer.Character then
-        onCharacterAdded(LocalPlayer.Character)
+    -- Clean observation indicators
+    for _, ind in pairs(State.Observation.Indicators) do
+        pcall(function() ind:Destroy() end)
     end
-    Util.AddConnection(LocalPlayer.CharacterAdded:Connect(onCharacterAdded))
+    
+    -- Remove blur
+    if BlurEffect then
+        pcall(function() BlurEffect:Destroy() end)
+    end
+    
+    -- Remove GUI
+    pcall(function() ScreenGui:Destroy() end)
+    
+    _G.HoshiCleanup = nil
 end
 
 -- ============================================================
 -- INITIALIZATION
 -- ============================================================
-local function Initialize()
-    -- Build window
-    Window.Create()
+-- Set initial tab
+SwitchTab("Dashboard")
+
+-- Show splash then open
+ShowSplashScreen(function()
+    OpenMainGUI()
+    PulseFloat()
     
-    -- Build all pages
-    BuildPages()
-    
-    -- Setup character reconnection
-    SetupCharacterReconnect()
-    
-    -- Show splash then open window
-    SplashScreen.Show(function()
-        Window.Show()
-        NotificationSystem.Send("Hoshi Development Tools", "Tools initialized successfully", "Success", 4)
+    task.delay(0.5, function()
+        Notify("Hoshi Development Tools", "Development environment loaded successfully", "Success", 5)
     end)
-end
+    
+    task.delay(1.5, function()
+        Notify("System", "All modules initialized and ready", "Info", 3)
+    end)
+end)
 
--- Run initialization
-Initialize()
+-- Handle character respawn
+Util.Connect(LocalPlayer.CharacterAdded, function(char)
+    task.wait(1)
+    if State.Speed.Value ~= 16 then
+        local hum = char:WaitForChild("Humanoid", 5)
+        if hum then
+            hum.WalkSpeed = State.Speed.Value
+        end
+    end
+end)
 
--- ============================================================
--- CLEANUP ON DESTROY
--- ============================================================
-MainGui.Destroying:Connect(function()
-    Cleanup.Run()
+-- Handle player leaving (ESP cleanup)
+Util.Connect(Players.PlayerRemoving, function(player)
+    if State.ESP.Objects[player.UserId] then
+        local data = State.ESP.Objects[player.UserId]
+        pcall(function() if data.BillboardGui then data.BillboardGui:Destroy() end end)
+        pcall(function() if data.Highlight then data.Highlight:Destroy() end end)
+        State.ESP.Objects[player.UserId] = nil
+    end
+    if State.Observation.Indicators[player.UserId] then
+        pcall(function() State.Observation.Indicators[player.UserId]:Destroy() end)
+        State.Observation.Indicators[player.UserId] = nil
+    end
 end)
