@@ -1,70 +1,79 @@
 --[[
-    ╔══════════════════════════════════════════════════════════════╗
-    ║           ADMIN DEVELOPMENT TOOLS v2.0                      ║
-    ║           For Private Map Testing & Debugging               ║
-    ║           Glassmorphism Dark Theme + Neon Blue               ║
-    ╚══════════════════════════════════════════════════════════════╝
+    ========================================================
+    HOSHI v2.1.0
+    Admin Development Tools
+    Terminal-Style Interface
+    For Private Map Testing & Debugging
+    ========================================================
     
     Structure:
-    [1] CONFIG
-    [2] UTILITIES
-    [3] NOTIFICATION SYSTEM
-    [4] UI FRAMEWORK
-    [5] SPLASH SCREEN
-    [6] MAIN GUI BUILDER
-    [7] ESP MODULE
-    [8] TELEPORT SAFETY MODULE
-    [9] SPEED RUN MODULE
+    [1]  CONFIG
+    [2]  UTILITIES
+    [3]  NOTIFICATION SYSTEM
+    [4]  UI FRAMEWORK
+    [5]  SPLASH SCREEN
+    [6]  MAIN GUI BUILDER
+    [7]  ESP MODULE
+    [8]  TELEPORT SAFETY MODULE
+    [9]  SPEED RUN MODULE
     [10] POV CIRCLE MODULE
     [11] ON POINT MODULE
     [12] CLEANUP
     [13] INIT
 --]]
 
--- ══════════════════════════════════════════════════════════════
+-- ========================================================
 -- [1] CONFIG
--- ══════════════════════════════════════════════════════════════
+-- ========================================================
 
 local Config = {
-    -- Theme Colors
     Theme = {
-        Background = Color3.fromRGB(12, 12, 20),
-        Surface = Color3.fromRGB(18, 18, 30),
-        SurfaceLight = Color3.fromRGB(25, 25, 42),
-        SurfaceHover = Color3.fromRGB(32, 32, 55),
-        NeonBlue = Color3.fromRGB(0, 170, 255),
-        NeonBlueLight = Color3.fromRGB(80, 200, 255),
-        NeonBlueDark = Color3.fromRGB(0, 120, 200),
-        NeonCyan = Color3.fromRGB(0, 255, 230),
-        Accent2 = Color3.fromRGB(130, 80, 255),
-        Text = Color3.fromRGB(230, 235, 245),
-        TextDim = Color3.fromRGB(140, 150, 170),
-        TextMuted = Color3.fromRGB(80, 90, 110),
-        Success = Color3.fromRGB(0, 220, 130),
-        Warning = Color3.fromRGB(255, 180, 0),
-        Danger = Color3.fromRGB(255, 60, 80),
-        GlassBG = Color3.fromRGB(15, 15, 28),
-        GlassStroke = Color3.fromRGB(60, 70, 100),
-        SidebarBG = Color3.fromRGB(10, 10, 18),
+        Background = Color3.fromRGB(8, 8, 12),
+        Surface = Color3.fromRGB(12, 12, 18),
+        SurfaceLight = Color3.fromRGB(18, 18, 26),
+        SurfaceHover = Color3.fromRGB(24, 24, 34),
+        SurfaceBright = Color3.fromRGB(30, 30, 42),
+        
+        Primary = Color3.fromRGB(0, 255, 160),
+        PrimaryDim = Color3.fromRGB(0, 180, 110),
+        PrimaryDark = Color3.fromRGB(0, 120, 80),
+        Secondary = Color3.fromRGB(0, 200, 255),
+        Tertiary = Color3.fromRGB(180, 130, 255),
+        
+        Text = Color3.fromRGB(200, 210, 200),
+        TextBright = Color3.fromRGB(230, 240, 230),
+        TextDim = Color3.fromRGB(100, 120, 100),
+        TextMuted = Color3.fromRGB(50, 65, 50),
+        
+        Success = Color3.fromRGB(0, 220, 100),
+        Warning = Color3.fromRGB(220, 180, 0),
+        Danger = Color3.fromRGB(220, 50, 50),
+        Info = Color3.fromRGB(0, 180, 220),
+        
+        Border = Color3.fromRGB(30, 40, 30),
+        BorderLight = Color3.fromRGB(40, 55, 40),
+        BorderActive = Color3.fromRGB(0, 255, 160),
+        
+        TerminalGreen = Color3.fromRGB(0, 255, 160),
+        TerminalDim = Color3.fromRGB(0, 100, 60),
+        TerminalBG = Color3.fromRGB(5, 5, 8),
     },
     
-    -- UI Settings
     UI = {
-        WindowSize = UDim2.new(0, 780, 0, 520),
-        CornerRadius = UDim.new(0, 12),
-        CornerRadiusSmall = UDim.new(0, 8),
-        CornerRadiusTiny = UDim.new(0, 6),
-        AnimationSpeed = 0.35,
-        AnimationSpeedFast = 0.2,
-        AnimationEasing = Enum.EasingStyle.Quint,
-        SidebarWidth = 180,
-        HeaderHeight = 50,
-        Font = Enum.Font.GothamBold,
-        FontMedium = Enum.Font.GothamMedium,
-        FontRegular = Enum.Font.Gotham,
+        WindowSize = UDim2.new(0, 820, 0, 560),
+        CornerRadius = UDim.new(0, 4),
+        CornerRadiusSmall = UDim.new(0, 3),
+        CornerRadiusTiny = UDim.new(0, 2),
+        AnimationSpeed = 0.3,
+        AnimationSpeedFast = 0.15,
+        AnimationEasing = Enum.EasingStyle.Quad,
+        SidebarWidth = 170,
+        HeaderHeight = 40,
+        Font = Enum.Font.Code,
+        FontBold = Enum.Font.Code,
+        FontMono = Enum.Font.Code,
     },
     
-    -- ESP Defaults
     ESP = {
         Enabled = false,
         ShowBox = true,
@@ -73,24 +82,22 @@ local Config = {
         ShowHealth = true,
         ShowRole = true,
         RoleColors = {
-            Killer = Color3.fromRGB(255, 50, 60),
-            Survivor = Color3.fromRGB(0, 200, 120),
-            Admin = Color3.fromRGB(0, 170, 255),
-            Default = Color3.fromRGB(200, 200, 200),
+            Killer = Color3.fromRGB(220, 50, 50),
+            Survivor = Color3.fromRGB(0, 220, 100),
+            Admin = Color3.fromRGB(0, 180, 220),
+            Default = Color3.fromRGB(150, 150, 150),
         },
     },
     
-    -- Teleport Defaults
     Teleport = {
         Enabled = false,
         Radius = 35,
-        Cooldown = 3,
-        SafePosition = Vector3.new(0, 100, 0),
+        Cooldown = 2,
+        FleeDistance = 100,
         LastTeleportTime = 0,
-        Status = "Idle",
+        Status = "OFFLINE",
     },
     
-    -- Speed Defaults
     Speed = {
         Value = 1,
         Min = 1,
@@ -98,34 +105,32 @@ local Config = {
         DefaultWalkSpeed = 16,
     },
     
-    -- POV Circle Defaults
     POV = {
         Enabled = false,
         Radius = 100,
         Thickness = 2,
         Opacity = 0.8,
-        Color = Color3.fromRGB(0, 170, 255),
+        Color = Color3.fromRGB(0, 255, 160),
         TargetPlayer = nil,
         Spectating = false,
     },
     
-    -- On Point Defaults
     OnPoint = {
         Enabled = false,
-        Radius = 50,
+        DamageRadius = 50,
         SmoothUpdate = true,
-        Transparency = 0.5,
-        Color = Color3.fromRGB(255, 180, 0),
+        Transparency = 0.4,
+        Color = Color3.fromRGB(220, 180, 0),
+        TrackNearest = true,
     },
     
-    -- Version
-    Version = "2.0.0",
-    ScriptName = "ADT",
+    Version = "2.1.0",
+    ScriptName = "HOSHI",
 }
 
--- ══════════════════════════════════════════════════════════════
+-- ========================================================
 -- [2] UTILITIES
--- ══════════════════════════════════════════════════════════════
+-- ========================================================
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -138,12 +143,9 @@ local LocalPlayer = Players.LocalPlayer
 local Mouse = LocalPlayer:GetMouse()
 
 local Utilities = {}
-
--- Connections storage for cleanup
 Utilities._connections = {}
 Utilities._instances = {}
 
---- Create a TweenInfo shorthand
 function Utilities.TweenInfo(duration, style, direction)
     return TweenInfo.new(
         duration or Config.UI.AnimationSpeed,
@@ -152,8 +154,8 @@ function Utilities.TweenInfo(duration, style, direction)
     )
 end
 
---- Tween an instance property
 function Utilities.Tween(instance, properties, duration, style, direction, callback)
+    if not instance or not instance.Parent then return nil end
     local info = Utilities.TweenInfo(duration, style, direction)
     local tween = TweenService:Create(instance, info, properties)
     if callback then
@@ -163,59 +165,42 @@ function Utilities.Tween(instance, properties, duration, style, direction, callb
     return tween
 end
 
---- Connect and track connections for cleanup
 function Utilities.Connect(signal, func)
     local connection = signal:Connect(func)
     table.insert(Utilities._connections, connection)
     return connection
 end
 
---- Track instances for cleanup
 function Utilities.Track(instance)
     table.insert(Utilities._instances, instance)
     return instance
 end
 
---- Get distance between two Vector3 positions
 function Utilities.Distance(pos1, pos2)
     return (pos1 - pos2).Magnitude
 end
 
---- Get character root part
 function Utilities.GetRootPart(player)
     local char = player and player.Character
-    return char and (char:FindFirstChild("HumanoidRootPart") or char:FindFirstChild("Head"))
+    if not char then return nil end
+    return char:FindFirstChild("HumanoidRootPart") or char:FindFirstChild("Head")
 end
 
---- Get humanoid
 function Utilities.GetHumanoid(player)
     local char = player and player.Character
-    return char and char:FindFirstChildOfClass("Humanoid")
+    if not char then return nil end
+    return char:FindFirstChildOfClass("Humanoid")
 end
 
---- Get player role (reads attribute or team name)
 function Utilities.GetRole(player)
-    -- Try attribute first
     local role = player:GetAttribute("Role")
     if role then return role end
-    -- Try a value inside player
     local roleVal = player:FindFirstChild("Role")
     if roleVal and roleVal:IsA("StringValue") then return roleVal.Value end
-    -- Fallback to team
     if player.Team then return player.Team.Name end
     return "Default"
 end
 
---- Lerp Color3
-function Utilities.LerpColor(c1, c2, alpha)
-    return Color3.new(
-        c1.R + (c2.R - c1.R) * alpha,
-        c1.G + (c2.G - c1.G) * alpha,
-        c1.B + (c2.B - c1.B) * alpha
-    )
-end
-
---- Create rounded rectangle
 function Utilities.AddCorner(parent, radius)
     local corner = Instance.new("UICorner")
     corner.CornerRadius = radius or Config.UI.CornerRadius
@@ -223,17 +208,16 @@ function Utilities.AddCorner(parent, radius)
     return corner
 end
 
---- Create stroke
 function Utilities.AddStroke(parent, color, thickness, transparency)
     local stroke = Instance.new("UIStroke")
-    stroke.Color = color or Config.Theme.GlassStroke
+    stroke.Color = color or Config.Theme.Border
     stroke.Thickness = thickness or 1
-    stroke.Transparency = transparency or 0.5
+    stroke.Transparency = transparency or 0
+    stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
     stroke.Parent = parent
     return stroke
 end
 
---- Create padding
 function Utilities.AddPadding(parent, top, right, bottom, left)
     local padding = Instance.new("UIPadding")
     padding.PaddingTop = UDim.new(0, top or 0)
@@ -244,232 +228,257 @@ function Utilities.AddPadding(parent, top, right, bottom, left)
     return padding
 end
 
---- Create gradient
-function Utilities.AddGradient(parent, c1, c2, rotation)
-    local gradient = Instance.new("UIGradient")
-    gradient.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, c1 or Config.Theme.NeonBlue),
-        ColorSequenceKeypoint.new(1, c2 or Config.Theme.NeonCyan),
-    })
-    gradient.Rotation = rotation or 45
-    gradient.Parent = parent
-    return gradient
-end
-
---- Create list layout
-function Utilities.AddListLayout(parent, padding, direction, horizontalAlign, verticalAlign)
+function Utilities.AddListLayout(parent, padding, direction, hAlign, vAlign)
     local layout = Instance.new("UIListLayout")
-    layout.Padding = UDim.new(0, padding or 8)
+    layout.Padding = UDim.new(0, padding or 4)
     layout.FillDirection = direction or Enum.FillDirection.Vertical
-    layout.HorizontalAlignment = horizontalAlign or Enum.HorizontalAlignment.Left
-    layout.VerticalAlignment = verticalAlign or Enum.VerticalAlignment.Top
+    layout.HorizontalAlignment = hAlign or Enum.HorizontalAlignment.Left
+    layout.VerticalAlignment = vAlign or Enum.VerticalAlignment.Top
     layout.SortOrder = Enum.SortOrder.LayoutOrder
     layout.Parent = parent
     return layout
 end
 
--- ══════════════════════════════════════════════════════════════
+-- Find a safe flee position away from a threat
+function Utilities.FindFleePosition(fromPos, threatPos, fleeDistance)
+    local direction = (fromPos - threatPos).Unit
+    
+    -- Try primary direction first
+    local candidates = {
+        direction,
+        (direction + Vector3.new(0.5, 0, 0.5)).Unit,
+        (direction + Vector3.new(-0.5, 0, 0.5)).Unit,
+        (direction + Vector3.new(0.5, 0, -0.5)).Unit,
+        (direction + Vector3.new(-0.5, 0, -0.5)).Unit,
+        (direction + Vector3.new(1, 0, 0)).Unit,
+        (direction + Vector3.new(-1, 0, 0)).Unit,
+        (direction + Vector3.new(0, 0, 1)).Unit,
+        (direction + Vector3.new(0, 0, -1)).Unit,
+    }
+    
+    for _, dir in ipairs(candidates) do
+        local targetPos = fromPos + dir * fleeDistance
+        -- Raycast downward to find ground
+        local rayOrigin = targetPos + Vector3.new(0, 50, 0)
+        local rayDirection = Vector3.new(0, -200, 0)
+        local rayParams = RaycastParams.new()
+        rayParams.FilterType = Enum.RaycastFilterType.Exclude
+        rayParams.FilterDescendantsInstances = {LocalPlayer.Character}
+        
+        local result = Workspace:Raycast(rayOrigin, rayDirection, rayParams)
+        if result then
+            local groundPos = result.Position + Vector3.new(0, 3, 0)
+            -- Verify this position is actually far from the threat
+            if Utilities.Distance(groundPos, threatPos) >= fleeDistance * 0.8 then
+                return groundPos
+            end
+        end
+    end
+    
+    -- Fallback: just go in the opposite direction at a height
+    return fromPos + direction * fleeDistance + Vector3.new(0, 5, 0)
+end
+
+-- ========================================================
 -- [3] NOTIFICATION SYSTEM
--- ══════════════════════════════════════════════════════════════
+-- ========================================================
 
 local NotificationSystem = {}
-NotificationSystem._gui = nil
 NotificationSystem._container = nil
 
---- Initialize notification container
 function NotificationSystem.Init(screenGui)
-    NotificationSystem._gui = screenGui
-    
     local container = Instance.new("Frame")
-    container.Name = "NotificationContainer"
-    container.Size = UDim2.new(0, 320, 1, 0)
-    container.Position = UDim2.new(1, -340, 0, 0)
+    container.Name = "NotifContainer"
+    container.Size = UDim2.new(0, 340, 1, 0)
+    container.Position = UDim2.new(1, -350, 0, 0)
     container.BackgroundTransparency = 1
     container.Parent = screenGui
     
-    Utilities.AddPadding(container, 80, 0, 20, 0)
-    Utilities.AddListLayout(container, 8, Enum.FillDirection.Vertical, Enum.HorizontalAlignment.Right, Enum.VerticalAlignment.Bottom)
+    Utilities.AddPadding(container, 60, 0, 10, 0)
+    Utilities.AddListLayout(container, 4, Enum.FillDirection.Vertical, Enum.HorizontalAlignment.Right, Enum.VerticalAlignment.Bottom)
     
     NotificationSystem._container = container
 end
 
---- Show a notification
 function NotificationSystem.Notify(title, message, notifType, duration)
     notifType = notifType or "info"
     duration = duration or 3
     
-    local accentColor = Config.Theme.NeonBlue
-    if notifType == "success" then accentColor = Config.Theme.Success
-    elseif notifType == "warning" then accentColor = Config.Theme.Warning
-    elseif notifType == "error" then accentColor = Config.Theme.Danger end
+    local accentColor = Config.Theme.Primary
+    local prefix = "[INFO]"
+    if notifType == "success" then 
+        accentColor = Config.Theme.Success
+        prefix = "[OK]"
+    elseif notifType == "warning" then 
+        accentColor = Config.Theme.Warning
+        prefix = "[WARN]"
+    elseif notifType == "error" then 
+        accentColor = Config.Theme.Danger
+        prefix = "[ERR]"
+    end
     
-    local notifFrame = Instance.new("Frame")
-    notifFrame.Name = "Notification"
-    notifFrame.Size = UDim2.new(1, 0, 0, 70)
-    notifFrame.BackgroundColor3 = Config.Theme.Surface
-    notifFrame.BackgroundTransparency = 0.1
-    notifFrame.ClipsDescendants = true
-    notifFrame.Parent = NotificationSystem._container
+    local frame = Instance.new("Frame")
+    frame.Name = "Notif"
+    frame.Size = UDim2.new(1, 0, 0, 56)
+    frame.BackgroundColor3 = Config.Theme.Surface
+    frame.BorderSizePixel = 0
+    frame.ClipsDescendants = true
+    frame.Parent = NotificationSystem._container
     
-    Utilities.AddCorner(notifFrame, Config.UI.CornerRadiusSmall)
-    Utilities.AddStroke(notifFrame, accentColor, 1, 0.4)
+    Utilities.AddCorner(frame, Config.UI.CornerRadiusSmall)
+    Utilities.AddStroke(frame, accentColor, 1, 0.3)
     
-    -- Accent bar on left
-    local accentBar = Instance.new("Frame")
-    accentBar.Size = UDim2.new(0, 4, 1, 0)
-    accentBar.Position = UDim2.new(0, 0, 0, 0)
-    accentBar.BackgroundColor3 = accentColor
-    accentBar.BorderSizePixel = 0
-    accentBar.Parent = notifFrame
+    -- Left accent line
+    local accent = Instance.new("Frame")
+    accent.Size = UDim2.new(0, 2, 1, 0)
+    accent.BackgroundColor3 = accentColor
+    accent.BorderSizePixel = 0
+    accent.Parent = frame
     
-    -- Title
+    -- Title with prefix
     local titleLabel = Instance.new("TextLabel")
-    titleLabel.Size = UDim2.new(1, -20, 0, 24)
-    titleLabel.Position = UDim2.new(0, 16, 0, 10)
+    titleLabel.Size = UDim2.new(1, -14, 0, 18)
+    titleLabel.Position = UDim2.new(0, 10, 0, 6)
     titleLabel.BackgroundTransparency = 1
-    titleLabel.Text = title or "Notification"
-    titleLabel.TextColor3 = Config.Theme.Text
-    titleLabel.TextSize = 13
+    titleLabel.Text = prefix .. " " .. (title or "")
+    titleLabel.TextColor3 = accentColor
+    titleLabel.TextSize = 11
     titleLabel.Font = Config.UI.Font
     titleLabel.TextXAlignment = Enum.TextXAlignment.Left
-    titleLabel.Parent = notifFrame
+    titleLabel.Parent = frame
     
     -- Message
     local msgLabel = Instance.new("TextLabel")
-    msgLabel.Size = UDim2.new(1, -20, 0, 20)
-    msgLabel.Position = UDim2.new(0, 16, 0, 34)
+    msgLabel.Size = UDim2.new(1, -14, 0, 16)
+    msgLabel.Position = UDim2.new(0, 10, 0, 24)
     msgLabel.BackgroundTransparency = 1
-    msgLabel.Text = message or ""
+    msgLabel.Text = "> " .. (message or "")
     msgLabel.TextColor3 = Config.Theme.TextDim
-    msgLabel.TextSize = 11
-    msgLabel.Font = Config.UI.FontRegular
+    msgLabel.TextSize = 10
+    msgLabel.Font = Config.UI.FontMono
     msgLabel.TextXAlignment = Enum.TextXAlignment.Left
     msgLabel.TextWrapped = true
-    msgLabel.Parent = notifFrame
+    msgLabel.Parent = frame
     
     -- Progress bar
     local progressBar = Instance.new("Frame")
-    progressBar.Size = UDim2.new(1, 0, 0, 2)
-    progressBar.Position = UDim2.new(0, 0, 1, -2)
+    progressBar.Size = UDim2.new(1, 0, 0, 1)
+    progressBar.Position = UDim2.new(0, 0, 1, -1)
     progressBar.BackgroundColor3 = accentColor
+    progressBar.BackgroundTransparency = 0.3
     progressBar.BorderSizePixel = 0
-    progressBar.Parent = notifFrame
+    progressBar.Parent = frame
+    
+    -- Timestamp
+    local timeLabel = Instance.new("TextLabel")
+    timeLabel.Size = UDim2.new(0, 60, 0, 14)
+    timeLabel.Position = UDim2.new(1, -65, 0, 6)
+    timeLabel.BackgroundTransparency = 1
+    timeLabel.Text = os.date("%H:%M:%S")
+    timeLabel.TextColor3 = Config.Theme.TextMuted
+    timeLabel.TextSize = 9
+    timeLabel.Font = Config.UI.FontMono
+    timeLabel.TextXAlignment = Enum.TextXAlignment.Right
+    timeLabel.Parent = frame
     
     -- Animate in
-    notifFrame.BackgroundTransparency = 1
+    frame.Position = UDim2.new(1, 0, 0, 0)
+    frame.BackgroundTransparency = 1
     titleLabel.TextTransparency = 1
     msgLabel.TextTransparency = 1
-    accentBar.BackgroundTransparency = 1
-    progressBar.BackgroundTransparency = 1
+    accent.BackgroundTransparency = 1
+    timeLabel.TextTransparency = 1
     
-    Utilities.Tween(notifFrame, {BackgroundTransparency = 0.1}, 0.3)
-    Utilities.Tween(titleLabel, {TextTransparency = 0}, 0.3)
-    Utilities.Tween(msgLabel, {TextTransparency = 0}, 0.3)
-    Utilities.Tween(accentBar, {BackgroundTransparency = 0}, 0.3)
-    Utilities.Tween(progressBar, {BackgroundTransparency = 0}, 0.3)
+    Utilities.Tween(frame, {Position = UDim2.new(0, 0, 0, 0), BackgroundTransparency = 0}, 0.25)
+    Utilities.Tween(titleLabel, {TextTransparency = 0}, 0.25)
+    Utilities.Tween(msgLabel, {TextTransparency = 0}, 0.25)
+    Utilities.Tween(accent, {BackgroundTransparency = 0}, 0.25)
+    Utilities.Tween(timeLabel, {TextTransparency = 0}, 0.25)
     
-    -- Progress animation
-    Utilities.Tween(progressBar, {Size = UDim2.new(0, 0, 0, 2)}, duration, Enum.EasingStyle.Linear)
+    -- Progress countdown
+    Utilities.Tween(progressBar, {Size = UDim2.new(0, 0, 0, 1)}, duration, Enum.EasingStyle.Linear)
     
     -- Auto dismiss
     task.delay(duration, function()
-        Utilities.Tween(notifFrame, {BackgroundTransparency = 1}, 0.3)
-        Utilities.Tween(titleLabel, {TextTransparency = 1}, 0.3)
-        Utilities.Tween(msgLabel, {TextTransparency = 1}, 0.3)
-        Utilities.Tween(accentBar, {BackgroundTransparency = 1}, 0.3)
-        Utilities.Tween(progressBar, {BackgroundTransparency = 1}, 0.3, nil, nil, function()
-            notifFrame:Destroy()
-        end)
+        if frame and frame.Parent then
+            Utilities.Tween(frame, {BackgroundTransparency = 1, Position = UDim2.new(1, 0, 0, 0)}, 0.2)
+            Utilities.Tween(titleLabel, {TextTransparency = 1}, 0.2)
+            Utilities.Tween(msgLabel, {TextTransparency = 1}, 0.2)
+            Utilities.Tween(accent, {BackgroundTransparency = 1}, 0.2)
+            Utilities.Tween(timeLabel, {TextTransparency = 1}, 0.2)
+            task.delay(0.25, function()
+                if frame and frame.Parent then frame:Destroy() end
+            end)
+        end
     end)
 end
 
--- ══════════════════════════════════════════════════════════════
--- [4] UI FRAMEWORK (Component Library)
--- ══════════════════════════════════════════════════════════════
+-- ========================================================
+-- [4] UI FRAMEWORK
+-- ========================================================
 
 local UIFramework = {}
 
---- Create a glass-style panel
-function UIFramework.CreatePanel(parent, size, position, name)
-    local panel = Instance.new("Frame")
-    panel.Name = name or "Panel"
-    panel.Size = size or UDim2.new(1, 0, 0, 60)
-    panel.Position = position or UDim2.new(0, 0, 0, 0)
-    panel.BackgroundColor3 = Config.Theme.SurfaceLight
-    panel.BackgroundTransparency = 0.2
-    panel.BorderSizePixel = 0
-    panel.Parent = parent
+-- Terminal-style section header
+function UIFramework.CreateSectionHeader(parent, text, layoutOrder)
+    local container = Instance.new("Frame")
+    container.Size = UDim2.new(1, 0, 0, 22)
+    container.BackgroundTransparency = 1
+    container.LayoutOrder = layoutOrder or 0
+    container.Parent = parent
     
-    Utilities.AddCorner(panel, Config.UI.CornerRadiusSmall)
-    Utilities.AddStroke(panel, Config.Theme.GlassStroke, 1, 0.6)
-    
-    return panel
-end
-
---- Create a section title
-function UIFramework.CreateSectionTitle(parent, text, layoutOrder)
     local label = Instance.new("TextLabel")
-    label.Name = "SectionTitle"
-    label.Size = UDim2.new(1, 0, 0, 20)
+    label.Size = UDim2.new(1, 0, 1, 0)
     label.BackgroundTransparency = 1
-    label.Text = text
+    label.Text = "--- " .. string.upper(text) .. " ---"
     label.TextColor3 = Config.Theme.TextMuted
     label.TextSize = 10
-    label.Font = Config.UI.Font
+    label.Font = Config.UI.FontMono
     label.TextXAlignment = Enum.TextXAlignment.Left
-    label.LayoutOrder = layoutOrder or 0
-    label.Parent = parent
-    return label
+    label.Parent = container
+    
+    return container
 end
 
---- Create a toggle switch
+-- Terminal-style toggle
 function UIFramework.CreateToggle(parent, label, default, callback, layoutOrder)
     local container = Instance.new("Frame")
     container.Name = "Toggle_" .. label
-    container.Size = UDim2.new(1, 0, 0, 36)
+    container.Size = UDim2.new(1, 0, 0, 28)
     container.BackgroundColor3 = Config.Theme.SurfaceLight
-    container.BackgroundTransparency = 0.3
+    container.BackgroundTransparency = 0.5
     container.LayoutOrder = layoutOrder or 0
     container.Parent = parent
     
     Utilities.AddCorner(container, Config.UI.CornerRadiusTiny)
-    Utilities.AddPadding(container, 0, 12, 0, 12)
     
     -- Label
     local textLabel = Instance.new("TextLabel")
-    textLabel.Size = UDim2.new(1, -52, 1, 0)
-    textLabel.Position = UDim2.new(0, 0, 0, 0)
+    textLabel.Size = UDim2.new(1, -80, 1, 0)
+    textLabel.Position = UDim2.new(0, 8, 0, 0)
     textLabel.BackgroundTransparency = 1
-    textLabel.Text = label
+    textLabel.Text = "> " .. label
     textLabel.TextColor3 = Config.Theme.Text
-    textLabel.TextSize = 12
-    textLabel.Font = Config.UI.FontMedium
+    textLabel.TextSize = 11
+    textLabel.Font = Config.UI.FontMono
     textLabel.TextXAlignment = Enum.TextXAlignment.Left
     textLabel.Parent = container
     
-    -- Toggle track
-    local track = Instance.new("Frame")
-    track.Name = "Track"
-    track.Size = UDim2.new(0, 40, 0, 20)
-    track.Position = UDim2.new(1, -40, 0.5, -10)
-    track.BackgroundColor3 = default and Config.Theme.NeonBlue or Config.Theme.TextMuted
-    track.BorderSizePixel = 0
-    track.Parent = container
-    Utilities.AddCorner(track, UDim.new(0, 10))
-    
-    -- Toggle knob
-    local knob = Instance.new("Frame")
-    knob.Name = "Knob"
-    knob.Size = UDim2.new(0, 16, 0, 16)
-    knob.Position = default and UDim2.new(1, -18, 0.5, -8) or UDim2.new(0, 2, 0.5, -8)
-    knob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    knob.BorderSizePixel = 0
-    knob.Parent = track
-    Utilities.AddCorner(knob, UDim.new(0, 8))
+    -- Status text
+    local statusLabel = Instance.new("TextLabel")
+    statusLabel.Size = UDim2.new(0, 60, 1, 0)
+    statusLabel.Position = UDim2.new(1, -68, 0, 0)
+    statusLabel.BackgroundTransparency = 1
+    statusLabel.Text = default and "[ON]" or "[OFF]"
+    statusLabel.TextColor3 = default and Config.Theme.Success or Config.Theme.Danger
+    statusLabel.TextSize = 11
+    statusLabel.Font = Config.UI.FontMono
+    statusLabel.TextXAlignment = Enum.TextXAlignment.Right
+    statusLabel.Parent = container
     
     local isOn = default or false
     
-    -- Click handler
+    -- Click button
     local button = Instance.new("TextButton")
     button.Size = UDim2.new(1, 0, 1, 0)
     button.BackgroundTransparency = 1
@@ -478,131 +487,106 @@ function UIFramework.CreateToggle(parent, label, default, callback, layoutOrder)
     
     Utilities.Connect(button.MouseButton1Click, function()
         isOn = not isOn
-        
-        -- Animate track color
-        Utilities.Tween(track, {
-            BackgroundColor3 = isOn and Config.Theme.NeonBlue or Config.Theme.TextMuted
+        statusLabel.Text = isOn and "[ON]" or "[OFF]"
+        Utilities.Tween(statusLabel, {
+            TextColor3 = isOn and Config.Theme.Success or Config.Theme.Danger
         }, Config.UI.AnimationSpeedFast)
-        
-        -- Animate knob position
-        Utilities.Tween(knob, {
-            Position = isOn and UDim2.new(1, -18, 0.5, -8) or UDim2.new(0, 2, 0.5, -8)
-        }, Config.UI.AnimationSpeedFast, Enum.EasingStyle.Back)
-        
         if callback then callback(isOn) end
     end)
     
-    -- Hover effect
     Utilities.Connect(button.MouseEnter, function()
-        Utilities.Tween(container, {BackgroundTransparency = 0.15}, 0.15)
+        Utilities.Tween(container, {BackgroundTransparency = 0.2}, 0.1)
+        Utilities.Tween(textLabel, {TextColor3 = Config.Theme.Primary}, 0.1)
     end)
     Utilities.Connect(button.MouseLeave, function()
-        Utilities.Tween(container, {BackgroundTransparency = 0.3}, 0.15)
+        Utilities.Tween(container, {BackgroundTransparency = 0.5}, 0.1)
+        Utilities.Tween(textLabel, {TextColor3 = Config.Theme.Text}, 0.1)
     end)
     
-    -- Return toggle API
     return {
         Container = container,
         SetState = function(state)
             isOn = state
-            Utilities.Tween(track, {
-                BackgroundColor3 = isOn and Config.Theme.NeonBlue or Config.Theme.TextMuted
-            }, Config.UI.AnimationSpeedFast)
-            Utilities.Tween(knob, {
-                Position = isOn and UDim2.new(1, -18, 0.5, -8) or UDim2.new(0, 2, 0.5, -8)
-            }, Config.UI.AnimationSpeedFast, Enum.EasingStyle.Back)
+            statusLabel.Text = isOn and "[ON]" or "[OFF]"
+            statusLabel.TextColor3 = isOn and Config.Theme.Success or Config.Theme.Danger
         end,
         GetState = function() return isOn end,
     }
 end
 
---- Create a slider with text box
+-- Terminal-style slider with text input
 function UIFramework.CreateSlider(parent, label, min, max, default, callback, layoutOrder)
     local container = Instance.new("Frame")
     container.Name = "Slider_" .. label
-    container.Size = UDim2.new(1, 0, 0, 56)
+    container.Size = UDim2.new(1, 0, 0, 48)
     container.BackgroundColor3 = Config.Theme.SurfaceLight
-    container.BackgroundTransparency = 0.3
+    container.BackgroundTransparency = 0.5
     container.LayoutOrder = layoutOrder or 0
     container.Parent = parent
     
     Utilities.AddCorner(container, Config.UI.CornerRadiusTiny)
-    Utilities.AddPadding(container, 8, 12, 8, 12)
+    Utilities.AddPadding(container, 4, 8, 4, 8)
     
-    -- Label + value display
+    -- Label + value
     local headerFrame = Instance.new("Frame")
     headerFrame.Size = UDim2.new(1, 0, 0, 16)
     headerFrame.BackgroundTransparency = 1
     headerFrame.Parent = container
     
     local textLabel = Instance.new("TextLabel")
-    textLabel.Size = UDim2.new(0.6, 0, 1, 0)
+    textLabel.Size = UDim2.new(0.65, 0, 1, 0)
     textLabel.BackgroundTransparency = 1
-    textLabel.Text = label
+    textLabel.Text = "> " .. label
     textLabel.TextColor3 = Config.Theme.Text
-    textLabel.TextSize = 12
-    textLabel.Font = Config.UI.FontMedium
+    textLabel.TextSize = 10
+    textLabel.Font = Config.UI.FontMono
     textLabel.TextXAlignment = Enum.TextXAlignment.Left
     textLabel.Parent = headerFrame
     
     -- Value TextBox
     local valueBox = Instance.new("TextBox")
-    valueBox.Name = "ValueBox"
-    valueBox.Size = UDim2.new(0, 50, 0, 18)
-    valueBox.Position = UDim2.new(1, -50, 0, -1)
-    valueBox.BackgroundColor3 = Config.Theme.Background
+    valueBox.Size = UDim2.new(0, 45, 0, 16)
+    valueBox.Position = UDim2.new(1, -45, 0, 0)
+    valueBox.BackgroundColor3 = Config.Theme.TerminalBG
     valueBox.BackgroundTransparency = 0.3
-    valueBox.TextColor3 = Config.Theme.NeonBlue
-    valueBox.TextSize = 11
-    valueBox.Font = Config.UI.Font
+    valueBox.TextColor3 = Config.Theme.Primary
+    valueBox.TextSize = 10
+    valueBox.Font = Config.UI.FontMono
     valueBox.Text = tostring(default)
     valueBox.ClearTextOnFocus = false
     valueBox.Parent = headerFrame
     Utilities.AddCorner(valueBox, Config.UI.CornerRadiusTiny)
-    Utilities.AddStroke(valueBox, Config.Theme.NeonBlueDark, 1, 0.6)
+    Utilities.AddStroke(valueBox, Config.Theme.Border, 1, 0.5)
     
     -- Slider track
     local trackFrame = Instance.new("Frame")
-    trackFrame.Name = "SliderTrack"
-    trackFrame.Size = UDim2.new(1, 0, 0, 6)
-    trackFrame.Position = UDim2.new(0, 0, 0, 30)
-    trackFrame.BackgroundColor3 = Config.Theme.Background
+    trackFrame.Name = "Track"
+    trackFrame.Size = UDim2.new(1, 0, 0, 4)
+    trackFrame.Position = UDim2.new(0, 0, 0, 26)
+    trackFrame.BackgroundColor3 = Config.Theme.TerminalBG
     trackFrame.BorderSizePixel = 0
     trackFrame.Parent = container
-    Utilities.AddCorner(trackFrame, UDim.new(0, 3))
+    Utilities.AddCorner(trackFrame, UDim.new(0, 2))
     
     -- Slider fill
-    local fillFrame = Instance.new("Frame")
-    fillFrame.Name = "SliderFill"
     local initAlpha = math.clamp((default - min) / (max - min), 0, 1)
+    local fillFrame = Instance.new("Frame")
     fillFrame.Size = UDim2.new(initAlpha, 0, 1, 0)
-    fillFrame.BackgroundColor3 = Config.Theme.NeonBlue
+    fillFrame.BackgroundColor3 = Config.Theme.Primary
+    fillFrame.BackgroundTransparency = 0.3
     fillFrame.BorderSizePixel = 0
     fillFrame.Parent = trackFrame
-    Utilities.AddCorner(fillFrame, UDim.new(0, 3))
-    Utilities.AddGradient(fillFrame, Config.Theme.NeonBlue, Config.Theme.NeonCyan, 0)
+    Utilities.AddCorner(fillFrame, UDim.new(0, 2))
     
     -- Slider knob
-    local sliderKnob = Instance.new("Frame")
-    sliderKnob.Name = "SliderKnob"
-    sliderKnob.Size = UDim2.new(0, 14, 0, 14)
-    sliderKnob.Position = UDim2.new(initAlpha, -7, 0.5, -7)
-    sliderKnob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    sliderKnob.BorderSizePixel = 0
-    sliderKnob.ZIndex = 2
-    sliderKnob.Parent = trackFrame
-    Utilities.AddCorner(sliderKnob, UDim.new(0, 7))
-    
-    -- Glow around knob
-    local knobGlow = Instance.new("Frame")
-    knobGlow.Size = UDim2.new(0, 20, 0, 20)
-    knobGlow.Position = UDim2.new(0.5, -10, 0.5, -10)
-    knobGlow.BackgroundColor3 = Config.Theme.NeonBlue
-    knobGlow.BackgroundTransparency = 0.7
-    knobGlow.BorderSizePixel = 0
-    knobGlow.ZIndex = 1
-    knobGlow.Parent = sliderKnob
-    Utilities.AddCorner(knobGlow, UDim.new(0, 10))
+    local knob = Instance.new("Frame")
+    knob.Size = UDim2.new(0, 10, 0, 10)
+    knob.Position = UDim2.new(initAlpha, -5, 0.5, -5)
+    knob.BackgroundColor3 = Config.Theme.Primary
+    knob.BorderSizePixel = 0
+    knob.ZIndex = 2
+    knob.Parent = trackFrame
+    Utilities.AddCorner(knob, UDim.new(0, 2))
     
     local currentValue = default
     local dragging = false
@@ -614,16 +598,16 @@ function UIFramework.CreateSlider(parent, label, min, max, default, callback, la
         
         local newAlpha = (currentValue - min) / (max - min)
         fillFrame.Size = UDim2.new(newAlpha, 0, 1, 0)
-        sliderKnob.Position = UDim2.new(newAlpha, -7, 0.5, -7)
+        knob.Position = UDim2.new(newAlpha, -5, 0.5, -5)
         valueBox.Text = tostring(currentValue)
         
         if callback then callback(currentValue) end
     end
     
-    -- Invisible button for click detection on track
+    -- Click/drag on track
     local sliderButton = Instance.new("TextButton")
-    sliderButton.Size = UDim2.new(1, 0, 0, 20)
-    sliderButton.Position = UDim2.new(0, 0, 0, -7)
+    sliderButton.Size = UDim2.new(1, 0, 0, 16)
+    sliderButton.Position = UDim2.new(0, 0, 0, -6)
     sliderButton.BackgroundTransparency = 1
     sliderButton.Text = ""
     sliderButton.ZIndex = 3
@@ -650,8 +634,7 @@ function UIFramework.CreateSlider(parent, label, min, max, default, callback, la
         end
     end)
     
-    -- TextBox input
-    Utilities.Connect(valueBox.FocusLost, function(enterPressed)
+    Utilities.Connect(valueBox.FocusLost, function()
         local num = tonumber(valueBox.Text)
         if num then
             num = math.clamp(math.floor(num), min, max)
@@ -673,129 +656,149 @@ function UIFramework.CreateSlider(parent, label, min, max, default, callback, la
     }
 end
 
---- Create a styled button with ripple effect
+-- Terminal-style button
 function UIFramework.CreateButton(parent, label, callback, layoutOrder, accentColor)
-    accentColor = accentColor or Config.Theme.NeonBlue
+    accentColor = accentColor or Config.Theme.Primary
     
     local container = Instance.new("Frame")
-    container.Name = "Button_" .. label
-    container.Size = UDim2.new(1, 0, 0, 34)
-    container.BackgroundColor3 = accentColor
-    container.BackgroundTransparency = 0.7
+    container.Name = "Btn_" .. label
+    container.Size = UDim2.new(1, 0, 0, 26)
+    container.BackgroundColor3 = Config.Theme.SurfaceLight
+    container.BackgroundTransparency = 0.5
     container.LayoutOrder = layoutOrder or 0
     container.ClipsDescendants = true
     container.Parent = parent
     
     Utilities.AddCorner(container, Config.UI.CornerRadiusTiny)
-    Utilities.AddStroke(container, accentColor, 1, 0.4)
+    Utilities.AddStroke(container, Config.Theme.Border, 1, 0.5)
     
     local textLabel = Instance.new("TextLabel")
     textLabel.Size = UDim2.new(1, 0, 1, 0)
     textLabel.BackgroundTransparency = 1
-    textLabel.Text = label
-    textLabel.TextColor3 = Config.Theme.Text
-    textLabel.TextSize = 12
-    textLabel.Font = Config.UI.FontMedium
+    textLabel.Text = "[ " .. label .. " ]"
+    textLabel.TextColor3 = accentColor
+    textLabel.TextSize = 10
+    textLabel.Font = Config.UI.FontMono
     textLabel.Parent = container
     
     local button = Instance.new("TextButton")
     button.Size = UDim2.new(1, 0, 1, 0)
     button.BackgroundTransparency = 1
     button.Text = ""
-    button.ZIndex = 3
+    button.ZIndex = 2
     button.Parent = container
     
-    -- Ripple effect
     Utilities.Connect(button.MouseButton1Click, function()
-        -- Create ripple
-        local ripple = Instance.new("Frame")
-        ripple.Size = UDim2.new(0, 0, 0, 0)
-        ripple.Position = UDim2.new(0.5, 0, 0.5, 0)
-        ripple.AnchorPoint = Vector2.new(0.5, 0.5)
-        ripple.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-        ripple.BackgroundTransparency = 0.7
-        ripple.BorderSizePixel = 0
-        ripple.ZIndex = 2
-        ripple.Parent = container
-        Utilities.AddCorner(ripple, UDim.new(0.5, 0))
-        
-        Utilities.Tween(ripple, {
-            Size = UDim2.new(2, 0, 2, 0),
-            BackgroundTransparency = 1,
-        }, 0.5, Enum.EasingStyle.Quad, nil, function()
-            ripple:Destroy()
+        -- Flash effect
+        Utilities.Tween(container, {BackgroundTransparency = 0}, 0.05, nil, nil, function()
+            Utilities.Tween(container, {BackgroundTransparency = 0.5}, 0.15)
         end)
-        
         if callback then callback() end
     end)
     
-    -- Hover
     Utilities.Connect(button.MouseEnter, function()
-        Utilities.Tween(container, {BackgroundTransparency = 0.5}, 0.15)
+        Utilities.Tween(container, {BackgroundTransparency = 0.3}, 0.1)
+        Utilities.Tween(textLabel, {TextColor3 = Config.Theme.TextBright}, 0.1)
     end)
     Utilities.Connect(button.MouseLeave, function()
-        Utilities.Tween(container, {BackgroundTransparency = 0.7}, 0.15)
+        Utilities.Tween(container, {BackgroundTransparency = 0.5}, 0.1)
+        Utilities.Tween(textLabel, {TextColor3 = accentColor}, 0.1)
     end)
     
     return {
         Container = container,
-        SetText = function(text) textLabel.Text = text end,
+        SetText = function(text) textLabel.Text = "[ " .. text .. " ]" end,
     }
 end
 
---- Create a dropdown to select a player
+-- Terminal-style status display
+function UIFramework.CreateStatusLine(parent, label, defaultText, layoutOrder)
+    local container = Instance.new("Frame")
+    container.Name = "Status_" .. label
+    container.Size = UDim2.new(1, 0, 0, 18)
+    container.BackgroundTransparency = 1
+    container.LayoutOrder = layoutOrder or 0
+    container.Parent = parent
+    
+    local textLabel = Instance.new("TextLabel")
+    textLabel.Size = UDim2.new(1, 0, 1, 0)
+    textLabel.Position = UDim2.new(0, 8, 0, 0)
+    textLabel.BackgroundTransparency = 1
+    textLabel.RichText = true
+    textLabel.Text = string.format(
+        '<font color="#%s">%s:</font> <font color="#%s">%s</font>',
+        Config.Theme.TextDim:ToHex(), label,
+        Config.Theme.Text:ToHex(), defaultText or "N/A"
+    )
+    textLabel.TextSize = 10
+    textLabel.Font = Config.UI.FontMono
+    textLabel.TextXAlignment = Enum.TextXAlignment.Left
+    textLabel.Parent = container
+    
+    return {
+        Container = container,
+        SetValue = function(text, color)
+            local valColor = color or Config.Theme.Text
+            textLabel.Text = string.format(
+                '<font color="#%s">%s:</font> <font color="#%s">%s</font>',
+                Config.Theme.TextDim:ToHex(), label,
+                valColor:ToHex(), text
+            )
+        end,
+    }
+end
+
+-- Player dropdown
 function UIFramework.CreatePlayerDropdown(parent, label, callback, layoutOrder)
     local container = Instance.new("Frame")
-    container.Name = "Dropdown_" .. label
-    container.Size = UDim2.new(1, 0, 0, 36)
+    container.Name = "Drop_" .. label
+    container.Size = UDim2.new(1, 0, 0, 28)
     container.BackgroundColor3 = Config.Theme.SurfaceLight
-    container.BackgroundTransparency = 0.3
+    container.BackgroundTransparency = 0.5
     container.LayoutOrder = layoutOrder or 0
     container.ClipsDescendants = true
     container.Parent = parent
     
     Utilities.AddCorner(container, Config.UI.CornerRadiusTiny)
-    Utilities.AddPadding(container, 0, 12, 0, 12)
     
     local textLabel = Instance.new("TextLabel")
-    textLabel.Size = UDim2.new(0.5, 0, 1, 0)
+    textLabel.Size = UDim2.new(0.5, 0, 0, 28)
+    textLabel.Position = UDim2.new(0, 8, 0, 0)
     textLabel.BackgroundTransparency = 1
-    textLabel.Text = label
+    textLabel.Text = "> " .. label
     textLabel.TextColor3 = Config.Theme.Text
-    textLabel.TextSize = 12
-    textLabel.Font = Config.UI.FontMedium
+    textLabel.TextSize = 10
+    textLabel.Font = Config.UI.FontMono
     textLabel.TextXAlignment = Enum.TextXAlignment.Left
     textLabel.Parent = container
     
     local selectedLabel = Instance.new("TextLabel")
-    selectedLabel.Size = UDim2.new(0.5, 0, 1, 0)
+    selectedLabel.Size = UDim2.new(0.5, -8, 0, 28)
     selectedLabel.Position = UDim2.new(0.5, 0, 0, 0)
     selectedLabel.BackgroundTransparency = 1
-    selectedLabel.Text = "None"
-    selectedLabel.TextColor3 = Config.Theme.NeonBlue
-    selectedLabel.TextSize = 11
-    selectedLabel.Font = Config.UI.FontMedium
+    selectedLabel.Text = "[NONE]"
+    selectedLabel.TextColor3 = Config.Theme.Primary
+    selectedLabel.TextSize = 10
+    selectedLabel.Font = Config.UI.FontMono
     selectedLabel.TextXAlignment = Enum.TextXAlignment.Right
     selectedLabel.Parent = container
     
     local isOpen = false
     local optionsFrame = Instance.new("ScrollingFrame")
-    optionsFrame.Name = "Options"
-    optionsFrame.Size = UDim2.new(1, 24, 0, 0)
-    optionsFrame.Position = UDim2.new(0, -12, 0, 36)
-    optionsFrame.BackgroundColor3 = Config.Theme.Background
+    optionsFrame.Size = UDim2.new(1, 0, 0, 0)
+    optionsFrame.Position = UDim2.new(0, 0, 0, 28)
+    optionsFrame.BackgroundColor3 = Config.Theme.TerminalBG
     optionsFrame.BackgroundTransparency = 0.1
     optionsFrame.BorderSizePixel = 0
-    optionsFrame.ScrollBarThickness = 3
-    optionsFrame.ScrollBarImageColor3 = Config.Theme.NeonBlue
+    optionsFrame.ScrollBarThickness = 2
+    optionsFrame.ScrollBarImageColor3 = Config.Theme.Primary
     optionsFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
     optionsFrame.Visible = false
-    optionsFrame.ClipsDescendants = true
     optionsFrame.Parent = container
     Utilities.AddCorner(optionsFrame, Config.UI.CornerRadiusTiny)
     
-    local optLayout = Utilities.AddListLayout(optionsFrame, 2)
-    Utilities.AddPadding(optionsFrame, 4, 4, 4, 4)
+    local optLayout = Utilities.AddListLayout(optionsFrame, 1)
+    Utilities.AddPadding(optionsFrame, 2, 2, 2, 2)
     
     local selectedPlayer = nil
     
@@ -808,43 +811,42 @@ function UIFramework.CreatePlayerDropdown(parent, label, callback, layoutOrder)
         for _, player in ipairs(Players:GetPlayers()) do
             if player ~= LocalPlayer then
                 count = count + 1
+                local role = Utilities.GetRole(player)
                 local optBtn = Instance.new("TextButton")
-                optBtn.Size = UDim2.new(1, 0, 0, 26)
+                optBtn.Size = UDim2.new(1, 0, 0, 22)
                 optBtn.BackgroundColor3 = Config.Theme.SurfaceLight
-                optBtn.BackgroundTransparency = 0.4
-                optBtn.Text = player.Name
+                optBtn.BackgroundTransparency = 0.6
+                optBtn.Text = "  " .. player.Name .. " [" .. role .. "]"
                 optBtn.TextColor3 = Config.Theme.Text
-                optBtn.TextSize = 11
-                optBtn.Font = Config.UI.FontMedium
+                optBtn.TextSize = 10
+                optBtn.Font = Config.UI.FontMono
+                optBtn.TextXAlignment = Enum.TextXAlignment.Left
                 optBtn.Parent = optionsFrame
                 Utilities.AddCorner(optBtn, Config.UI.CornerRadiusTiny)
                 
                 Utilities.Connect(optBtn.MouseButton1Click, function()
                     selectedPlayer = player
-                    selectedLabel.Text = player.Name
-                    -- Close
+                    selectedLabel.Text = "[" .. player.Name .. "]"
                     isOpen = false
-                    Utilities.Tween(container, {Size = UDim2.new(1, 0, 0, 36)}, 0.2)
-                    optionsFrame.Visible = false
+                    Utilities.Tween(container, {Size = UDim2.new(1, 0, 0, 28)}, 0.15)
+                    task.delay(0.15, function() optionsFrame.Visible = false end)
                     if callback then callback(player) end
                 end)
                 
                 Utilities.Connect(optBtn.MouseEnter, function()
-                    Utilities.Tween(optBtn, {BackgroundTransparency = 0.2}, 0.1)
+                    Utilities.Tween(optBtn, {BackgroundTransparency = 0.3}, 0.08)
                 end)
                 Utilities.Connect(optBtn.MouseLeave, function()
-                    Utilities.Tween(optBtn, {BackgroundTransparency = 0.4}, 0.1)
+                    Utilities.Tween(optBtn, {BackgroundTransparency = 0.6}, 0.08)
                 end)
             end
         end
         
-        optionsFrame.CanvasSize = UDim2.new(0, 0, 0, count * 28 + 8)
+        optionsFrame.CanvasSize = UDim2.new(0, 0, 0, count * 23 + 4)
     end
     
-    -- Toggle button
     local toggleBtn = Instance.new("TextButton")
-    toggleBtn.Size = UDim2.new(1, 0, 0, 36)
-    toggleBtn.Position = UDim2.new(0, -12, 0, 0)
+    toggleBtn.Size = UDim2.new(1, 0, 0, 28)
     toggleBtn.BackgroundTransparency = 1
     toggleBtn.Text = ""
     toggleBtn.ZIndex = 3
@@ -855,12 +857,12 @@ function UIFramework.CreatePlayerDropdown(parent, label, callback, layoutOrder)
         if isOpen then
             refreshOptions()
             optionsFrame.Visible = true
-            local optCount = #Players:GetPlayers() - 1
-            local height = math.min(optCount * 28 + 8, 120)
-            Utilities.Tween(container, {Size = UDim2.new(1, 0, 0, 36 + height)}, 0.25)
-            optionsFrame.Size = UDim2.new(1, 24, 0, height)
+            local optCount = math.max(#Players:GetPlayers() - 1, 1)
+            local height = math.min(optCount * 23 + 4, 100)
+            optionsFrame.Size = UDim2.new(1, 0, 0, height)
+            Utilities.Tween(container, {Size = UDim2.new(1, 0, 0, 28 + height)}, 0.2)
         else
-            Utilities.Tween(container, {Size = UDim2.new(1, 0, 0, 36)}, 0.2, nil, nil, function()
+            Utilities.Tween(container, {Size = UDim2.new(1, 0, 0, 28)}, 0.15, nil, nil, function()
                 optionsFrame.Visible = false
             end)
         end
@@ -871,128 +873,76 @@ function UIFramework.CreatePlayerDropdown(parent, label, callback, layoutOrder)
         GetSelected = function() return selectedPlayer end,
         SetSelected = function(p)
             selectedPlayer = p
-            selectedLabel.Text = p and p.Name or "None"
+            selectedLabel.Text = p and ("[" .. p.Name .. "]") or "[NONE]"
         end,
     }
 end
 
---- Create a color indicator/status label
-function UIFramework.CreateStatusLabel(parent, label, defaultText, layoutOrder)
-    local container = Instance.new("Frame")
-    container.Name = "Status_" .. label
-    container.Size = UDim2.new(1, 0, 0, 28)
-    container.BackgroundTransparency = 1
-    container.LayoutOrder = layoutOrder or 0
-    container.Parent = parent
-    
-    local textLabel = Instance.new("TextLabel")
-    textLabel.Size = UDim2.new(0.5, 0, 1, 0)
-    textLabel.BackgroundTransparency = 1
-    textLabel.Text = label
-    textLabel.TextColor3 = Config.Theme.TextDim
-    textLabel.TextSize = 11
-    textLabel.Font = Config.UI.FontRegular
-    textLabel.TextXAlignment = Enum.TextXAlignment.Left
-    textLabel.Parent = container
-    
-    -- Status dot
-    local dot = Instance.new("Frame")
-    dot.Size = UDim2.new(0, 8, 0, 8)
-    dot.Position = UDim2.new(0.5, 4, 0.5, -4)
-    dot.BackgroundColor3 = Config.Theme.TextMuted
-    dot.BorderSizePixel = 0
-    dot.Parent = container
-    Utilities.AddCorner(dot, UDim.new(0, 4))
-    
-    local valueLabel = Instance.new("TextLabel")
-    valueLabel.Size = UDim2.new(0.5, -16, 1, 0)
-    valueLabel.Position = UDim2.new(0.5, 16, 0, 0)
-    valueLabel.BackgroundTransparency = 1
-    valueLabel.Text = defaultText or "N/A"
-    valueLabel.TextColor3 = Config.Theme.Text
-    valueLabel.TextSize = 11
-    valueLabel.Font = Config.UI.FontMedium
-    valueLabel.TextXAlignment = Enum.TextXAlignment.Left
-    valueLabel.Parent = container
-    
-    return {
-        Container = container,
-        SetValue = function(text, color)
-            valueLabel.Text = text
-            if color then
-                dot.BackgroundColor3 = color
-                valueLabel.TextColor3 = color
-            end
-        end,
-    }
-end
-
---- Create a color picker (simple - preset colors)
+-- Color picker (preset grid)
 function UIFramework.CreateColorPicker(parent, label, default, callback, layoutOrder)
     local presetColors = {
-        Config.Theme.NeonBlue,
-        Config.Theme.NeonCyan,
+        Config.Theme.Primary,
+        Config.Theme.Secondary,
         Config.Theme.Success,
         Config.Theme.Warning,
         Config.Theme.Danger,
-        Config.Theme.Accent2,
+        Config.Theme.Tertiary,
         Color3.fromRGB(255, 255, 255),
         Color3.fromRGB(255, 120, 200),
     }
     
     local container = Instance.new("Frame")
-    container.Name = "ColorPicker_" .. label
-    container.Size = UDim2.new(1, 0, 0, 36)
+    container.Name = "ColorPick_" .. label
+    container.Size = UDim2.new(1, 0, 0, 28)
     container.BackgroundColor3 = Config.Theme.SurfaceLight
-    container.BackgroundTransparency = 0.3
+    container.BackgroundTransparency = 0.5
     container.LayoutOrder = layoutOrder or 0
     container.Parent = parent
     
     Utilities.AddCorner(container, Config.UI.CornerRadiusTiny)
-    Utilities.AddPadding(container, 0, 10, 0, 10)
     
     local textLabel = Instance.new("TextLabel")
-    textLabel.Size = UDim2.new(0, 60, 1, 0)
+    textLabel.Size = UDim2.new(0, 55, 1, 0)
+    textLabel.Position = UDim2.new(0, 8, 0, 0)
     textLabel.BackgroundTransparency = 1
-    textLabel.Text = label
+    textLabel.Text = "> " .. label
     textLabel.TextColor3 = Config.Theme.Text
-    textLabel.TextSize = 11
-    textLabel.Font = Config.UI.FontMedium
+    textLabel.TextSize = 10
+    textLabel.Font = Config.UI.FontMono
     textLabel.TextXAlignment = Enum.TextXAlignment.Left
     textLabel.Parent = container
     
     local colorsFrame = Instance.new("Frame")
-    colorsFrame.Size = UDim2.new(1, -70, 1, -8)
-    colorsFrame.Position = UDim2.new(0, 65, 0, 4)
+    colorsFrame.Size = UDim2.new(1, -70, 0, 16)
+    colorsFrame.Position = UDim2.new(0, 65, 0.5, -8)
     colorsFrame.BackgroundTransparency = 1
     colorsFrame.Parent = container
     
-    Utilities.AddListLayout(colorsFrame, 4, Enum.FillDirection.Horizontal)
+    Utilities.AddListLayout(colorsFrame, 3, Enum.FillDirection.Horizontal)
     
     local selectedColor = default
     
-    for i, color in ipairs(presetColors) do
+    for _, color in ipairs(presetColors) do
         local colorBtn = Instance.new("TextButton")
-        colorBtn.Size = UDim2.new(0, 22, 0, 22)
+        colorBtn.Size = UDim2.new(0, 16, 0, 16)
         colorBtn.BackgroundColor3 = color
         colorBtn.Text = ""
         colorBtn.Parent = colorsFrame
-        Utilities.AddCorner(colorBtn, UDim.new(0, 4))
+        Utilities.AddCorner(colorBtn, Config.UI.CornerRadiusTiny)
         
         if color == default then
-            Utilities.AddStroke(colorBtn, Color3.fromRGB(255, 255, 255), 2, 0)
+            Utilities.AddStroke(colorBtn, Config.Theme.TextBright, 1, 0)
         end
         
         Utilities.Connect(colorBtn.MouseButton1Click, function()
             selectedColor = color
-            -- Remove all strokes, add to selected
             for _, child in ipairs(colorsFrame:GetChildren()) do
                 if child:IsA("TextButton") then
-                    local existingStroke = child:FindFirstChildOfClass("UIStroke")
-                    if existingStroke then existingStroke:Destroy() end
+                    local s = child:FindFirstChildOfClass("UIStroke")
+                    if s then s:Destroy() end
                 end
             end
-            Utilities.AddStroke(colorBtn, Color3.fromRGB(255, 255, 255), 2, 0)
+            Utilities.AddStroke(colorBtn, Config.Theme.TextBright, 1, 0)
             if callback then callback(color) end
         end)
     end
@@ -1003,144 +953,94 @@ function UIFramework.CreateColorPicker(parent, label, default, callback, layoutO
     }
 end
 
--- ══════════════════════════════════════════════════════════════
+-- ========================================================
 -- [5] SPLASH SCREEN
--- ══════════════════════════════════════════════════════════════
+-- ========================================================
 
 local SplashScreen = {}
 
 function SplashScreen.Show(screenGui, callback)
     local splash = Instance.new("Frame")
-    splash.Name = "SplashScreen"
+    splash.Name = "Splash"
     splash.Size = UDim2.new(1, 0, 1, 0)
-    splash.BackgroundColor3 = Config.Theme.Background
-    splash.BackgroundTransparency = 0
+    splash.BackgroundColor3 = Config.Theme.TerminalBG
     splash.ZIndex = 100
     splash.Parent = screenGui
     
-    -- Center container
     local center = Instance.new("Frame")
-    center.Size = UDim2.new(0, 300, 0, 200)
-    center.Position = UDim2.new(0.5, -150, 0.5, -100)
+    center.Size = UDim2.new(0, 400, 0, 220)
+    center.Position = UDim2.new(0.5, -200, 0.5, -110)
     center.BackgroundTransparency = 1
     center.ZIndex = 101
     center.Parent = splash
     
-    -- Logo text
-    local logoText = Instance.new("TextLabel")
-    logoText.Size = UDim2.new(1, 0, 0, 40)
-    logoText.Position = UDim2.new(0, 0, 0, 30)
-    logoText.BackgroundTransparency = 1
-    logoText.Text = "⚡ ADT"
-    logoText.TextColor3 = Config.Theme.NeonBlue
-    logoText.TextSize = 36
-    logoText.Font = Config.UI.Font
-    logoText.TextTransparency = 1
-    logoText.ZIndex = 101
-    logoText.Parent = center
-    
-    -- Subtitle
-    local subtitle = Instance.new("TextLabel")
-    subtitle.Size = UDim2.new(1, 0, 0, 20)
-    subtitle.Position = UDim2.new(0, 0, 0, 75)
-    subtitle.BackgroundTransparency = 1
-    subtitle.Text = "Admin Development Tools"
-    subtitle.TextColor3 = Config.Theme.TextDim
-    subtitle.TextSize = 14
-    subtitle.Font = Config.UI.FontMedium
-    subtitle.TextTransparency = 1
-    subtitle.ZIndex = 101
-    subtitle.Parent = center
-    
-    -- Version
-    local versionLabel = Instance.new("TextLabel")
-    versionLabel.Size = UDim2.new(1, 0, 0, 16)
-    versionLabel.Position = UDim2.new(0, 0, 0, 98)
-    versionLabel.BackgroundTransparency = 1
-    versionLabel.Text = "v" .. Config.Version
-    versionLabel.TextColor3 = Config.Theme.TextMuted
-    versionLabel.TextSize = 11
-    versionLabel.Font = Config.UI.FontRegular
-    versionLabel.TextTransparency = 1
-    versionLabel.ZIndex = 101
-    versionLabel.Parent = center
-    
-    -- Loading bar background
-    local loadBarBG = Instance.new("Frame")
-    loadBarBG.Size = UDim2.new(0.6, 0, 0, 3)
-    loadBarBG.Position = UDim2.new(0.2, 0, 0, 140)
-    loadBarBG.BackgroundColor3 = Config.Theme.SurfaceLight
-    loadBarBG.BorderSizePixel = 0
-    loadBarBG.ZIndex = 101
-    loadBarBG.Parent = center
-    Utilities.AddCorner(loadBarBG, UDim.new(0, 2))
-    
-    -- Loading bar fill
-    local loadBarFill = Instance.new("Frame")
-    loadBarFill.Size = UDim2.new(0, 0, 1, 0)
-    loadBarFill.BackgroundColor3 = Config.Theme.NeonBlue
-    loadBarFill.BorderSizePixel = 0
-    loadBarFill.ZIndex = 102
-    loadBarFill.Parent = loadBarBG
-    Utilities.AddCorner(loadBarFill, UDim.new(0, 2))
-    Utilities.AddGradient(loadBarFill, Config.Theme.NeonBlue, Config.Theme.NeonCyan, 0)
-    
-    -- Loading text
-    local loadText = Instance.new("TextLabel")
-    loadText.Size = UDim2.new(1, 0, 0, 14)
-    loadText.Position = UDim2.new(0, 0, 0, 152)
-    loadText.BackgroundTransparency = 1
-    loadText.Text = "Initializing..."
-    loadText.TextColor3 = Config.Theme.TextMuted
-    loadText.TextSize = 10
-    loadText.Font = Config.UI.FontRegular
-    loadText.TextTransparency = 1
-    loadText.ZIndex = 101
-    loadText.Parent = center
-    
-    -- Animate in
-    Utilities.Tween(logoText, {TextTransparency = 0}, 0.5)
-    task.wait(0.2)
-    Utilities.Tween(subtitle, {TextTransparency = 0}, 0.4)
-    Utilities.Tween(versionLabel, {TextTransparency = 0}, 0.4)
-    task.wait(0.2)
-    Utilities.Tween(loadText, {TextTransparency = 0}, 0.3)
-    
-    -- Loading animation
-    local loadSteps = {
-        {text = "Loading UI Framework...", progress = 0.2},
-        {text = "Initializing Modules...", progress = 0.4},
-        {text = "Setting up ESP System...", progress = 0.6},
-        {text = "Configuring Tools...", progress = 0.8},
-        {text = "Ready!", progress = 1.0},
+    -- Terminal boot text
+    local lines = {
+        {text = "HOSHI Development Terminal v" .. Config.Version, color = Config.Theme.Primary, delay = 0.1},
+        {text = "========================================", color = Config.Theme.TextMuted, delay = 0.05},
+        {text = "", color = Config.Theme.Text, delay = 0.1},
+        {text = "Initializing core systems...", color = Config.Theme.Text, delay = 0.3},
+        {text = "[OK] Config module loaded", color = Config.Theme.Success, delay = 0.2},
+        {text = "[OK] UI framework ready", color = Config.Theme.Success, delay = 0.15},
+        {text = "[OK] ESP module initialized", color = Config.Theme.Success, delay = 0.2},
+        {text = "[OK] Teleport safety module ready", color = Config.Theme.Success, delay = 0.15},
+        {text = "[OK] POV system configured", color = Config.Theme.Success, delay = 0.2},
+        {text = "[OK] OnPoint targeting loaded", color = Config.Theme.Success, delay = 0.15},
+        {text = "[OK] Cleanup handlers registered", color = Config.Theme.Success, delay = 0.1},
+        {text = "", color = Config.Theme.Text, delay = 0.1},
+        {text = "All systems nominal. Starting GUI...", color = Config.Theme.Primary, delay = 0.3},
+        {text = "========================================", color = Config.Theme.TextMuted, delay = 0.1},
     }
     
-    for _, step in ipairs(loadSteps) do
-        loadText.Text = step.text
-        Utilities.Tween(loadBarFill, {Size = UDim2.new(step.progress, 0, 1, 0)}, 0.3)
-        task.wait(0.35)
+    local yOffset = 0
+    local lineLabels = {}
+    
+    for i, lineData in ipairs(lines) do
+        local lineLabel = Instance.new("TextLabel")
+        lineLabel.Size = UDim2.new(1, 0, 0, 14)
+        lineLabel.Position = UDim2.new(0, 0, 0, yOffset)
+        lineLabel.BackgroundTransparency = 1
+        lineLabel.Text = lineData.text
+        lineLabel.TextColor3 = lineData.color
+        lineLabel.TextSize = 11
+        lineLabel.Font = Config.UI.FontMono
+        lineLabel.TextXAlignment = Enum.TextXAlignment.Left
+        lineLabel.TextTransparency = 1
+        lineLabel.ZIndex = 101
+        lineLabel.Parent = center
+        
+        lineLabels[i] = lineLabel
+        yOffset = yOffset + 14
     end
     
-    task.wait(0.3)
-    
-    -- Fade out
-    Utilities.Tween(splash, {BackgroundTransparency = 1}, 0.5)
-    Utilities.Tween(logoText, {TextTransparency = 1}, 0.4)
-    Utilities.Tween(subtitle, {TextTransparency = 1}, 0.4)
-    Utilities.Tween(versionLabel, {TextTransparency = 1}, 0.4)
-    Utilities.Tween(loadText, {TextTransparency = 1}, 0.4)
-    Utilities.Tween(loadBarBG, {BackgroundTransparency = 1}, 0.4)
-    Utilities.Tween(loadBarFill, {BackgroundTransparency = 1}, 0.4)
-    
-    task.wait(0.5)
-    splash:Destroy()
-    
-    if callback then callback() end
+    -- Animate lines appearing one by one
+    task.spawn(function()
+        for i, lineData in ipairs(lines) do
+            if lineLabels[i] and lineLabels[i].Parent then
+                Utilities.Tween(lineLabels[i], {TextTransparency = 0}, 0.1)
+                task.wait(lineData.delay)
+            end
+        end
+        
+        task.wait(0.4)
+        
+        -- Fade out
+        Utilities.Tween(splash, {BackgroundTransparency = 1}, 0.4)
+        for _, lbl in ipairs(lineLabels) do
+            if lbl and lbl.Parent then
+                Utilities.Tween(lbl, {TextTransparency = 1}, 0.3)
+            end
+        end
+        
+        task.wait(0.5)
+        if splash and splash.Parent then splash:Destroy() end
+        if callback then callback() end
+    end)
 end
 
--- ══════════════════════════════════════════════════════════════
+-- ========================================================
 -- [6] MAIN GUI BUILDER
--- ══════════════════════════════════════════════════════════════
+-- ========================================================
 
 local MainGUI = {}
 MainGUI._screenGui = nil
@@ -1150,13 +1050,11 @@ MainGUI._activeTab = nil
 MainGUI._minimized = false
 
 function MainGUI.Init()
-    -- Destroy existing
-    local existing = LocalPlayer.PlayerGui:FindFirstChild("ADT_DevTools")
+    local existing = LocalPlayer.PlayerGui:FindFirstChild("HOSHI_DevTools")
     if existing then existing:Destroy() end
     
-    -- Create ScreenGui
     local screenGui = Instance.new("ScreenGui")
-    screenGui.Name = "ADT_DevTools"
+    screenGui.Name = "HOSHI_DevTools"
     screenGui.ResetOnSpawn = false
     screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     screenGui.DisplayOrder = 999
@@ -1165,155 +1063,152 @@ function MainGUI.Init()
     MainGUI._screenGui = screenGui
     Utilities.Track(screenGui)
     
-    -- Init notifications
     NotificationSystem.Init(screenGui)
     
-    -- Show splash screen, then build main UI
     SplashScreen.Show(screenGui, function()
         MainGUI.BuildMainWindow()
-        NotificationSystem.Notify("ADT Loaded", "Admin Development Tools v" .. Config.Version .. " ready.", "success", 3)
+        NotificationSystem.Notify("HOSHI", "Admin Development Tools v" .. Config.Version .. " loaded successfully.", "success", 3)
     end)
 end
 
 function MainGUI.BuildMainWindow()
     local screenGui = MainGUI._screenGui
     
-    -- ── Main Frame ──
+    -- Main frame
     local mainFrame = Instance.new("Frame")
     mainFrame.Name = "MainWindow"
     mainFrame.Size = Config.UI.WindowSize
-    mainFrame.Position = UDim2.new(0.5, -390, 0.5, -260)
+    mainFrame.Position = UDim2.new(0.5, -410, 0.5, -280)
     mainFrame.BackgroundColor3 = Config.Theme.Background
-    mainFrame.BackgroundTransparency = 0.05
     mainFrame.ClipsDescendants = true
     mainFrame.Parent = screenGui
     
     Utilities.AddCorner(mainFrame, Config.UI.CornerRadius)
-    Utilities.AddStroke(mainFrame, Config.Theme.GlassStroke, 1, 0.3)
-    
-    -- Drop shadow (simulated with larger frame behind)
-    local shadow = Instance.new("ImageLabel")
-    shadow.Name = "Shadow"
-    shadow.Size = UDim2.new(1, 30, 1, 30)
-    shadow.Position = UDim2.new(0, -15, 0, -15)
-    shadow.BackgroundTransparency = 1
-    shadow.Image = "rbxassetid://6014261993"
-    shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
-    shadow.ImageTransparency = 0.5
-    shadow.ScaleType = Enum.ScaleType.Slice
-    shadow.SliceCenter = Rect.new(49, 49, 450, 450)
-    shadow.ZIndex = -1
-    shadow.Parent = mainFrame
+    Utilities.AddStroke(mainFrame, Config.Theme.Border, 1, 0)
     
     MainGUI._mainFrame = mainFrame
     
-    -- Fade in animation
+    -- Animate in
     mainFrame.BackgroundTransparency = 1
-    mainFrame.Size = UDim2.new(0, 700, 0, 460)
-    mainFrame.Position = UDim2.new(0.5, -350, 0.5, -230)
+    local targetSize = Config.UI.WindowSize
+    mainFrame.Size = UDim2.new(0, 750, 0, 500)
     
     Utilities.Tween(mainFrame, {
-        BackgroundTransparency = 0.05,
-        Size = Config.UI.WindowSize,
-        Position = UDim2.new(0.5, -390, 0.5, -260),
-    }, 0.5, Enum.EasingStyle.Back)
+        BackgroundTransparency = 0,
+        Size = targetSize,
+    }, 0.4, Enum.EasingStyle.Quint)
     
-    -- ── Header Bar ──
+    -- Header
     local header = Instance.new("Frame")
     header.Name = "Header"
     header.Size = UDim2.new(1, 0, 0, Config.UI.HeaderHeight)
-    header.BackgroundColor3 = Config.Theme.SidebarBG
-    header.BackgroundTransparency = 0.3
+    header.BackgroundColor3 = Config.Theme.TerminalBG
     header.BorderSizePixel = 0
     header.Parent = mainFrame
+    Utilities.AddCorner(header, Config.UI.CornerRadius)
     
-    -- Header bottom line
+    -- Bottom cover for header corners
+    local headerCover = Instance.new("Frame")
+    headerCover.Size = UDim2.new(1, 0, 0, 10)
+    headerCover.Position = UDim2.new(0, 0, 1, -10)
+    headerCover.BackgroundColor3 = Config.Theme.TerminalBG
+    headerCover.BorderSizePixel = 0
+    headerCover.Parent = header
+    
+    -- Header bottom border
     local headerLine = Instance.new("Frame")
     headerLine.Size = UDim2.new(1, 0, 0, 1)
     headerLine.Position = UDim2.new(0, 0, 1, -1)
-    headerLine.BackgroundColor3 = Config.Theme.NeonBlue
-    headerLine.BackgroundTransparency = 0.6
+    headerLine.BackgroundColor3 = Config.Theme.Primary
+    headerLine.BackgroundTransparency = 0.5
     headerLine.BorderSizePixel = 0
     headerLine.Parent = header
     
-    -- Header gradient line
-    Utilities.AddGradient(headerLine, Config.Theme.NeonBlue, Config.Theme.Accent2, 0)
-    
     -- Title
     local title = Instance.new("TextLabel")
-    title.Size = UDim2.new(0, 200, 1, 0)
-    title.Position = UDim2.new(0, 16, 0, 0)
+    title.Size = UDim2.new(0, 300, 1, 0)
+    title.Position = UDim2.new(0, 12, 0, 0)
     title.BackgroundTransparency = 1
-    title.Text = "⚡ ADT Dev Tools"
-    title.TextColor3 = Config.Theme.NeonBlue
-    title.TextSize = 16
-    title.Font = Config.UI.Font
+    title.RichText = true
+    title.Text = string.format(
+        '<font color="#%s">HOSHI</font> <font color="#%s">// dev-tools v%s</font>',
+        Config.Theme.Primary:ToHex(),
+        Config.Theme.TextDim:ToHex(),
+        Config.Version
+    )
+    title.TextSize = 13
+    title.Font = Config.UI.FontMono
     title.TextXAlignment = Enum.TextXAlignment.Left
     title.Parent = header
     
-    -- Version badge
-    local vBadge = Instance.new("TextLabel")
-    vBadge.Size = UDim2.new(0, 40, 0, 16)
-    vBadge.Position = UDim2.new(0, 180, 0.5, -8)
-    vBadge.BackgroundColor3 = Config.Theme.NeonBlueDark
-    vBadge.BackgroundTransparency = 0.5
-    vBadge.Text = "v" .. Config.Version
-    vBadge.TextColor3 = Config.Theme.NeonBlueLight
-    vBadge.TextSize = 9
-    vBadge.Font = Config.UI.Font
-    vBadge.Parent = header
-    Utilities.AddCorner(vBadge, UDim.new(0, 4))
+    -- Terminal cursor blink in title area
+    local cursor = Instance.new("TextLabel")
+    cursor.Size = UDim2.new(0, 10, 0, 14)
+    cursor.Position = UDim2.new(0, 270, 0.5, -7)
+    cursor.BackgroundTransparency = 1
+    cursor.Text = "_"
+    cursor.TextColor3 = Config.Theme.Primary
+    cursor.TextSize = 13
+    cursor.Font = Config.UI.FontMono
+    cursor.Parent = header
+    
+    -- Blink animation
+    task.spawn(function()
+        while cursor and cursor.Parent do
+            cursor.TextTransparency = 0
+            task.wait(0.5)
+            if not cursor or not cursor.Parent then break end
+            cursor.TextTransparency = 1
+            task.wait(0.5)
+        end
+    end)
     
     -- Close button
     local closeBtn = Instance.new("TextButton")
-    closeBtn.Size = UDim2.new(0, 30, 0, 30)
-    closeBtn.Position = UDim2.new(1, -40, 0.5, -15)
+    closeBtn.Size = UDim2.new(0, 28, 0, 28)
+    closeBtn.Position = UDim2.new(1, -34, 0.5, -14)
     closeBtn.BackgroundColor3 = Config.Theme.Danger
     closeBtn.BackgroundTransparency = 0.8
-    closeBtn.Text = "✕"
+    closeBtn.Text = "x"
     closeBtn.TextColor3 = Config.Theme.Danger
-    closeBtn.TextSize = 14
-    closeBtn.Font = Config.UI.Font
+    closeBtn.TextSize = 12
+    closeBtn.Font = Config.UI.FontMono
     closeBtn.Parent = header
     Utilities.AddCorner(closeBtn, Config.UI.CornerRadiusTiny)
     
-    Utilities.Connect(closeBtn.MouseButton1Click, function()
-        MainGUI.Close()
-    end)
+    Utilities.Connect(closeBtn.MouseButton1Click, function() MainGUI.Close() end)
     Utilities.Connect(closeBtn.MouseEnter, function()
-        Utilities.Tween(closeBtn, {BackgroundTransparency = 0.4}, 0.15)
+        Utilities.Tween(closeBtn, {BackgroundTransparency = 0.3}, 0.1)
     end)
     Utilities.Connect(closeBtn.MouseLeave, function()
-        Utilities.Tween(closeBtn, {BackgroundTransparency = 0.8}, 0.15)
+        Utilities.Tween(closeBtn, {BackgroundTransparency = 0.8}, 0.1)
     end)
     
     -- Minimize button
     local minBtn = Instance.new("TextButton")
-    minBtn.Size = UDim2.new(0, 30, 0, 30)
-    minBtn.Position = UDim2.new(1, -76, 0.5, -15)
+    minBtn.Size = UDim2.new(0, 28, 0, 28)
+    minBtn.Position = UDim2.new(1, -66, 0.5, -14)
     minBtn.BackgroundColor3 = Config.Theme.Warning
     minBtn.BackgroundTransparency = 0.8
-    minBtn.Text = "─"
+    minBtn.Text = "-"
     minBtn.TextColor3 = Config.Theme.Warning
-    minBtn.TextSize = 14
-    minBtn.Font = Config.UI.Font
+    minBtn.TextSize = 12
+    minBtn.Font = Config.UI.FontMono
     minBtn.Parent = header
     Utilities.AddCorner(minBtn, Config.UI.CornerRadiusTiny)
     
-    Utilities.Connect(minBtn.MouseButton1Click, function()
-        MainGUI.ToggleMinimize()
-    end)
+    Utilities.Connect(minBtn.MouseButton1Click, function() MainGUI.ToggleMinimize() end)
     Utilities.Connect(minBtn.MouseEnter, function()
-        Utilities.Tween(minBtn, {BackgroundTransparency = 0.4}, 0.15)
+        Utilities.Tween(minBtn, {BackgroundTransparency = 0.3}, 0.1)
     end)
     Utilities.Connect(minBtn.MouseLeave, function()
-        Utilities.Tween(minBtn, {BackgroundTransparency = 0.8}, 0.15)
+        Utilities.Tween(minBtn, {BackgroundTransparency = 0.8}, 0.1)
     end)
     
-    -- ── Draggable ──
+    -- Draggable
     MainGUI.MakeDraggable(header, mainFrame)
     
-    -- ── Body Frame ──
+    -- Body
     local body = Instance.new("Frame")
     body.Name = "Body"
     body.Size = UDim2.new(1, 0, 1, -Config.UI.HeaderHeight)
@@ -1322,165 +1217,164 @@ function MainGUI.BuildMainWindow()
     body.ClipsDescendants = true
     body.Parent = mainFrame
     
-    -- ── Sidebar ──
+    -- Sidebar
     local sidebar = Instance.new("Frame")
     sidebar.Name = "Sidebar"
     sidebar.Size = UDim2.new(0, Config.UI.SidebarWidth, 1, 0)
-    sidebar.BackgroundColor3 = Config.Theme.SidebarBG
-    sidebar.BackgroundTransparency = 0.2
+    sidebar.BackgroundColor3 = Config.Theme.TerminalBG
     sidebar.BorderSizePixel = 0
     sidebar.Parent = body
     
     -- Sidebar right border
-    local sidebarBorder = Instance.new("Frame")
-    sidebarBorder.Size = UDim2.new(0, 1, 1, 0)
-    sidebarBorder.Position = UDim2.new(1, 0, 0, 0)
-    sidebarBorder.BackgroundColor3 = Config.Theme.GlassStroke
-    sidebarBorder.BackgroundTransparency = 0.5
-    sidebarBorder.BorderSizePixel = 0
-    sidebarBorder.Parent = sidebar
+    local sbBorder = Instance.new("Frame")
+    sbBorder.Size = UDim2.new(0, 1, 1, 0)
+    sbBorder.Position = UDim2.new(1, 0, 0, 0)
+    sbBorder.BackgroundColor3 = Config.Theme.Border
+    sbBorder.BorderSizePixel = 0
+    sbBorder.Parent = sidebar
     
-    local sidebarContent = Instance.new("Frame")
-    sidebarContent.Size = UDim2.new(1, 0, 1, 0)
-    sidebarContent.BackgroundTransparency = 1
-    sidebarContent.Parent = sidebar
-    Utilities.AddPadding(sidebarContent, 12, 10, 12, 10)
-    Utilities.AddListLayout(sidebarContent, 4)
+    local sbContent = Instance.new("Frame")
+    sbContent.Size = UDim2.new(1, 0, 1, 0)
+    sbContent.BackgroundTransparency = 1
+    sbContent.Parent = sidebar
+    Utilities.AddPadding(sbContent, 8, 6, 8, 6)
+    Utilities.AddListLayout(sbContent, 2)
     
-    -- ── Content Area ──
+    -- Content area
     local contentArea = Instance.new("Frame")
-    contentArea.Name = "ContentArea"
+    contentArea.Name = "Content"
     contentArea.Size = UDim2.new(1, -Config.UI.SidebarWidth, 1, 0)
     contentArea.Position = UDim2.new(0, Config.UI.SidebarWidth, 0, 0)
     contentArea.BackgroundTransparency = 1
     contentArea.ClipsDescendants = true
     contentArea.Parent = body
     
-    -- ── Create Tab Pages ──
+    -- Define tabs
     local tabs = {
-        {name = "ESP Player", icon = "👁", module = "ESP"},
-        {name = "Teleport", icon = "⚡", module = "Teleport"},
-        {name = "Speed Run", icon = "🏃", module = "Speed"},
-        {name = "POV Circle", icon = "◎", module = "POV"},
-        {name = "On Point", icon = "🎯", module = "OnPoint"},
+        {name = "ESP", label = "esp-player"},
+        {name = "Teleport", label = "teleport"},
+        {name = "Speed", label = "speed-run"},
+        {name = "POV", label = "pov-circle"},
+        {name = "OnPoint", label = "on-point"},
     }
     
-    -- Sidebar label
-    local sideLabel = Instance.new("TextLabel")
-    sideLabel.Size = UDim2.new(1, 0, 0, 20)
-    sideLabel.BackgroundTransparency = 1
-    sideLabel.Text = "NAVIGATION"
-    sideLabel.TextColor3 = Config.Theme.TextMuted
-    sideLabel.TextSize = 9
-    sideLabel.Font = Config.UI.Font
-    sideLabel.TextXAlignment = Enum.TextXAlignment.Left
-    sideLabel.LayoutOrder = 0
-    sideLabel.Parent = sidebarContent
+    -- Sidebar header
+    local sbHeader = Instance.new("TextLabel")
+    sbHeader.Size = UDim2.new(1, 0, 0, 20)
+    sbHeader.BackgroundTransparency = 1
+    sbHeader.Text = "-- MODULES --"
+    sbHeader.TextColor3 = Config.Theme.TextMuted
+    sbHeader.TextSize = 9
+    sbHeader.Font = Config.UI.FontMono
+    sbHeader.TextXAlignment = Enum.TextXAlignment.Left
+    sbHeader.LayoutOrder = 0
+    sbHeader.Parent = sbContent
     
     local tabButtons = {}
     
     for i, tab in ipairs(tabs) do
-        -- Create content page
+        -- Create page
         local page = Instance.new("ScrollingFrame")
-        page.Name = "Page_" .. tab.module
+        page.Name = "Page_" .. tab.name
         page.Size = UDim2.new(1, 0, 1, 0)
         page.BackgroundTransparency = 1
         page.BorderSizePixel = 0
-        page.ScrollBarThickness = 3
-        page.ScrollBarImageColor3 = Config.Theme.NeonBlue
+        page.ScrollBarThickness = 2
+        page.ScrollBarImageColor3 = Config.Theme.Primary
+        page.ScrollBarImageTransparency = 0.5
         page.CanvasSize = UDim2.new(0, 0, 0, 0)
         page.Visible = false
         page.Parent = contentArea
         
-        Utilities.AddPadding(page, 16, 16, 16, 16)
-        local pageLayout = Utilities.AddListLayout(page, 10)
+        Utilities.AddPadding(page, 10, 12, 10, 12)
+        local pageLayout = Utilities.AddListLayout(page, 6)
         
-        -- Auto resize canvas
         Utilities.Connect(pageLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
-            page.CanvasSize = UDim2.new(0, 0, 0, pageLayout.AbsoluteContentSize.Y + 32)
+            page.CanvasSize = UDim2.new(0, 0, 0, pageLayout.AbsoluteContentSize.Y + 24)
         end)
         
-        MainGUI._contentPages[tab.module] = page
+        MainGUI._contentPages[tab.name] = page
         
-        -- Create sidebar button
+        -- Sidebar button
         local tabBtn = Instance.new("TextButton")
-        tabBtn.Name = "Tab_" .. tab.module
-        tabBtn.Size = UDim2.new(1, 0, 0, 36)
-        tabBtn.BackgroundColor3 = Config.Theme.NeonBlue
+        tabBtn.Name = "Tab_" .. tab.name
+        tabBtn.Size = UDim2.new(1, 0, 0, 24)
+        tabBtn.BackgroundColor3 = Config.Theme.Primary
         tabBtn.BackgroundTransparency = 1
         tabBtn.Text = ""
         tabBtn.LayoutOrder = i
-        tabBtn.Parent = sidebarContent
+        tabBtn.Parent = sbContent
         Utilities.AddCorner(tabBtn, Config.UI.CornerRadiusTiny)
         
-        -- Tab indicator (left accent)
+        -- Tab indicator
         local tabIndicator = Instance.new("Frame")
-        tabIndicator.Name = "Indicator"
-        tabIndicator.Size = UDim2.new(0, 3, 0.6, 0)
+        tabIndicator.Size = UDim2.new(0, 2, 0.6, 0)
         tabIndicator.Position = UDim2.new(0, 0, 0.2, 0)
-        tabIndicator.BackgroundColor3 = Config.Theme.NeonBlue
+        tabIndicator.BackgroundColor3 = Config.Theme.Primary
         tabIndicator.BackgroundTransparency = 1
         tabIndicator.BorderSizePixel = 0
         tabIndicator.Parent = tabBtn
-        Utilities.AddCorner(tabIndicator, UDim.new(0, 2))
+        Utilities.AddCorner(tabIndicator, UDim.new(0, 1))
         
-        -- Tab icon + text
+        -- Tab label
         local tabLabel = Instance.new("TextLabel")
-        tabLabel.Size = UDim2.new(1, -12, 1, 0)
-        tabLabel.Position = UDim2.new(0, 12, 0, 0)
+        tabLabel.Size = UDim2.new(1, -10, 1, 0)
+        tabLabel.Position = UDim2.new(0, 10, 0, 0)
         tabLabel.BackgroundTransparency = 1
-        tabLabel.Text = tab.icon .. "  " .. tab.name
+        tabLabel.Text = "> " .. tab.label
         tabLabel.TextColor3 = Config.Theme.TextDim
-        tabLabel.TextSize = 12
-        tabLabel.Font = Config.UI.FontMedium
+        tabLabel.TextSize = 10
+        tabLabel.Font = Config.UI.FontMono
         tabLabel.TextXAlignment = Enum.TextXAlignment.Left
         tabLabel.Parent = tabBtn
         
-        tabButtons[tab.module] = {button = tabBtn, label = tabLabel, indicator = tabIndicator}
+        tabButtons[tab.name] = {button = tabBtn, label = tabLabel, indicator = tabIndicator}
         
         Utilities.Connect(tabBtn.MouseButton1Click, function()
-            MainGUI.SwitchTab(tab.module, tabButtons)
+            MainGUI.SwitchTab(tab.name, tabButtons)
         end)
         
         Utilities.Connect(tabBtn.MouseEnter, function()
-            if MainGUI._activeTab ~= tab.module then
-                Utilities.Tween(tabBtn, {BackgroundTransparency = 0.85}, 0.15)
+            if MainGUI._activeTab ~= tab.name then
+                Utilities.Tween(tabBtn, {BackgroundTransparency = 0.85}, 0.1)
             end
         end)
-        
         Utilities.Connect(tabBtn.MouseLeave, function()
-            if MainGUI._activeTab ~= tab.module then
-                Utilities.Tween(tabBtn, {BackgroundTransparency = 1}, 0.15)
+            if MainGUI._activeTab ~= tab.name then
+                Utilities.Tween(tabBtn, {BackgroundTransparency = 1}, 0.1)
             end
         end)
     end
     
-    -- ── Sidebar footer (watermark) ──
+    -- Sidebar footer
+    local sbFooter = Instance.new("TextLabel")
+    sbFooter.Size = UDim2.new(1, 0, 0, 30)
+    sbFooter.BackgroundTransparency = 1
+    sbFooter.RichText = true
+    sbFooter.Text = string.format(
+        '<font color="#%s">SESSION ACTIVE</font>',
+        Config.Theme.TerminalDim:ToHex()
+    )
+    sbFooter.TextSize = 8
+    sbFooter.Font = Config.UI.FontMono
+    sbFooter.TextXAlignment = Enum.TextXAlignment.Center
+    sbFooter.LayoutOrder = 100
+    sbFooter.Parent = sbContent
+    
+    -- Watermark
     local watermark = Instance.new("TextLabel")
-    watermark.Size = UDim2.new(1, 0, 0, 30)
+    watermark.Size = UDim2.new(0, 250, 0, 16)
+    watermark.Position = UDim2.new(0, 8, 1, -20)
     watermark.BackgroundTransparency = 1
-    watermark.Text = "DEV MODE"
-    watermark.TextColor3 = Config.Theme.TextMuted
+    watermark.Text = "HOSHI v" .. Config.Version .. " // admin-dev-tools"
+    watermark.TextColor3 = Config.Theme.Primary
+    watermark.TextTransparency = 0.7
     watermark.TextSize = 9
-    watermark.Font = Config.UI.Font
-    watermark.TextXAlignment = Enum.TextXAlignment.Center
-    watermark.LayoutOrder = 100
-    watermark.Parent = sidebarContent
+    watermark.Font = Config.UI.FontMono
+    watermark.TextXAlignment = Enum.TextXAlignment.Left
+    watermark.Parent = MainGUI._screenGui
     
-    -- ── Watermark on screen ──
-    local screenWatermark = Instance.new("TextLabel")
-    screenWatermark.Size = UDim2.new(0, 200, 0, 20)
-    screenWatermark.Position = UDim2.new(0, 10, 1, -25)
-    screenWatermark.BackgroundTransparency = 1
-    screenWatermark.Text = "ADT v" .. Config.Version .. " | Dev Build"
-    screenWatermark.TextColor3 = Config.Theme.NeonBlue
-    screenWatermark.TextTransparency = 0.6
-    screenWatermark.TextSize = 10
-    screenWatermark.Font = Config.UI.Font
-    screenWatermark.TextXAlignment = Enum.TextXAlignment.Left
-    screenWatermark.Parent = MainGUI._screenGui
-    
-    -- ── Build module content ──
+    -- Build pages
     MainGUI.BuildESPPage()
     MainGUI.BuildTeleportPage()
     MainGUI.BuildSpeedPage()
@@ -1491,42 +1385,35 @@ function MainGUI.BuildMainWindow()
     MainGUI.SwitchTab("ESP", tabButtons)
 end
 
---- Switch active tab
 function MainGUI.SwitchTab(moduleName, tabButtons)
-    -- Deactivate previous
     if MainGUI._activeTab and tabButtons[MainGUI._activeTab] then
         local prev = tabButtons[MainGUI._activeTab]
-        Utilities.Tween(prev.button, {BackgroundTransparency = 1}, 0.2)
-        Utilities.Tween(prev.label, {TextColor3 = Config.Theme.TextDim}, 0.2)
-        Utilities.Tween(prev.indicator, {BackgroundTransparency = 1}, 0.2)
+        Utilities.Tween(prev.button, {BackgroundTransparency = 1}, 0.15)
+        Utilities.Tween(prev.label, {TextColor3 = Config.Theme.TextDim}, 0.15)
+        Utilities.Tween(prev.indicator, {BackgroundTransparency = 1}, 0.15)
         
         if MainGUI._contentPages[MainGUI._activeTab] then
             local page = MainGUI._contentPages[MainGUI._activeTab]
-            Utilities.Tween(page, {Position = UDim2.new(-0.05, 0, 0, 0)}, 0.15, nil, nil, function()
-                page.Visible = false
-            end)
+            page.Visible = false
         end
     end
     
-    -- Activate new
     MainGUI._activeTab = moduleName
     local curr = tabButtons[moduleName]
-    Utilities.Tween(curr.button, {BackgroundTransparency = 0.8}, 0.2)
-    Utilities.Tween(curr.label, {TextColor3 = Config.Theme.Text}, 0.2)
-    Utilities.Tween(curr.indicator, {BackgroundTransparency = 0}, 0.2)
+    Utilities.Tween(curr.button, {BackgroundTransparency = 0.85}, 0.15)
+    Utilities.Tween(curr.label, {TextColor3 = Config.Theme.Primary}, 0.15)
+    Utilities.Tween(curr.indicator, {BackgroundTransparency = 0}, 0.15)
     
     if MainGUI._contentPages[moduleName] then
         local page = MainGUI._contentPages[moduleName]
         page.Visible = true
-        page.Position = UDim2.new(0.05, 0, 0, 0)
-        Utilities.Tween(page, {Position = UDim2.new(0, 0, 0, 0)}, 0.25, Enum.EasingStyle.Quint)
+        page.Position = UDim2.new(0.03, 0, 0, 0)
+        Utilities.Tween(page, {Position = UDim2.new(0, 0, 0, 0)}, 0.2, Enum.EasingStyle.Quint)
     end
 end
 
---- Make a frame draggable
 function MainGUI.MakeDraggable(dragHandle, targetFrame)
     local dragging = false
-    local dragInput = nil
     local dragStart = nil
     local startPos = nil
     
@@ -1544,14 +1431,8 @@ function MainGUI.MakeDraggable(dragHandle, targetFrame)
         end
     end)
     
-    Utilities.Connect(dragHandle.InputChanged, function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-            dragInput = input
-        end
-    end)
-    
     Utilities.Connect(UserInputService.InputChanged, function(input)
-        if input == dragInput and dragging then
+        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
             local delta = input.Position - dragStart
             targetFrame.Position = UDim2.new(
                 startPos.X.Scale, startPos.X.Offset + delta.X,
@@ -1561,38 +1442,27 @@ function MainGUI.MakeDraggable(dragHandle, targetFrame)
     end)
 end
 
---- Toggle minimize
 function MainGUI.ToggleMinimize()
     MainGUI._minimized = not MainGUI._minimized
     local frame = MainGUI._mainFrame
     
     if MainGUI._minimized then
-        Utilities.Tween(frame, {
-            Size = UDim2.new(0, 780, 0, Config.UI.HeaderHeight),
-        }, 0.3, Enum.EasingStyle.Quint)
+        Utilities.Tween(frame, {Size = UDim2.new(0, 820, 0, Config.UI.HeaderHeight)}, 0.25)
     else
-        Utilities.Tween(frame, {
-            Size = Config.UI.WindowSize,
-        }, 0.3, Enum.EasingStyle.Quint)
+        Utilities.Tween(frame, {Size = Config.UI.WindowSize}, 0.25)
     end
 end
 
---- Close the GUI
 function MainGUI.Close()
     local frame = MainGUI._mainFrame
-    
-    Utilities.Tween(frame, {
-        Size = UDim2.new(0, 700, 0, 460),
-        BackgroundTransparency = 1,
-    }, 0.3, Enum.EasingStyle.Quint, nil, function()
-        -- Cleanup everything
+    Utilities.Tween(frame, {Size = UDim2.new(0, 750, 0, 500), BackgroundTransparency = 1}, 0.25, nil, nil, function()
         Cleanup()
     end)
 end
 
--- ══════════════════════════════════════════════════════════════
+-- ========================================================
 -- [7] ESP MODULE
--- ══════════════════════════════════════════════════════════════
+-- ========================================================
 
 local ESPModule = {}
 ESPModule._drawings = {}
@@ -1602,84 +1472,75 @@ function MainGUI.BuildESPPage()
     local page = MainGUI._contentPages["ESP"]
     if not page then return end
     
-    -- Page title
+    -- Page header
     local pageTitle = Instance.new("TextLabel")
-    pageTitle.Size = UDim2.new(1, 0, 0, 30)
+    pageTitle.Size = UDim2.new(1, 0, 0, 20)
     pageTitle.BackgroundTransparency = 1
-    pageTitle.Text = "👁  ESP Player"
-    pageTitle.TextColor3 = Config.Theme.Text
-    pageTitle.TextSize = 18
-    pageTitle.Font = Config.UI.Font
+    pageTitle.RichText = true
+    pageTitle.Text = string.format(
+        '<font color="#%s">$</font> <font color="#%s">ESP PLAYER MODULE</font>',
+        Config.Theme.Primary:ToHex(), Config.Theme.TextBright:ToHex()
+    )
+    pageTitle.TextSize = 13
+    pageTitle.Font = Config.UI.FontMono
     pageTitle.TextXAlignment = Enum.TextXAlignment.Left
     pageTitle.LayoutOrder = 0
     pageTitle.Parent = page
     
     local pageDesc = Instance.new("TextLabel")
-    pageDesc.Size = UDim2.new(1, 0, 0, 16)
+    pageDesc.Size = UDim2.new(1, 0, 0, 14)
     pageDesc.BackgroundTransparency = 1
-    pageDesc.Text = "Visual player information overlay for debugging"
-    pageDesc.TextColor3 = Config.Theme.TextDim
-    pageDesc.TextSize = 11
-    pageDesc.Font = Config.UI.FontRegular
+    pageDesc.Text = "// Visual player overlay for development debugging"
+    pageDesc.TextColor3 = Config.Theme.TextMuted
+    pageDesc.TextSize = 10
+    pageDesc.Font = Config.UI.FontMono
     pageDesc.TextXAlignment = Enum.TextXAlignment.Left
     pageDesc.LayoutOrder = 1
     pageDesc.Parent = page
     
-    -- Main toggle
     UIFramework.CreateToggle(page, "Enable ESP", Config.ESP.Enabled, function(state)
         Config.ESP.Enabled = state
         if state then
             ESPModule.Start()
-            NotificationSystem.Notify("ESP", "ESP enabled", "success")
+            NotificationSystem.Notify("ESP", "Player visualization enabled", "success")
         else
             ESPModule.Stop()
-            NotificationSystem.Notify("ESP", "ESP disabled", "info")
+            NotificationSystem.Notify("ESP", "Player visualization disabled", "info")
         end
     end, 2)
     
-    UIFramework.CreateSectionTitle(page, "DISPLAY OPTIONS", 3)
+    UIFramework.CreateSectionHeader(page, "DISPLAY OPTIONS", 3)
     
-    UIFramework.CreateToggle(page, "Box ESP", Config.ESP.ShowBox, function(state)
-        Config.ESP.ShowBox = state
-    end, 4)
+    UIFramework.CreateToggle(page, "Box ESP", Config.ESP.ShowBox, function(s) Config.ESP.ShowBox = s end, 4)
+    UIFramework.CreateToggle(page, "Name Tag", Config.ESP.ShowName, function(s) Config.ESP.ShowName = s end, 5)
+    UIFramework.CreateToggle(page, "Distance", Config.ESP.ShowDistance, function(s) Config.ESP.ShowDistance = s end, 6)
+    UIFramework.CreateToggle(page, "Health Bar", Config.ESP.ShowHealth, function(s) Config.ESP.ShowHealth = s end, 7)
+    UIFramework.CreateToggle(page, "Role Tag", Config.ESP.ShowRole, function(s) Config.ESP.ShowRole = s end, 8)
     
-    UIFramework.CreateToggle(page, "Name ESP", Config.ESP.ShowName, function(state)
-        Config.ESP.ShowName = state
-    end, 5)
+    UIFramework.CreateSectionHeader(page, "ROLE COLOR MAP", 9)
     
-    UIFramework.CreateToggle(page, "Distance", Config.ESP.ShowDistance, function(state)
-        Config.ESP.ShowDistance = state
-    end, 6)
-    
-    UIFramework.CreateToggle(page, "Health Bar", Config.ESP.ShowHealth, function(state)
-        Config.ESP.ShowHealth = state
-    end, 7)
-    
-    UIFramework.CreateToggle(page, "Role Tag", Config.ESP.ShowRole, function(state)
-        Config.ESP.ShowRole = state
-    end, 8)
-    
-    UIFramework.CreateSectionTitle(page, "ROLE COLORS", 9)
-    
-    -- Role color info
-    local roleInfo = {"Killer → Red", "Survivor → Green", "Admin → Blue", "Default → Gray"}
-    for idx, info in ipairs(roleInfo) do
+    local roleInfos = {
+        "Killer   = RED    (220,50,50)",
+        "Survivor = GREEN  (0,220,100)",
+        "Admin    = CYAN   (0,180,220)",
+        "Default  = GRAY   (150,150,150)",
+    }
+    for idx, info in ipairs(roleInfos) do
         local infoLabel = Instance.new("TextLabel")
-        infoLabel.Size = UDim2.new(1, 0, 0, 18)
+        infoLabel.Size = UDim2.new(1, 0, 0, 14)
         infoLabel.BackgroundTransparency = 1
-        infoLabel.Text = "  • " .. info
+        infoLabel.Text = "  " .. info
         infoLabel.TextColor3 = Config.Theme.TextDim
-        infoLabel.TextSize = 11
-        infoLabel.Font = Config.UI.FontRegular
+        infoLabel.TextSize = 10
+        infoLabel.Font = Config.UI.FontMono
         infoLabel.TextXAlignment = Enum.TextXAlignment.Left
         infoLabel.LayoutOrder = 9 + idx
         infoLabel.Parent = page
     end
 end
 
---- Start ESP rendering
 function ESPModule.Start()
-    ESPModule.Stop() -- Clear existing
+    ESPModule.Stop()
     
     ESPModule._connection = Utilities.Connect(RunService.RenderStepped, function()
         if not Config.ESP.Enabled then return end
@@ -1687,9 +1548,7 @@ function ESPModule.Start()
     end)
 end
 
---- Stop ESP rendering
 function ESPModule.Stop()
-    -- Clean up drawings
     for _, data in pairs(ESPModule._drawings) do
         if data.billboard then data.billboard:Destroy() end
     end
@@ -1701,12 +1560,10 @@ function ESPModule.Stop()
     end
 end
 
---- Update ESP each frame
 function ESPModule.Update()
     local localRoot = Utilities.GetRootPart(LocalPlayer)
     if not localRoot then return end
     
-    -- Track which players are still valid
     local activePlayers = {}
     
     for _, player in ipairs(Players:GetPlayers()) do
@@ -1720,50 +1577,41 @@ function ESPModule.Update()
                 local role = Utilities.GetRole(player)
                 local roleColor = Config.ESP.RoleColors[role] or Config.ESP.RoleColors.Default
                 
-                -- Get or create ESP billboard
                 if not ESPModule._drawings[player.UserId] then
                     ESPModule._drawings[player.UserId] = ESPModule.CreateESPBillboard(player)
                 end
                 
                 local data = ESPModule._drawings[player.UserId]
                 if data and data.billboard then
-                    local char = player.Character
                     data.billboard.Adornee = root
                     data.billboard.Enabled = true
                     
-                    -- Update name
                     if data.nameLabel then
                         data.nameLabel.Visible = Config.ESP.ShowName
                         data.nameLabel.Text = player.DisplayName
                         data.nameLabel.TextColor3 = roleColor
                     end
                     
-                    -- Update distance
                     if data.distLabel then
                         data.distLabel.Visible = Config.ESP.ShowDistance
-                        data.distLabel.Text = string.format("%.0f studs", distance)
+                        data.distLabel.Text = string.format("[%.0f studs]", distance)
                     end
                     
-                    -- Update health
                     if data.healthBar then
                         data.healthBar.Visible = Config.ESP.ShowHealth
-                        local healthPercent = humanoid.Health / humanoid.MaxHealth
-                        data.healthFill.Size = UDim2.new(healthPercent, 0, 1, 0)
+                        local hp = math.clamp(humanoid.Health / humanoid.MaxHealth, 0, 1)
+                        data.healthFill.Size = UDim2.new(hp, 0, 1, 0)
                         data.healthFill.BackgroundColor3 = Color3.fromRGB(
-                            255 * (1 - healthPercent),
-                            255 * healthPercent,
-                            0
+                            255 * (1 - hp), 255 * hp, 0
                         )
                     end
                     
-                    -- Update role
                     if data.roleLabel then
                         data.roleLabel.Visible = Config.ESP.ShowRole
                         data.roleLabel.Text = "[" .. role .. "]"
                         data.roleLabel.TextColor3 = roleColor
                     end
                     
-                    -- Update box
                     if data.boxFrame then
                         data.boxFrame.Visible = Config.ESP.ShowBox
                         local stroke = data.boxFrame:FindFirstChildOfClass("UIStroke")
@@ -1771,7 +1619,6 @@ function ESPModule.Update()
                     end
                 end
             else
-                -- Player dead or no character
                 if ESPModule._drawings[player.UserId] then
                     if ESPModule._drawings[player.UserId].billboard then
                         ESPModule._drawings[player.UserId].billboard.Enabled = false
@@ -1781,7 +1628,6 @@ function ESPModule.Update()
         end
     end
     
-    -- Cleanup removed players
     for userId, data in pairs(ESPModule._drawings) do
         if not activePlayers[userId] then
             if data.billboard then data.billboard:Destroy() end
@@ -1790,87 +1636,85 @@ function ESPModule.Update()
     end
 end
 
---- Create ESP billboard for a player
 function ESPModule.CreateESPBillboard(player)
     local root = Utilities.GetRootPart(player)
     if not root then return nil end
     
     local billboard = Instance.new("BillboardGui")
-    billboard.Name = "ADT_ESP_" .. player.UserId
-    billboard.Size = UDim2.new(0, 120, 0, 140)
+    billboard.Name = "HOSHI_ESP_" .. player.UserId
+    billboard.Size = UDim2.new(0, 100, 0, 120)
     billboard.StudsOffset = Vector3.new(0, 3, 0)
     billboard.AlwaysOnTop = true
     billboard.Adornee = root
-    billboard.Parent = root
     billboard.MaxDistance = 500
+    billboard.Parent = root
     
     local container = Instance.new("Frame")
     container.Size = UDim2.new(1, 0, 1, 0)
     container.BackgroundTransparency = 1
     container.Parent = billboard
     
-    Utilities.AddListLayout(container, 2, Enum.FillDirection.Vertical, Enum.HorizontalAlignment.Center)
+    Utilities.AddListLayout(container, 1, Enum.FillDirection.Vertical, Enum.HorizontalAlignment.Center)
     
-    -- Box frame
+    -- Box
     local boxFrame = Instance.new("Frame")
-    boxFrame.Name = "Box"
-    boxFrame.Size = UDim2.new(1, -20, 0, 80)
-    boxFrame.BackgroundTransparency = 0.9
+    boxFrame.Size = UDim2.new(1, -10, 0, 65)
+    boxFrame.BackgroundTransparency = 0.92
     boxFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
     boxFrame.Parent = container
-    Utilities.AddCorner(boxFrame, UDim.new(0, 4))
-    Utilities.AddStroke(boxFrame, Config.Theme.NeonBlue, 1.5, 0.2)
+    Utilities.AddCorner(boxFrame, Config.UI.CornerRadiusTiny)
+    Utilities.AddStroke(boxFrame, Config.Theme.Primary, 1, 0.3)
     
-    -- Name label
+    -- Name
     local nameLabel = Instance.new("TextLabel")
-    nameLabel.Size = UDim2.new(1, 0, 0, 14)
+    nameLabel.Size = UDim2.new(1, 0, 0, 12)
     nameLabel.BackgroundTransparency = 1
     nameLabel.Text = player.DisplayName
-    nameLabel.TextColor3 = Config.Theme.NeonBlue
-    nameLabel.TextSize = 12
-    nameLabel.Font = Enum.Font.GothamBold
-    nameLabel.TextStrokeTransparency = 0.5
+    nameLabel.TextColor3 = Config.Theme.Primary
+    nameLabel.TextSize = 10
+    nameLabel.Font = Config.UI.FontMono
+    nameLabel.TextStrokeTransparency = 0.3
     nameLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
     nameLabel.Parent = container
     
-    -- Role label
+    -- Role
     local roleLabel = Instance.new("TextLabel")
-    roleLabel.Size = UDim2.new(1, 0, 0, 12)
+    roleLabel.Size = UDim2.new(1, 0, 0, 10)
     roleLabel.BackgroundTransparency = 1
     roleLabel.Text = "[Default]"
     roleLabel.TextColor3 = Config.Theme.TextDim
-    roleLabel.TextSize = 10
-    roleLabel.Font = Enum.Font.GothamMedium
-    roleLabel.TextStrokeTransparency = 0.5
+    roleLabel.TextSize = 9
+    roleLabel.Font = Config.UI.FontMono
+    roleLabel.TextStrokeTransparency = 0.3
     roleLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
     roleLabel.Parent = container
     
-    -- Distance label
+    -- Distance
     local distLabel = Instance.new("TextLabel")
-    distLabel.Size = UDim2.new(1, 0, 0, 12)
+    distLabel.Size = UDim2.new(1, 0, 0, 10)
     distLabel.BackgroundTransparency = 1
-    distLabel.Text = "0 studs"
+    distLabel.Text = "[0 studs]"
     distLabel.TextColor3 = Config.Theme.TextDim
-    distLabel.TextSize = 10
-    distLabel.Font = Enum.Font.Gotham
-    distLabel.TextStrokeTransparency = 0.5
+    distLabel.TextSize = 9
+    distLabel.Font = Config.UI.FontMono
+    distLabel.TextStrokeTransparency = 0.3
     distLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
     distLabel.Parent = container
     
     -- Health bar
     local healthBar = Instance.new("Frame")
-    healthBar.Size = UDim2.new(0.8, 0, 0, 4)
-    healthBar.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    healthBar.Size = UDim2.new(0.7, 0, 0, 3)
+    healthBar.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     healthBar.BorderSizePixel = 0
     healthBar.Parent = container
-    Utilities.AddCorner(healthBar, UDim.new(0, 2))
+    Utilities.AddCorner(healthBar, UDim.new(0, 1))
     
     local healthFill = Instance.new("Frame")
     healthFill.Size = UDim2.new(1, 0, 1, 0)
     healthFill.BackgroundColor3 = Config.Theme.Success
     healthFill.BorderSizePixel = 0
     healthFill.Parent = healthBar
-    Utilities.AddCorner(healthFill, UDim.new(0, 2))
+    Utilities.AddCorner(healthFill, UDim.new(0, 1))
     
     return {
         billboard = billboard,
@@ -1883,9 +1727,9 @@ function ESPModule.CreateESPBillboard(player)
     }
 end
 
--- ══════════════════════════════════════════════════════════════
+-- ========================================================
 -- [8] TELEPORT SAFETY MODULE
--- ══════════════════════════════════════════════════════════════
+-- ========================================================
 
 local TeleportModule = {}
 TeleportModule._connection = nil
@@ -1896,24 +1740,28 @@ function MainGUI.BuildTeleportPage()
     if not page then return end
     
     local pageTitle = Instance.new("TextLabel")
-    pageTitle.Size = UDim2.new(1, 0, 0, 30)
+    pageTitle.Size = UDim2.new(1, 0, 0, 20)
     pageTitle.BackgroundTransparency = 1
-    pageTitle.Text = "⚡  Teleport Safety"
-    pageTitle.TextColor3 = Config.Theme.Text
-    pageTitle.TextSize = 18
-    pageTitle.Font = Config.UI.Font
+    pageTitle.RichText = true
+    pageTitle.Text = string.format(
+        '<font color="#%s">$</font> <font color="#%s">TELEPORT SAFETY MODULE</font>',
+        Config.Theme.Primary:ToHex(), Config.Theme.TextBright:ToHex()
+    )
+    pageTitle.TextSize = 13
+    pageTitle.Font = Config.UI.FontMono
     pageTitle.TextXAlignment = Enum.TextXAlignment.Left
     pageTitle.LayoutOrder = 0
     pageTitle.Parent = page
     
     local pageDesc = Instance.new("TextLabel")
-    pageDesc.Size = UDim2.new(1, 0, 0, 16)
+    pageDesc.Size = UDim2.new(1, 0, 0, 26)
     pageDesc.BackgroundTransparency = 1
-    pageDesc.Text = "Auto-teleport when Killer is within danger radius of Survivor"
-    pageDesc.TextColor3 = Config.Theme.TextDim
-    pageDesc.TextSize = 11
-    pageDesc.Font = Config.UI.FontRegular
+    pageDesc.Text = "// Auto-flee when Killer approaches within detection radius.\n// Teleports admin AWAY from killer by flee distance."
+    pageDesc.TextColor3 = Config.Theme.TextMuted
+    pageDesc.TextSize = 10
+    pageDesc.Font = Config.UI.FontMono
     pageDesc.TextXAlignment = Enum.TextXAlignment.Left
+    pageDesc.TextWrapped = true
     pageDesc.LayoutOrder = 1
     pageDesc.Parent = page
     
@@ -1921,40 +1769,32 @@ function MainGUI.BuildTeleportPage()
         Config.Teleport.Enabled = state
         if state then
             TeleportModule.Start()
-            NotificationSystem.Notify("Teleport", "Safety teleport enabled", "success")
+            NotificationSystem.Notify("TELEPORT", "Safety system ONLINE", "success")
         else
             TeleportModule.Stop()
-            NotificationSystem.Notify("Teleport", "Safety teleport disabled", "info")
+            NotificationSystem.Notify("TELEPORT", "Safety system OFFLINE", "info")
         end
     end, 2)
     
-    UIFramework.CreateSectionTitle(page, "SETTINGS", 3)
+    UIFramework.CreateSectionHeader(page, "DETECTION", 3)
     
-    UIFramework.CreateSlider(page, "Detection Radius", 10, 100, Config.Teleport.Radius, function(val)
+    UIFramework.CreateSlider(page, "Detection Radius (studs)", 10, 100, Config.Teleport.Radius, function(val)
         Config.Teleport.Radius = val
     end, 4)
     
-    UIFramework.CreateSlider(page, "Cooldown (sec)", 1, 15, Config.Teleport.Cooldown, function(val)
-        Config.Teleport.Cooldown = val
+    UIFramework.CreateSlider(page, "Flee Distance (studs)", 50, 200, Config.Teleport.FleeDistance, function(val)
+        Config.Teleport.FleeDistance = val
     end, 5)
     
-    UIFramework.CreateSectionTitle(page, "SAFE POSITION", 6)
+    UIFramework.CreateSlider(page, "Cooldown (sec)", 1, 15, Config.Teleport.Cooldown, function(val)
+        Config.Teleport.Cooldown = val
+    end, 6)
     
-    UIFramework.CreateButton(page, "Set Safe Position to Current", function()
-        local root = Utilities.GetRootPart(LocalPlayer)
-        if root then
-            Config.Teleport.SafePosition = root.Position + Vector3.new(0, 5, 0)
-            NotificationSystem.Notify("Teleport", string.format("Safe position set: %.0f, %.0f, %.0f", 
-                Config.Teleport.SafePosition.X, Config.Teleport.SafePosition.Y, Config.Teleport.SafePosition.Z), "success")
-        end
-    end, 7)
+    UIFramework.CreateSectionHeader(page, "MONITORING", 7)
     
-    UIFramework.CreateSectionTitle(page, "STATUS", 8)
-    
-    TeleportModule._statusLabel = UIFramework.CreateStatusLabel(page, "Status", "Idle", 9)
+    TeleportModule._statusLabel = UIFramework.CreateStatusLine(page, "STATUS", "OFFLINE", 8)
 end
 
---- Start teleport safety monitoring
 function TeleportModule.Start()
     TeleportModule.Stop()
     
@@ -1968,13 +1808,15 @@ function TeleportModule.Start()
         if now - Config.Teleport.LastTeleportTime < Config.Teleport.Cooldown then
             if TeleportModule._statusLabel then
                 local remaining = math.ceil(Config.Teleport.Cooldown - (now - Config.Teleport.LastTeleportTime))
-                TeleportModule._statusLabel.SetValue("Cooldown: " .. remaining .. "s", Config.Theme.Warning)
+                TeleportModule._statusLabel.SetValue("COOLDOWN [" .. remaining .. "s]", Config.Theme.Warning)
             end
             return
         end
         
-        -- Find Killers and Survivors
-        local dangerDetected = false
+        -- Find nearest Killer to admin
+        local nearestKiller = nil
+        local nearestKillerDist = math.huge
+        local nearestKillerRoot = nil
         
         for _, player in ipairs(Players:GetPlayers()) do
             if player ~= LocalPlayer then
@@ -1982,56 +1824,65 @@ function TeleportModule.Start()
                 local root = Utilities.GetRootPart(player)
                 
                 if role == "Killer" and root then
-                    -- Check against all survivors
-                    for _, survivor in ipairs(Players:GetPlayers()) do
-                        local sRole = Utilities.GetRole(survivor)
-                        local sRoot = Utilities.GetRootPart(survivor)
-                        
-                        if sRole == "Survivor" and sRoot then
-                            local dist = Utilities.Distance(root.Position, sRoot.Position)
-                            
-                            if dist <= Config.Teleport.Radius then
-                                dangerDetected = true
-                                -- Teleport admin
-                                localRoot.CFrame = CFrame.new(Config.Teleport.SafePosition)
-                                Config.Teleport.LastTeleportTime = tick()
-                                
-                                if TeleportModule._statusLabel then
-                                    TeleportModule._statusLabel.SetValue("TELEPORTED!", Config.Theme.Danger)
-                                end
-                                
-                                NotificationSystem.Notify("Teleport Safety", 
-                                    string.format("Killer near Survivor! (%.0f studs) - Teleported to safety", dist), "warning", 3)
-                                return
-                            end
-                        end
+                    local dist = Utilities.Distance(localRoot.Position, root.Position)
+                    if dist < nearestKillerDist then
+                        nearestKiller = player
+                        nearestKillerDist = dist
+                        nearestKillerRoot = root
                     end
                 end
             end
         end
         
+        if nearestKiller and nearestKillerDist <= Config.Teleport.Radius then
+            -- Killer is within detection radius of admin - FLEE
+            local fleePos = Utilities.FindFleePosition(
+                localRoot.Position, 
+                nearestKillerRoot.Position, 
+                Config.Teleport.FleeDistance
+            )
+            
+            localRoot.CFrame = CFrame.new(fleePos)
+            Config.Teleport.LastTeleportTime = tick()
+            
+            if TeleportModule._statusLabel then
+                TeleportModule._statusLabel.SetValue("FLED! [" .. string.format("%.0f", nearestKillerDist) .. " studs detected]", Config.Theme.Danger)
+            end
+            
+            NotificationSystem.Notify("TELEPORT", 
+                string.format("Killer '%s' detected at %.0f studs. Fled %.0f studs away.", 
+                nearestKiller.Name, nearestKillerDist, Config.Teleport.FleeDistance), 
+                "warning", 4)
+            return
+        end
+        
+        -- Display monitoring status
         if TeleportModule._statusLabel then
-            if not dangerDetected then
-                TeleportModule._statusLabel.SetValue("Monitoring...", Config.Theme.Success)
+            if nearestKiller then
+                TeleportModule._statusLabel.SetValue(
+                    string.format("SCANNING [nearest: %s @ %.0f studs]", nearestKiller.Name, nearestKillerDist),
+                    Config.Theme.Success
+                )
+            else
+                TeleportModule._statusLabel.SetValue("SCANNING [no killers detected]", Config.Theme.Success)
             end
         end
     end)
 end
 
---- Stop teleport safety
 function TeleportModule.Stop()
     if TeleportModule._connection then
         TeleportModule._connection:Disconnect()
         TeleportModule._connection = nil
     end
     if TeleportModule._statusLabel then
-        TeleportModule._statusLabel.SetValue("Disabled", Config.Theme.TextMuted)
+        TeleportModule._statusLabel.SetValue("OFFLINE", Config.Theme.TextMuted)
     end
 end
 
--- ══════════════════════════════════════════════════════════════
+-- ========================================================
 -- [9] SPEED RUN MODULE
--- ══════════════════════════════════════════════════════════════
+-- ========================================================
 
 local SpeedModule = {}
 
@@ -2040,58 +1891,58 @@ function MainGUI.BuildSpeedPage()
     if not page then return end
     
     local pageTitle = Instance.new("TextLabel")
-    pageTitle.Size = UDim2.new(1, 0, 0, 30)
+    pageTitle.Size = UDim2.new(1, 0, 0, 20)
     pageTitle.BackgroundTransparency = 1
-    pageTitle.Text = "🏃  Speed Run"
-    pageTitle.TextColor3 = Config.Theme.Text
-    pageTitle.TextSize = 18
-    pageTitle.Font = Config.UI.Font
+    pageTitle.RichText = true
+    pageTitle.Text = string.format(
+        '<font color="#%s">$</font> <font color="#%s">SPEED CONTROLLER</font>',
+        Config.Theme.Primary:ToHex(), Config.Theme.TextBright:ToHex()
+    )
+    pageTitle.TextSize = 13
+    pageTitle.Font = Config.UI.FontMono
     pageTitle.TextXAlignment = Enum.TextXAlignment.Left
     pageTitle.LayoutOrder = 0
     pageTitle.Parent = page
     
     local pageDesc = Instance.new("TextLabel")
-    pageDesc.Size = UDim2.new(1, 0, 0, 16)
+    pageDesc.Size = UDim2.new(1, 0, 0, 14)
     pageDesc.BackgroundTransparency = 1
-    pageDesc.Text = "Adjust walk speed multiplier for movement testing"
-    pageDesc.TextColor3 = Config.Theme.TextDim
-    pageDesc.TextSize = 11
-    pageDesc.Font = Config.UI.FontRegular
+    pageDesc.Text = "// Adjust walk speed multiplier for movement testing"
+    pageDesc.TextColor3 = Config.Theme.TextMuted
+    pageDesc.TextSize = 10
+    pageDesc.Font = Config.UI.FontMono
     pageDesc.TextXAlignment = Enum.TextXAlignment.Left
     pageDesc.LayoutOrder = 1
     pageDesc.Parent = page
     
-    UIFramework.CreateSectionTitle(page, "SPEED MULTIPLIER", 2)
+    UIFramework.CreateSectionHeader(page, "MULTIPLIER", 2)
     
-    UIFramework.CreateSlider(page, "Speed (1x - 10x)", Config.Speed.Min, Config.Speed.Max, Config.Speed.Value, function(val)
+    local speedSlider = UIFramework.CreateSlider(page, "Speed (1x - 10x)", Config.Speed.Min, Config.Speed.Max, Config.Speed.Value, function(val)
         Config.Speed.Value = val
         SpeedModule.Apply()
     end, 3)
     
-    -- Speed info panel
-    local infoPanel = UIFramework.CreatePanel(page, UDim2.new(1, 0, 0, 50), nil, "SpeedInfo")
-    infoPanel.LayoutOrder = 4
-    Utilities.AddPadding(infoPanel, 10, 12, 10, 12)
+    UIFramework.CreateSectionHeader(page, "INFO", 4)
     
-    local infoText = Instance.new("TextLabel")
-    infoText.Size = UDim2.new(1, 0, 1, 0)
-    infoText.BackgroundTransparency = 1
-    infoText.Text = "💡 Speed is applied in realtime. Default WalkSpeed = 16. Multiplier affects WalkSpeed directly."
-    infoText.TextColor3 = Config.Theme.TextDim
-    infoText.TextSize = 10
-    infoText.Font = Config.UI.FontRegular
-    infoText.TextXAlignment = Enum.TextXAlignment.Left
-    infoText.TextWrapped = true
-    infoText.Parent = infoPanel
+    local infoLabel = Instance.new("TextLabel")
+    infoLabel.Size = UDim2.new(1, 0, 0, 36)
+    infoLabel.BackgroundTransparency = 1
+    infoLabel.Text = "  Base WalkSpeed = 16\n  Effective = BaseSpeed * Multiplier\n  Changes apply in realtime."
+    infoLabel.TextColor3 = Config.Theme.TextDim
+    infoLabel.TextSize = 10
+    infoLabel.Font = Config.UI.FontMono
+    infoLabel.TextXAlignment = Enum.TextXAlignment.Left
+    infoLabel.LayoutOrder = 5
+    infoLabel.Parent = page
     
-    UIFramework.CreateButton(page, "Reset to Default", function()
+    UIFramework.CreateButton(page, "RESET TO DEFAULT", function()
         Config.Speed.Value = 1
+        speedSlider.SetValue(1)
         SpeedModule.Apply()
-        NotificationSystem.Notify("Speed", "Speed reset to 1x", "info")
-    end, 5)
+        NotificationSystem.Notify("SPEED", "Reset to 1x (WalkSpeed = 16)", "info")
+    end, 6)
 end
 
---- Apply speed multiplier
 function SpeedModule.Apply()
     local humanoid = Utilities.GetHumanoid(LocalPlayer)
     if humanoid then
@@ -2099,44 +1950,50 @@ function SpeedModule.Apply()
     end
 end
 
--- Keep speed synced with character respawn
-Utilities.Connect(LocalPlayer.CharacterAdded, function(char)
+Utilities.Connect(LocalPlayer.CharacterAdded, function()
     task.wait(0.5)
-    SpeedModule.Apply()
+    if Config.Speed.Value > 1 then
+        SpeedModule.Apply()
+    end
 end)
 
--- ══════════════════════════════════════════════════════════════
+-- ========================================================
 -- [10] POV CIRCLE MODULE
--- ══════════════════════════════════════════════════════════════
+-- ========================================================
 
 local POVModule = {}
 POVModule._circle = nil
-POVModule._connection = nil
+POVModule._crosshairParts = {}
 POVModule._spectateConnection = nil
+POVModule._followConnection = nil
 
 function MainGUI.BuildPOVPage()
     local page = MainGUI._contentPages["POV"]
     if not page then return end
     
     local pageTitle = Instance.new("TextLabel")
-    pageTitle.Size = UDim2.new(1, 0, 0, 30)
+    pageTitle.Size = UDim2.new(1, 0, 0, 20)
     pageTitle.BackgroundTransparency = 1
-    pageTitle.Text = "◎  POV Circle"
-    pageTitle.TextColor3 = Config.Theme.Text
-    pageTitle.TextSize = 18
-    pageTitle.Font = Config.UI.Font
+    pageTitle.RichText = true
+    pageTitle.Text = string.format(
+        '<font color="#%s">$</font> <font color="#%s">POV CIRCLE MODULE</font>',
+        Config.Theme.Primary:ToHex(), Config.Theme.TextBright:ToHex()
+    )
+    pageTitle.TextSize = 13
+    pageTitle.Font = Config.UI.FontMono
     pageTitle.TextXAlignment = Enum.TextXAlignment.Left
     pageTitle.LayoutOrder = 0
     pageTitle.Parent = page
     
     local pageDesc = Instance.new("TextLabel")
-    pageDesc.Size = UDim2.new(1, 0, 0, 16)
+    pageDesc.Size = UDim2.new(1, 0, 0, 26)
     pageDesc.BackgroundTransparency = 1
-    pageDesc.Text = "Center screen circle overlay + Spectate survivor for debugging"
-    pageDesc.TextColor3 = Config.Theme.TextDim
-    pageDesc.TextSize = 11
-    pageDesc.Font = Config.UI.FontRegular
+    pageDesc.Text = "// Center screen crosshair overlay.\n// Spectate follows selected player camera."
+    pageDesc.TextColor3 = Config.Theme.TextMuted
+    pageDesc.TextSize = 10
+    pageDesc.Font = Config.UI.FontMono
     pageDesc.TextXAlignment = Enum.TextXAlignment.Left
+    pageDesc.TextWrapped = true
     pageDesc.LayoutOrder = 1
     pageDesc.Parent = page
     
@@ -2144,14 +2001,14 @@ function MainGUI.BuildPOVPage()
         Config.POV.Enabled = state
         if state then
             POVModule.CreateCircle()
-            NotificationSystem.Notify("POV", "Circle overlay enabled", "success")
+            NotificationSystem.Notify("POV", "Circle overlay active", "success")
         else
             POVModule.DestroyCircle()
             NotificationSystem.Notify("POV", "Circle overlay disabled", "info")
         end
     end, 2)
     
-    UIFramework.CreateSectionTitle(page, "CIRCLE SETTINGS", 3)
+    UIFramework.CreateSectionHeader(page, "CIRCLE SETTINGS", 3)
     
     UIFramework.CreateSlider(page, "Radius (px)", 30, 300, Config.POV.Radius, function(val)
         Config.POV.Radius = val
@@ -2163,7 +2020,6 @@ function MainGUI.BuildPOVPage()
         POVModule.UpdateCircle()
     end, 5)
     
-    -- Opacity slider (1-100 mapped to 0-1)
     UIFramework.CreateSlider(page, "Opacity (%)", 10, 100, math.floor(Config.POV.Opacity * 100), function(val)
         Config.POV.Opacity = val / 100
         POVModule.UpdateCircle()
@@ -2174,9 +2030,9 @@ function MainGUI.BuildPOVPage()
         POVModule.UpdateCircle()
     end, 7)
     
-    UIFramework.CreateSectionTitle(page, "SPECTATE", 8)
+    UIFramework.CreateSectionHeader(page, "SPECTATE CAMERA", 8)
     
-    local playerDropdown = UIFramework.CreatePlayerDropdown(page, "Target Survivor", function(player)
+    local playerDropdown = UIFramework.CreatePlayerDropdown(page, "Target Player", function(player)
         Config.POV.TargetPlayer = player
     end, 9)
     
@@ -2190,14 +2046,13 @@ function MainGUI.BuildPOVPage()
     end, 10)
 end
 
---- Create the POV circle on screen
 function POVModule.CreateCircle()
     POVModule.DestroyCircle()
     
     local screenGui = MainGUI._screenGui
     if not screenGui then return end
     
-    -- Create circle using a Frame with UIStroke (ring effect)
+    -- Circle frame
     local circleFrame = Instance.new("Frame")
     circleFrame.Name = "POVCircle"
     circleFrame.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -2214,40 +2069,56 @@ function POVModule.CreateCircle()
     stroke.Transparency = 1 - Config.POV.Opacity
     stroke.Parent = circleFrame
     
-    -- Crosshair lines (small)
-    local crossSize = 8
-    for _, data in ipairs({
-        {UDim2.new(0.5, -1, 0.5, -crossSize), UDim2.new(0, 2, 0, crossSize - 2)}, -- top
-        {UDim2.new(0.5, -1, 0.5, 2), UDim2.new(0, 2, 0, crossSize - 2)}, -- bottom
-        {UDim2.new(0.5, -crossSize, 0.5, -1), UDim2.new(0, crossSize - 2, 0, 2)}, -- left
-        {UDim2.new(0.5, 2, 0.5, -1), UDim2.new(0, crossSize - 2, 0, 2)}, -- right
-    }) do
+    -- Crosshair lines
+    local crossSize = 12
+    local crossLines = {
+        {pos = UDim2.new(0.5, -1, 0.5, -crossSize - 4), size = UDim2.new(0, 1, 0, crossSize)},
+        {pos = UDim2.new(0.5, -1, 0.5, 4), size = UDim2.new(0, 1, 0, crossSize)},
+        {pos = UDim2.new(0.5, -crossSize - 4, 0.5, -1), size = UDim2.new(0, crossSize, 0, 1)},
+        {pos = UDim2.new(0.5, 4, 0.5, -1), size = UDim2.new(0, crossSize, 0, 1)},
+    }
+    
+    POVModule._crosshairParts = {}
+    
+    for _, lineData in ipairs(crossLines) do
         local line = Instance.new("Frame")
-        line.Position = data[1]
-        line.Size = data[2]
+        line.Position = lineData.pos
+        line.Size = lineData.size
         line.BackgroundColor3 = Config.POV.Color
         line.BackgroundTransparency = 1 - Config.POV.Opacity
         line.BorderSizePixel = 0
         line.Parent = circleFrame
+        table.insert(POVModule._crosshairParts, line)
     end
+    
+    -- Center dot
+    local centerDot = Instance.new("Frame")
+    centerDot.Size = UDim2.new(0, 3, 0, 3)
+    centerDot.AnchorPoint = Vector2.new(0.5, 0.5)
+    centerDot.Position = UDim2.new(0.5, 0, 0.5, 0)
+    centerDot.BackgroundColor3 = Config.POV.Color
+    centerDot.BackgroundTransparency = 1 - Config.POV.Opacity
+    centerDot.BorderSizePixel = 0
+    centerDot.Parent = circleFrame
+    Utilities.AddCorner(centerDot, UDim.new(0.5, 0))
+    table.insert(POVModule._crosshairParts, centerDot)
     
     POVModule._circle = circleFrame
     
-    -- Fade in
+    -- Animate in
     circleFrame.Size = UDim2.new(0, 0, 0, 0)
     Utilities.Tween(circleFrame, {
         Size = UDim2.new(0, Config.POV.Radius * 2, 0, Config.POV.Radius * 2)
-    }, 0.4, Enum.EasingStyle.Back)
+    }, 0.3, Enum.EasingStyle.Back)
 end
 
---- Update circle appearance
 function POVModule.UpdateCircle()
     if not POVModule._circle then return end
     
     local circle = POVModule._circle
     Utilities.Tween(circle, {
         Size = UDim2.new(0, Config.POV.Radius * 2, 0, Config.POV.Radius * 2)
-    }, 0.2)
+    }, 0.15)
     
     local stroke = circle:FindFirstChildOfClass("UIStroke")
     if stroke then
@@ -2256,88 +2127,93 @@ function POVModule.UpdateCircle()
         stroke.Transparency = 1 - Config.POV.Opacity
     end
     
-    -- Update crosshair lines
-    for _, child in ipairs(circle:GetChildren()) do
-        if child:IsA("Frame") then
-            child.BackgroundColor3 = Config.POV.Color
-            child.BackgroundTransparency = 1 - Config.POV.Opacity
+    for _, part in ipairs(POVModule._crosshairParts) do
+        if part and part.Parent then
+            part.BackgroundColor3 = Config.POV.Color
+            part.BackgroundTransparency = 1 - Config.POV.Opacity
         end
     end
 end
 
---- Destroy circle
 function POVModule.DestroyCircle()
     if POVModule._circle then
         POVModule._circle:Destroy()
         POVModule._circle = nil
     end
+    POVModule._crosshairParts = {}
 end
 
---- Start spectating a target
 function POVModule.StartSpectate()
     POVModule.StopSpectate()
     
     if not Config.POV.TargetPlayer then
-        NotificationSystem.Notify("POV", "No target selected!", "warning")
+        NotificationSystem.Notify("POV", "No target selected. Choose a player first.", "warning")
         return
     end
     
+    -- Set camera to follow target
     POVModule._spectateConnection = Utilities.Connect(RunService.RenderStepped, function()
         if not Config.POV.Spectating or not Config.POV.TargetPlayer then return end
         
-        local targetRoot = Utilities.GetRootPart(Config.POV.TargetPlayer)
-        if targetRoot then
-            Camera.CameraSubject = Config.POV.TargetPlayer.Character:FindFirstChildOfClass("Humanoid")
+        local targetChar = Config.POV.TargetPlayer.Character
+        if targetChar then
+            local targetHumanoid = targetChar:FindFirstChildOfClass("Humanoid")
+            if targetHumanoid then
+                Camera.CameraSubject = targetHumanoid
+            end
         end
     end)
     
     NotificationSystem.Notify("POV", "Spectating: " .. Config.POV.TargetPlayer.Name, "info")
 end
 
---- Stop spectating
 function POVModule.StopSpectate()
     if POVModule._spectateConnection then
         POVModule._spectateConnection:Disconnect()
         POVModule._spectateConnection = nil
     end
     
-    -- Reset camera to local player
+    -- Reset camera
     local humanoid = Utilities.GetHumanoid(LocalPlayer)
     if humanoid then
         Camera.CameraSubject = humanoid
     end
 end
 
--- ══════════════════════════════════════════════════════════════
+-- ========================================================
 -- [11] ON POINT MODULE
--- ══════════════════════════════════════════════════════════════
+-- ========================================================
 
 local OnPointModule = {}
 OnPointModule._connection = nil
 OnPointModule._indicators = {}
+OnPointModule._screenIndicator = nil
 
 function MainGUI.BuildOnPointPage()
     local page = MainGUI._contentPages["OnPoint"]
     if not page then return end
     
     local pageTitle = Instance.new("TextLabel")
-    pageTitle.Size = UDim2.new(1, 0, 0, 30)
+    pageTitle.Size = UDim2.new(1, 0, 0, 20)
     pageTitle.BackgroundTransparency = 1
-    pageTitle.Text = "🎯  On Point"
-    pageTitle.TextColor3 = Config.Theme.Text
-    pageTitle.TextSize = 18
-    pageTitle.Font = Config.UI.Font
+    pageTitle.RichText = true
+    pageTitle.Text = string.format(
+        '<font color="#%s">$</font> <font color="#%s">ON POINT MODULE</font>',
+        Config.Theme.Primary:ToHex(), Config.Theme.TextBright:ToHex()
+    )
+    pageTitle.TextSize = 13
+    pageTitle.Font = Config.UI.FontMono
     pageTitle.TextXAlignment = Enum.TextXAlignment.Left
     pageTitle.LayoutOrder = 0
     pageTitle.Parent = page
     
     local pageDesc = Instance.new("TextLabel")
-    pageDesc.Size = UDim2.new(1, 0, 0, 28)
+    pageDesc.Size = UDim2.new(1, 0, 0, 36)
     pageDesc.BackgroundTransparency = 1
-    pageDesc.Text = "Debug indicator when target Survivor is within POV circle area.\nHelps observe hitbox, collision, and damage areas."
-    pageDesc.TextColor3 = Config.Theme.TextDim
-    pageDesc.TextSize = 11
-    pageDesc.Font = Config.UI.FontRegular
+    pageDesc.Text = "// Debug indicator system for hitbox and collision.\n// Tracks ALL players inside POV circle area.\n// Shows position data and distance in realtime."
+    pageDesc.TextColor3 = Config.Theme.TextMuted
+    pageDesc.TextSize = 10
+    pageDesc.Font = Config.UI.FontMono
     pageDesc.TextXAlignment = Enum.TextXAlignment.Left
     pageDesc.TextWrapped = true
     pageDesc.LayoutOrder = 1
@@ -2347,72 +2223,142 @@ function MainGUI.BuildOnPointPage()
         Config.OnPoint.Enabled = state
         if state then
             OnPointModule.Start()
-            NotificationSystem.Notify("On Point", "Debug indicators enabled", "success")
+            NotificationSystem.Notify("ON POINT", "Debug tracking ACTIVE", "success")
         else
             OnPointModule.Stop()
-            NotificationSystem.Notify("On Point", "Debug indicators disabled", "info")
+            NotificationSystem.Notify("ON POINT", "Debug tracking OFFLINE", "info")
         end
     end, 2)
     
-    UIFramework.CreateSectionTitle(page, "SETTINGS", 3)
+    UIFramework.CreateSectionHeader(page, "DETECTION", 3)
     
-    UIFramework.CreateSlider(page, "Detection Radius", 20, 200, Config.OnPoint.Radius, function(val)
-        Config.OnPoint.Radius = val
+    UIFramework.CreateSlider(page, "Damage Radius (studs)", 10, 200, Config.OnPoint.DamageRadius, function(val)
+        Config.OnPoint.DamageRadius = val
     end, 4)
     
-    UIFramework.CreateToggle(page, "Smooth Update", Config.OnPoint.SmoothUpdate, function(state)
-        Config.OnPoint.SmoothUpdate = state
+    UIFramework.CreateToggle(page, "Track Nearest Auto", Config.OnPoint.TrackNearest, function(s)
+        Config.OnPoint.TrackNearest = s
     end, 5)
+    
+    UIFramework.CreateSectionHeader(page, "DISPLAY", 6)
+    
+    UIFramework.CreateToggle(page, "Smooth Pulse", Config.OnPoint.SmoothUpdate, function(s) Config.OnPoint.SmoothUpdate = s end, 7)
     
     UIFramework.CreateSlider(page, "Transparency (%)", 10, 90, math.floor(Config.OnPoint.Transparency * 100), function(val)
         Config.OnPoint.Transparency = val / 100
-    end, 6)
+    end, 8)
     
     UIFramework.CreateColorPicker(page, "Color", Config.OnPoint.Color, function(color)
         Config.OnPoint.Color = color
-    end, 7)
+    end, 9)
 end
 
---- Start On Point detection
 function OnPointModule.Start()
     OnPointModule.Stop()
+    
+    -- Create screen indicator label
+    local screenGui = MainGUI._screenGui
+    if screenGui then
+        local indicator = Instance.new("TextLabel")
+        indicator.Name = "OnPointScreenIndicator"
+        indicator.Size = UDim2.new(0, 300, 0, 40)
+        indicator.AnchorPoint = Vector2.new(0.5, 0)
+        indicator.Position = UDim2.new(0.5, 0, 0, 60)
+        indicator.BackgroundColor3 = Config.Theme.TerminalBG
+        indicator.BackgroundTransparency = 0.3
+        indicator.TextColor3 = Config.OnPoint.Color
+        indicator.TextSize = 10
+        indicator.Font = Config.UI.FontMono
+        indicator.Text = ""
+        indicator.TextWrapped = true
+        indicator.Visible = false
+        indicator.Parent = screenGui
+        Utilities.AddCorner(indicator, Config.UI.CornerRadiusSmall)
+        Utilities.AddStroke(indicator, Config.OnPoint.Color, 1, 0.5)
+        Utilities.AddPadding(indicator, 4, 8, 4, 8)
+        
+        OnPointModule._screenIndicator = indicator
+    end
     
     OnPointModule._connection = Utilities.Connect(RunService.RenderStepped, function()
         if not Config.OnPoint.Enabled then return end
         
         local screenCenter = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
-        local povRadius = Config.POV.Radius -- Use POV circle radius as reference
+        local povRadius = Config.POV.Enabled and Config.POV.Radius or 150
+        
+        local localRoot = Utilities.GetRootPart(LocalPlayer)
+        local anyOnPoint = false
+        local onPointInfo = {}
         
         for _, player in ipairs(Players:GetPlayers()) do
             if player ~= LocalPlayer then
-                local role = Utilities.GetRole(player)
+                local root = Utilities.GetRootPart(player)
+                local humanoid = Utilities.GetHumanoid(player)
                 
-                if role == "Survivor" then
-                    local root = Utilities.GetRootPart(player)
-                    if root then
-                        local screenPos, onScreen = Camera:WorldToScreenPoint(root.Position)
+                if root and humanoid and humanoid.Health > 0 then
+                    local screenPos, onScreen = Camera:WorldToScreenPoint(root.Position)
+                    local isInsidePOV = false
+                    
+                    if onScreen then
+                        local screenVec = Vector2.new(screenPos.X, screenPos.Y)
+                        local distFromCenter = (screenVec - screenCenter).Magnitude
+                        isInsidePOV = distFromCenter <= povRadius
+                    end
+                    
+                    -- Also check 3D distance for damage radius
+                    local dist3D = localRoot and Utilities.Distance(localRoot.Position, root.Position) or 9999
+                    local isInDamageRange = dist3D <= Config.OnPoint.DamageRadius
+                    
+                    if isInsidePOV or isInDamageRange then
+                        anyOnPoint = true
+                        local role = Utilities.GetRole(player)
                         
-                        if onScreen then
-                            local screenVec = Vector2.new(screenPos.X, screenPos.Y)
-                            local distFromCenter = (screenVec - screenCenter).Magnitude
-                            
-                            if distFromCenter <= povRadius then
-                                -- Target is inside POV circle - show indicator
-                                OnPointModule.ShowIndicator(player, root)
-                            else
-                                OnPointModule.HideIndicator(player)
-                            end
-                        else
-                            OnPointModule.HideIndicator(player)
-                        end
+                        table.insert(onPointInfo, {
+                            name = player.DisplayName,
+                            role = role,
+                            dist = dist3D,
+                            pos = root.Position,
+                            inPOV = isInsidePOV,
+                            inRange = isInDamageRange,
+                        })
+                        
+                        -- Show or update billboard indicator on target
+                        OnPointModule.ShowIndicator(player, root, dist3D)
                     else
                         OnPointModule.HideIndicator(player)
                     end
+                else
+                    OnPointModule.HideIndicator(player)
                 end
             end
         end
         
-        -- Cleanup disconnected players
+        -- Update screen indicator
+        if OnPointModule._screenIndicator then
+            if anyOnPoint and #onPointInfo > 0 then
+                OnPointModule._screenIndicator.Visible = true
+                local infoLines = {"[ON POINT] Targets Detected:"}
+                for _, info in ipairs(onPointInfo) do
+                    local flags = ""
+                    if info.inPOV then flags = flags .. "POV " end
+                    if info.inRange then flags = flags .. "DMG " end
+                    table.insert(infoLines, string.format(
+                        "  %s [%s] dist:%.0f %s",
+                        info.name, info.role, info.dist, flags
+                    ))
+                end
+                OnPointModule._screenIndicator.Text = table.concat(infoLines, "\n")
+                OnPointModule._screenIndicator.TextColor3 = Config.OnPoint.Color
+                OnPointModule._screenIndicator.Size = UDim2.new(0, 340, 0, 16 + #onPointInfo * 14)
+                
+                local sStroke = OnPointModule._screenIndicator:FindFirstChildOfClass("UIStroke")
+                if sStroke then sStroke.Color = Config.OnPoint.Color end
+            else
+                OnPointModule._screenIndicator.Visible = false
+            end
+        end
+        
+        -- Cleanup indicators for removed players
         for userId, indicator in pairs(OnPointModule._indicators) do
             local found = false
             for _, p in ipairs(Players:GetPlayers()) do
@@ -2426,20 +2372,18 @@ function OnPointModule.Start()
     end)
 end
 
---- Show debug indicator on a player
-function OnPointModule.ShowIndicator(player, root)
+function OnPointModule.ShowIndicator(player, root, distance)
     if not OnPointModule._indicators[player.UserId] then
-        -- Create indicator billboard
         local billboard = Instance.new("BillboardGui")
-        billboard.Name = "ADT_OnPoint_" .. player.UserId
-        billboard.Size = UDim2.new(0, 100, 0, 100)
+        billboard.Name = "HOSHI_OnPoint_" .. player.UserId
+        billboard.Size = UDim2.new(0, 80, 0, 80)
         billboard.StudsOffset = Vector3.new(0, 0, 0)
         billboard.AlwaysOnTop = true
         billboard.Parent = root
         billboard.Adornee = root
         billboard.MaxDistance = 300
         
-        -- Debug ring (hitbox visualization)
+        -- Ring indicator
         local ring = Instance.new("Frame")
         ring.Size = UDim2.new(1, 0, 1, 0)
         ring.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -2454,38 +2398,49 @@ function OnPointModule.ShowIndicator(player, root)
         ringStroke.Transparency = Config.OnPoint.Transparency
         ringStroke.Parent = ring
         
-        -- Center dot
-        local dot = Instance.new("Frame")
-        dot.Size = UDim2.new(0, 8, 0, 8)
-        dot.AnchorPoint = Vector2.new(0.5, 0.5)
-        dot.Position = UDim2.new(0.5, 0, 0.5, 0)
-        dot.BackgroundColor3 = Config.OnPoint.Color
-        dot.BackgroundTransparency = Config.OnPoint.Transparency
-        dot.Parent = billboard
-        Utilities.AddCorner(dot, UDim.new(0.5, 0))
+        -- Center marker (cross shape for terminal look)
+        local hLine = Instance.new("Frame")
+        hLine.Size = UDim2.new(0, 10, 0, 1)
+        hLine.AnchorPoint = Vector2.new(0.5, 0.5)
+        hLine.Position = UDim2.new(0.5, 0, 0.5, 0)
+        hLine.BackgroundColor3 = Config.OnPoint.Color
+        hLine.BackgroundTransparency = Config.OnPoint.Transparency
+        hLine.BorderSizePixel = 0
+        hLine.Parent = billboard
+        
+        local vLine = Instance.new("Frame")
+        vLine.Size = UDim2.new(0, 1, 0, 10)
+        vLine.AnchorPoint = Vector2.new(0.5, 0.5)
+        vLine.Position = UDim2.new(0.5, 0, 0.5, 0)
+        vLine.BackgroundColor3 = Config.OnPoint.Color
+        vLine.BackgroundTransparency = Config.OnPoint.Transparency
+        vLine.BorderSizePixel = 0
+        vLine.Parent = billboard
         
         -- Label
         local label = Instance.new("TextLabel")
-        label.Size = UDim2.new(1, 0, 0, 14)
-        label.Position = UDim2.new(0, 0, 1, 5)
+        label.Size = UDim2.new(0, 120, 0, 12)
+        label.AnchorPoint = Vector2.new(0.5, 0)
+        label.Position = UDim2.new(0.5, 0, 1, 4)
         label.BackgroundTransparency = 1
-        label.Text = "● ON POINT"
+        label.Text = "TRACKING"
         label.TextColor3 = Config.OnPoint.Color
-        label.TextSize = 10
-        label.Font = Enum.Font.GothamBold
+        label.TextSize = 9
+        label.Font = Enum.Font.Code
         label.TextStrokeTransparency = 0.3
         label.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
         label.Parent = billboard
         
-        -- Distance debug info
+        -- Distance / Position info
         local distInfo = Instance.new("TextLabel")
-        distInfo.Size = UDim2.new(1, 0, 0, 12)
-        distInfo.Position = UDim2.new(0, 0, 1, 20)
+        distInfo.Size = UDim2.new(0, 160, 0, 12)
+        distInfo.AnchorPoint = Vector2.new(0.5, 0)
+        distInfo.Position = UDim2.new(0.5, 0, 1, 16)
         distInfo.BackgroundTransparency = 1
         distInfo.Text = ""
         distInfo.TextColor3 = Config.Theme.TextDim
-        distInfo.TextSize = 9
-        distInfo.Font = Enum.Font.Gotham
+        distInfo.TextSize = 8
+        distInfo.Font = Enum.Font.Code
         distInfo.TextStrokeTransparency = 0.3
         distInfo.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
         distInfo.Parent = billboard
@@ -2494,54 +2449,56 @@ function OnPointModule.ShowIndicator(player, root)
             billboard = billboard,
             ring = ring,
             ringStroke = ringStroke,
-            dot = dot,
+            hLine = hLine,
+            vLine = vLine,
             label = label,
             distInfo = distInfo,
         }
         
         -- Animate in
         ring.Size = UDim2.new(0, 0, 0, 0)
-        Utilities.Tween(ring, {Size = UDim2.new(1, 0, 1, 0)}, 0.3, Enum.EasingStyle.Back)
+        Utilities.Tween(ring, {Size = UDim2.new(1, 0, 1, 0)}, 0.25, Enum.EasingStyle.Back)
     end
     
-    -- Update indicator
+    -- Update existing indicator
     local indicator = OnPointModule._indicators[player.UserId]
     if indicator then
         indicator.billboard.Adornee = root
         indicator.billboard.Enabled = true
         
-        -- Update color/transparency
+        -- Update colors
         indicator.ringStroke.Color = Config.OnPoint.Color
         indicator.ringStroke.Transparency = Config.OnPoint.Transparency
-        indicator.dot.BackgroundColor3 = Config.OnPoint.Color
-        indicator.dot.BackgroundTransparency = Config.OnPoint.Transparency
+        indicator.hLine.BackgroundColor3 = Config.OnPoint.Color
+        indicator.hLine.BackgroundTransparency = Config.OnPoint.Transparency
+        indicator.vLine.BackgroundColor3 = Config.OnPoint.Color
+        indicator.vLine.BackgroundTransparency = Config.OnPoint.Transparency
         indicator.label.TextColor3 = Config.OnPoint.Color
         
-        -- Distance info
-        local localRoot = Utilities.GetRootPart(LocalPlayer)
-        if localRoot then
-            local dist = Utilities.Distance(localRoot.Position, root.Position)
-            indicator.distInfo.Text = string.format("Dist: %.1f | Pos: %.0f, %.0f, %.0f",
-                dist, root.Position.X, root.Position.Y, root.Position.Z)
-        end
+        -- Update text
+        indicator.label.Text = string.format("[LOCK] %s", player.DisplayName)
+        indicator.distInfo.Text = string.format(
+            "D:%.1f | X:%.0f Y:%.0f Z:%.0f",
+            distance, root.Position.X, root.Position.Y, root.Position.Z
+        )
         
-        -- Pulse animation on ring
+        -- Pulse animation
         if Config.OnPoint.SmoothUpdate then
-            local pulseSize = 1 + math.sin(tick() * 3) * 0.05
-            indicator.ring.Size = UDim2.new(pulseSize, 0, pulseSize, 0)
+            local pulse = 1 + math.sin(tick() * 4) * 0.08
+            indicator.ring.Size = UDim2.new(pulse, 0, pulse, 0)
+        else
+            indicator.ring.Size = UDim2.new(1, 0, 1, 0)
         end
     end
 end
 
---- Hide indicator for a player
 function OnPointModule.HideIndicator(player)
     local indicator = OnPointModule._indicators[player.UserId]
-    if indicator and indicator.billboard.Enabled then
+    if indicator and indicator.billboard then
         indicator.billboard.Enabled = false
     end
 end
 
---- Stop On Point module
 function OnPointModule.Stop()
     if OnPointModule._connection then
         OnPointModule._connection:Disconnect()
@@ -2552,36 +2509,37 @@ function OnPointModule.Stop()
         if indicator.billboard then indicator.billboard:Destroy() end
     end
     OnPointModule._indicators = {}
+    
+    if OnPointModule._screenIndicator then
+        OnPointModule._screenIndicator:Destroy()
+        OnPointModule._screenIndicator = nil
+    end
 end
 
--- ══════════════════════════════════════════════════════════════
+-- ========================================================
 -- [12] CLEANUP
--- ══════════════════════════════════════════════════════════════
+-- ========================================================
 
 function Cleanup()
-    -- Stop all modules
     ESPModule.Stop()
     TeleportModule.Stop()
     POVModule.DestroyCircle()
     POVModule.StopSpectate()
     OnPointModule.Stop()
     
-    -- Reset speed
     Config.Speed.Value = 1
     local humanoid = Utilities.GetHumanoid(LocalPlayer)
     if humanoid then
         humanoid.WalkSpeed = Config.Speed.DefaultWalkSpeed
     end
     
-    -- Disconnect all tracked connections
     for _, connection in ipairs(Utilities._connections) do
-        if connection.Connected then
+        if connection and connection.Connected then
             connection:Disconnect()
         end
     end
     Utilities._connections = {}
     
-    -- Destroy all tracked instances
     for _, instance in ipairs(Utilities._instances) do
         if instance and instance.Parent then
             instance:Destroy()
@@ -2589,29 +2547,29 @@ function Cleanup()
     end
     Utilities._instances = {}
     
-    print("[ADT] Cleanup complete. All modules stopped and resources freed.")
+    _G.HOSHI_Running = false
+    
+    print("[HOSHI] Cleanup complete. All modules stopped.")
 end
 
--- ══════════════════════════════════════════════════════════════
+-- ========================================================
 -- [13] INIT
--- ══════════════════════════════════════════════════════════════
+-- ========================================================
 
--- Prevent duplicate execution
-if _G.ADT_Running then
-    -- Cleanup previous instance
-    if _G.ADT_Cleanup then
-        _G.ADT_Cleanup()
+if _G.HOSHI_Running then
+    if _G.HOSHI_Cleanup then
+        _G.HOSHI_Cleanup()
     end
 end
 
-_G.ADT_Running = true
-_G.ADT_Cleanup = Cleanup
+_G.HOSHI_Running = true
+_G.HOSHI_Cleanup = Cleanup
 
--- Initialize the GUI
 MainGUI.Init()
 
-print("═══════════════════════════════════════")
-print("  ⚡ ADT Dev Tools v" .. Config.Version .. " Loaded")
+print("========================================")
+print("  HOSHI v" .. Config.Version)
 print("  Admin Development Tools")
-print("  For Private Map Testing & Debugging")
-print("═══════════════════════════════════════")
+print("  Private Map Testing & Debugging")
+print("  Session started: " .. os.date("%Y-%m-%d %H:%M:%S"))
+print("========================================")
