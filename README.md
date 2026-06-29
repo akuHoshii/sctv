@@ -1,6 +1,4 @@
-Tentu, berikut adalah versi README yang telah disempurnakan untuk menjadi lebih profesional, terstruktur, dan menarik secara visual, tanpa mengurangi konten aslinya:
 
-```markdown
 <div align="center">
 
 # Hoshi Development Tools
@@ -17,7 +15,6 @@ Tentu, berikut adalah versi README yang telah disempurnakan untuk menjadi lebih 
 
 </div>
 
----
 
 ## 📑 Table of Contents
 
